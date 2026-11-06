@@ -39,18 +39,30 @@ export const SimilarEventsQuery = z.object({
 });
 export type SimilarEventsQuery = z.infer<typeof SimilarEventsQuery>;
 
-// Entrées des outils MCP (truckId inclus)
-export const TruckInput = z.object({ truckId: z.uuid() });
+// Entrées des outils MCP (truckId inclus) ; les descriptions sont lues par le modèle
+const truckId = z.uuid().describe("Identifiant du camion (fourni par l'alerte)");
+
+export const TruckInput = z.object({ truckId });
 export type TruckInput = z.infer<typeof TruckInput>;
 
 export const TruckWindowInput = z
-  .object({ truckId: z.uuid(), from: isoDatetime, to: isoDatetime })
+  .object({
+    truckId,
+    from: isoDatetime.describe('Début de la période, ISO 8601 avec fuseau'),
+    to: isoDatetime.describe(
+      `Fin de la période, ISO 8601 avec fuseau ; au plus ${MAX_WINDOW_HOURS} h après \`from\``,
+    ),
+  })
   .superRefine(checkWindow);
 export type TruckWindowInput = z.infer<typeof TruckWindowInput>;
 
 export const SimilarEventsInput = z.object({
-  truckId: z.uuid(),
-  lookbackDays: z.int().min(1).max(30),
+  truckId,
+  lookbackDays: z
+    .int()
+    .min(1)
+    .max(30)
+    .describe('Nombre de jours à remonter depuis le dernier relevé du camion (1 à 30)'),
 });
 export type SimilarEventsInput = z.infer<typeof SimilarEventsInput>;
 

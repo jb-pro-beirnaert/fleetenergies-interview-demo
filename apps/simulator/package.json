@@ -2,7 +2,13 @@
   "name": "@fleet/simulator",
   "version": "1.0.0",
   "scripts": {
-    "test": "vitest run --passWithNoTests"
+    "simulator": "node src/cli.ts",
+    "generate": "node src/cli.ts generate",
+    "load": "node src/cli.ts load",
+    "replay": "node src/cli.ts replay",
+    "reset": "node src/cli.ts reset",
+    "test": "vitest run",
+    "lint": "tsc -p tsconfig.json"
   },
   "type": "module",
   "dependencies": {

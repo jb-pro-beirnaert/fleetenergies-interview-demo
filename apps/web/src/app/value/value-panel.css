@@ -1,0 +1,124 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--surface);
+}
+h2 {
+  margin: 0;
+}
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.hero {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.without .hero {
+  color: var(--muted);
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.grid > div {
+  display: flex;
+  flex-direction: column;
+}
+.green .hero {
+  color: var(--green);
+}
+.orange .hero {
+  color: var(--orange);
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+dt {
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+dd.bad {
+  color: var(--red);
+}
+.histogram {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.histogram li {
+  --c: var(--accent);
+  display: grid;
+  grid-template-columns: 110px 1fr 24px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.histogram li[data-category='theft_suspected'] {
+  --c: var(--red);
+}
+.histogram li[data-category='inconclusive'],
+.histogram li[data-category='billing_discrepancy'] {
+  --c: var(--orange);
+}
+.histogram li[data-category='sensor_fault'],
+.histogram li[data-category='equipment_transfer'],
+.histogram li[data-category='legitimate_operation'] {
+  --c: var(--green);
+}
+.bar {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--c);
+  transition: width 0.4s;
+}
+.n {
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

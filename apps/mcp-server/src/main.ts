@@ -1,22 +1,30 @@
-import { createServer } from 'node:http';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { createApiClient } from './api-client.js';
+import { loadConfig } from './config.js';
+import { createHttpApp } from './http.js';
+import { log } from './log.js';
+import { createMcpServer } from './mcp-server.js';
 
-// Squelette : les 7 outils MCP arrivent au jalon M4 (spec 05)
-const port = Number(process.env.MCP_PORT ?? 3100);
+const config = loadConfig();
+const api = createApiClient({
+  baseUrl: config.API_URL,
+  token: config.AGENT_API_TOKEN,
+});
 
-const server = createServer((req, res) => {
-  if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok' }));
-    return;
+// `--stdio` : client local en développement (inspecteur MCP), sans authentification
+if (process.argv.includes('--stdio')) {
+  await createMcpServer(api).connect(new StdioServerTransport());
+  log({ msg: 'mcp-server on stdio', apiUrl: config.API_URL });
+} else {
+  const app = createHttpApp({
+    clientToken: config.MCP_CLIENT_TOKEN,
+    createMcpServer: () => createMcpServer(api),
+  });
+  const server = app.listen(config.MCP_PORT, () => {
+    log({ msg: 'mcp-server listening', port: config.MCP_PORT, apiUrl: config.API_URL });
+  });
+
+  for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+    process.on(signal, () => server.close(() => process.exit(0)));
   }
-  res.writeHead(501, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ error: 'not_implemented' }));
-});
-
-server.listen(port, () => {
-  console.log(JSON.stringify({ msg: 'mcp-server listening', port }));
-});
-
-for (const signal of ['SIGTERM', 'SIGINT'] as const) {
-  process.on(signal, () => server.close(() => process.exit(0)));
 }

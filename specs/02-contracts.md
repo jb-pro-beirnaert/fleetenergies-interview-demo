@@ -95,6 +95,12 @@ StepInput = {
   payload: unknown, durationMs?: number,
 }
 ```
+Forme de `payload` selon `kind` (lue par l'écran) ; la référence `E1`, `E2`… est dans `toolCallId`, identique sur `tool_call` et `tool_result` :
+- `reasoning` → `{ text }` ;
+- `tool_call` → `{ arguments }` ;
+- `tool_result` → `{ result }` ou `{ error }` si l'outil a échoué ;
+- `retry`, `error` → `{ message }` ;
+- `verdict` → le `Verdict`.
 
 ## V2 — extraction de facture
 ```ts

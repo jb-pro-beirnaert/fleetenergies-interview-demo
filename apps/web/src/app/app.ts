@@ -1,12 +1,20 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AppHeader } from './header/app-header';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.css',
-  templateUrl: './app.html',
+  imports: [RouterOutlet, AppHeader],
+  template: `
+    <app-header />
+    <router-outlet />
+  `,
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+  `,
 })
-export class App {
-  protected readonly title = signal('web');
-}
+export class App {}

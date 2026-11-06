@@ -9,7 +9,7 @@ Bibliothèques proposées (à valider avant installation) : Chart.js pour la cou
 ## Mise en page (écran large, ≥ 1 280 px)
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Fleet Copilot · Salle de contrôle   Heure simulée 14/10 02:47   modèle │
+│ Fleet Copilot · Salle de contrôle   Heure simulée 06/11 02:47   modèle │
 ├───────────────┬──────────────────────────────────────┬───────────────┤
 │ Flux          │ Enquête sélectionnée                 │ Valeur        │
 │ d'alertes     │ (en-tête, trace, verdict, revue)     │               │

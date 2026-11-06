@@ -1,0 +1,105 @@
+:host {
+  display: block;
+  background: var(--surface);
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 16px 16px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+h2 {
+  margin: 0 0 10px;
+}
+.filters {
+  display: flex;
+  gap: 6px;
+}
+.filters button {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-weight: 600;
+}
+.filters button.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.count {
+  font-variant-numeric: tabular-nums;
+  margin-left: 4px;
+  opacity: 0.8;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+}
+.item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-left: 4px solid transparent;
+  border-radius: 10px;
+  background: var(--surface);
+}
+.item:hover {
+  background: var(--surface-2);
+}
+.item.selected {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+.item.enter {
+  animation: enter 0.6s ease-out;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    background: var(--accent-soft);
+  }
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.plate {
+  font-size: 16px;
+  font-family: var(--mono);
+}
+.sub {
+  color: var(--muted);
+}
+.time,
+.liters {
+  font-variant-numeric: tabular-nums;
+}
+.liters {
+  color: var(--text);
+  font-weight: 600;
+}
+.verdict {
+  margin-top: 2px;
+  font-weight: 600;
+}
+.verdict[data-category='theft_suspected'] {
+  color: var(--red);
+}
+.empty {
+  padding: 16px;
+  color: var(--muted);
+}

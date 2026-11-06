@@ -1,0 +1,2852 @@
+[
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-06T05:09:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-06T05:15:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-06T05:19:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-06T05:37:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-06T06:29:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-06T06:32:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-06T07:06:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-06T07:18:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-06T07:44:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-06T07:48:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-06T08:34:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-06T09:54:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-06T12:10:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-06T13:11:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-06T13:11:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-06T13:35:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-06T13:51:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-06T14:29:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-06T14:34:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-06T15:27:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-06T16:39:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-07T05:11:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-07T05:17:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-07T05:28:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-07T06:10:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-07T07:16:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-07T09:40:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-07T09:52:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-07T10:14:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-07T12:15:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-07T13:07:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-07T13:51:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-07T14:08:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-07T14:45:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-07T15:15:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-07T15:22:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-07T16:15:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-07T16:37:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-08T05:31:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-08T07:48:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-08T08:43:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-08T08:47:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-08T09:02:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-08T09:03:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-08T10:16:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-08T10:29:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-08T12:50:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-08T13:32:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-08T13:46:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-08T14:14:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-08T15:16:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-08T15:36:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-08T15:49:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-08T15:56:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-08T16:11:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-09T05:15:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-09T05:29:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-09T07:07:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-09T07:23:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-09T07:35:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-09T10:18:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-09T11:25:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-09T11:37:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-09T11:37:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-09T12:15:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-09T12:41:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-09T13:06:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-09T13:53:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-09T14:34:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-09T15:50:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-09T16:01:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-09T16:50:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-10T05:08:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-10T05:17:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-10T05:32:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-10T06:01:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-10T06:49:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-10T09:41:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-10T09:52:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-10T11:04:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-10T12:04:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-10T12:44:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-10T12:56:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-10T13:31:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-10T13:35:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-10T13:44:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-10T14:11:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-10T14:21:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-10T14:29:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-10T14:51:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-10T16:34:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-10T17:00:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-12T05:23:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-12T05:24:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-12T07:06:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-12T07:28:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-12T07:33:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-12T09:43:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-12T09:47:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-12T10:42:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-12T11:09:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-12T14:18:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-12T14:19:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-12T14:28:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-12T14:58:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-12T15:25:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-12T15:38:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-12T16:33:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-12T16:37:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-12T16:49:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-13T05:26:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-13T05:38:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-13T06:12:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-13T06:22:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-13T07:49:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-13T08:09:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-13T08:09:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-13T09:20:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-13T10:16:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-13T10:45:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-13T11:06:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-13T11:34:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-13T12:09:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-13T13:17:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-13T13:25:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-13T13:50:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-13T15:22:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-13T16:35:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-13T16:38:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-13T16:44:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-14T05:12:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-14T06:13:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-14T06:34:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-14T06:54:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-14T08:16:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-14T08:33:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-14T08:34:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-14T09:05:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-14T09:19:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-14T10:15:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-14T10:16:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-14T10:43:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-14T11:19:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-14T11:32:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-14T13:17:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-14T14:04:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-14T14:06:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-14T14:36:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-14T14:39:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-14T15:00:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-14T16:16:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-15T06:55:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-15T07:46:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-15T08:30:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-15T09:51:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-15T12:02:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-15T12:04:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-15T12:20:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-15T12:37:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-15T13:31:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-15T13:57:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-15T14:08:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-15T14:41:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-15T14:47:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-15T16:03:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-15T16:06:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-15T16:23:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-15T16:46:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-16T05:22:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-16T05:49:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-16T05:56:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-16T06:43:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-16T07:26:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-16T08:08:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-16T08:36:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-16T08:41:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-16T09:17:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-16T09:44:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-16T10:14:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-16T10:27:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-16T10:30:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-16T11:36:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-16T13:31:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-16T15:03:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-16T15:22:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-16T15:30:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-17T05:20:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-17T05:50:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-17T06:17:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-17T06:56:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-17T08:30:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-17T09:15:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-17T09:57:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-17T11:43:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-17T12:02:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-17T12:34:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-17T12:35:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-17T14:41:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-17T15:24:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-17T15:37:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-17T15:38:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-17T15:45:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-17T16:11:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-19T06:36:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-19T08:31:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-19T09:32:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-19T09:46:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-19T10:12:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-19T11:01:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-19T11:35:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-19T12:08:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-19T12:12:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-19T12:21:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-19T13:13:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-19T13:28:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-19T14:35:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-19T14:42:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-19T15:04:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-19T15:40:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-19T16:01:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-20T05:54:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-20T06:50:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-20T08:26:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-20T09:16:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-20T10:12:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-20T10:25:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-20T10:27:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-20T11:43:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-20T11:51:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-20T12:41:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-20T12:54:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-20T13:02:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-20T13:10:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-20T13:27:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-20T15:10:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-20T15:23:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-20T16:41:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-21T05:28:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-21T06:06:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-21T06:47:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-21T07:27:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-21T08:07:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-21T08:48:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-21T10:43:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-21T12:00:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-21T12:54:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-21T14:41:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-21T15:06:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-21T15:16:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-21T15:22:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-21T15:40:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-21T16:06:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-21T16:23:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-22T05:57:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-22T06:11:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-22T06:50:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-22T07:10:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-22T07:25:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-22T07:55:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-22T08:07:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-22T10:10:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-22T10:43:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-22T12:41:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-22T13:57:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-22T14:20:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-22T14:23:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-22T14:34:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-22T14:59:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-23T05:48:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-23T06:06:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-23T06:17:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-23T07:17:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-23T07:48:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-23T08:11:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-23T08:59:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-23T09:26:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-23T10:20:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-23T10:54:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-23T11:46:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-23T11:48:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-23T11:59:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-23T12:09:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-23T13:04:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-23T15:11:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-23T15:29:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-23T15:36:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-23T15:36:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-24T05:16:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-24T05:38:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-24T07:50:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-24T08:09:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-24T09:18:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-24T09:41:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-24T10:16:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-24T11:11:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-24T11:14:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-24T11:27:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-24T12:26:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-24T14:44:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-24T14:45:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-24T15:05:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-24T15:44:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-24T16:42:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-24T16:56:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-24T16:57:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-26T06:56:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-26T07:56:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-26T08:24:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-26T08:25:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-26T09:39:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-26T10:21:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-26T11:42:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-26T12:10:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-26T13:17:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-26T13:19:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-26T13:23:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-26T13:29:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-26T15:18:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-26T17:06:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-27T07:21:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-27T07:27:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-27T07:57:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-27T09:12:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-27T09:13:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-27T09:38:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-27T11:12:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-27T11:14:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-27T12:16:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-27T12:45:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-27T15:43:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-27T15:52:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-27T16:04:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-27T16:11:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-27T16:18:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-27T16:29:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-27T16:50:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-27T17:38:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-28T06:48:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-28T07:47:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-28T09:50:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-28T10:14:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-28T11:27:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-28T11:40:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-28T11:59:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-28T13:27:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-28T13:41:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-28T14:46:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-28T15:00:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-28T15:30:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-28T15:39:00.000Z",
+    "body": "Arrivé sur site, déchargement en cours."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-28T16:17:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-28T16:35:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-28T16:50:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-29T06:01:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-29T06:20:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-29T06:28:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-29T08:06:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-29T08:12:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-29T08:52:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-29T08:54:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-29T08:56:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-29T09:34:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-29T09:45:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-29T10:21:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-29T11:07:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-29T11:24:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-29T12:52:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-29T13:23:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-29T13:55:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-29T14:59:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-29T17:26:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-29T17:27:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-30T07:16:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-30T07:37:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-30T08:31:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-30T08:51:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-30T09:15:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-30T09:22:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-30T09:26:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-30T10:10:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-30T10:31:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-30T11:33:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-30T11:37:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-30T12:03:00.000Z",
+    "body": "Arrêt rapide à la station, je repars."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-30T13:58:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-30T14:39:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-30T14:45:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-30T14:50:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-30T15:01:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-30T17:27:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-30T17:50:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-10-31T06:06:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-31T06:43:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-31T07:40:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-31T09:41:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-31T10:12:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-10-31T11:27:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-10-31T11:50:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-31T12:59:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-31T13:01:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-10-31T13:06:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-10-31T13:51:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-10-31T14:00:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-10-31T14:13:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-31T14:55:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-10-31T14:56:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-10-31T15:15:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-10-31T17:26:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-10-31T17:30:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-10-31T17:49:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-11-02T06:05:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-11-02T06:33:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-11-02T06:43:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-11-02T07:42:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-11-02T08:30:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-11-02T08:51:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-11-02T09:30:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-02T10:11:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-11-02T10:38:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-11-02T10:41:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-11-02T10:53:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-02T11:29:00.000Z",
+    "body": "Ralentissements à cause de travaux, je vous tiens au courant."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-11-02T12:13:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-11-02T12:27:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-11-02T13:44:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-02T15:51:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-02T16:20:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-11-02T17:56:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-03T06:51:00.000Z",
+    "body": "Client en retard pour le déchargement, je patiente."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-11-03T07:38:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-11-03T07:41:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-11-03T07:57:00.000Z",
+    "body": "Livraison terminée chez le client, je repars."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-11-03T09:34:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-11-03T09:36:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-03T09:58:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-11-03T10:49:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-11-03T11:09:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-11-03T11:20:00.000Z",
+    "body": "Bien arrivé chez le client, on attend le quai."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-11-03T12:10:00.000Z",
+    "body": "Le client demande de revenir avec deux palettes de plus la prochaine fois."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-11-03T12:11:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-11-03T13:09:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-11-03T13:30:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-03T14:01:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-03T14:49:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-04T06:26:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-11-04T07:12:00.000Z",
+    "body": "Pause réglementaire sur l’aire."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-11-04T07:15:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-11-04T08:34:00.000Z",
+    "body": "Bouchons sur l’A7, j’aurai du retard."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-11-04T09:20:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-04T10:07:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-11-04T11:34:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-11-04T12:16:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-11-04T12:25:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-11-04T13:14:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-04T15:06:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "64eb6e1d-23c3-5be7-905e-c930daa938d2",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-11-04T15:57:00.000Z",
+    "body": "Je suis en route, tout va bien."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-11-04T16:35:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-11-04T17:07:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "eca0e8e9-61e9-5408-b3d8-e6b59302a6f6",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-11-04T17:26:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-11-04T17:56:00.000Z",
+    "body": "De retour au dépôt, fin de tournée."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-04T17:59:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-11-05T06:18:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "a4e3a24f-741f-5fd7-b412-3695061a1a96",
+    "truckId": "eae03045-2281-5a1a-ba99-a11550b0993b",
+    "sentAt": "2026-11-05T06:20:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "7f8bb241-cdc8-50c7-968e-900a932c4164",
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "sentAt": "2026-11-05T08:37:00.000Z",
+    "body": "Circulation dense, j’arrive un peu plus tard que prévu."
+  },
+  {
+    "driverId": "29ee0179-9874-512c-86f5-0a7a512dbae7",
+    "truckId": "d902aeae-5ea9-5d86-84f3-a1200b27ca9a",
+    "sentAt": "2026-11-05T10:01:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-11-05T10:26:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "b0c43359-4804-539e-b0cd-04e82e44634a",
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "sentAt": "2026-11-05T11:00:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "57ab0f34-364f-5717-bc57-58a273c53354",
+    "truckId": "f5cd44cd-9e22-502e-9ae0-8ce24d0493e2",
+    "sentAt": "2026-11-05T13:19:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "3cddba71-1b3d-5415-9418-672bdfcdcf12",
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "sentAt": "2026-11-05T14:27:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "f45971d8-789b-5a3b-8a39-4ad32454f5b2",
+    "truckId": "491955f0-ded1-5edf-b71a-a12e4291e20c",
+    "sentAt": "2026-11-05T14:41:00.000Z",
+    "body": "Bouchons à Lyon, prévoir 20 minutes de retard."
+  },
+  {
+    "driverId": "e4fa78d0-4472-5250-93cb-0c864b5bc25e",
+    "truckId": "d830c65f-bd62-5608-be05-f1f59236abc8",
+    "sentAt": "2026-11-05T15:02:00.000Z",
+    "body": "Les papiers de la tournée sont dans la bannette."
+  },
+  {
+    "driverId": "a04844e2-0398-5d46-9075-126343ba7045",
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "sentAt": "2026-11-05T16:15:00.000Z",
+    "body": "Je fais ma pause, je repars dans 45 minutes."
+  },
+  {
+    "driverId": "d3ebd8bc-269f-5e8f-9e0e-32a081160ccf",
+    "truckId": "1e9d52f9-069e-5b0b-87e5-e0192f41e122",
+    "sentAt": "2026-11-05T16:20:00.000Z",
+    "body": "Je prends mon poste, camion OK."
+  },
+  {
+    "driverId": "33d3fdbb-2d63-520e-8519-9b25b426d89b",
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "sentAt": "2026-11-05T16:58:00.000Z",
+    "body": "Chargement terminé, je pars."
+  },
+  {
+    "driverId": "9c2b6484-8023-5a8b-986a-dd29d9b83a0d",
+    "truckId": "cbaf5926-a86e-5298-a1bb-9a9f91b66cf8",
+    "sentAt": "2026-11-05T17:55:00.000Z",
+    "body": "Chargement terminé, je pars."
+  }
+]

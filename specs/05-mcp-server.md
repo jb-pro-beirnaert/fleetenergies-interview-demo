@@ -6,8 +6,8 @@ Expose les **7 outils d'enquête** au standard MCP (Model Context Protocol). C'e
 Les mêmes outils servent plusieurs consommateurs : l'agent enquêteur (V1), l'assistant analyste et tout client compatible MCP (V3). Le serveur est aussi un point de contrôle unique : authentification, journalisation et lecture seule.
 
 ## Technique
-- SDK officiel `@modelcontextprotocol/sdk` (TypeScript).
-- Transport **Streamable HTTP** sur `MCP_PORT` (défaut 3100), point d'entrée `/mcp`, mode sans état (une requête = un appel).
+- SDK officiel `@modelcontextprotocol/sdk` (TypeScript), API haut niveau `McpServer` (`registerTool`).
+- Transport **Streamable HTTP** sur `MCP_PORT` (défaut 3100), point d'entrée `POST /mcp`, mode sans état (une requête = un serveur et un transport neufs, réponses JSON sans flux SSE). Serveur HTTP Express, créé par `createMcpExpressApp` du SDK. Sans session, `GET` et `DELETE /mcp` répondent 405. `GET /health` est ouvert, sans jeton.
 - Option `--stdio` pour brancher un client local en développement (inspecteur MCP).
 - Authentification entrante : en-tête `Authorization: Bearer MCP_CLIENT_TOKEN` (V1 : un seul jeton, celui des workers ; V3 : jetons par rôle).
 - Appels sortants vers l'API avec `AGENT_API_TOKEN`, timeout 10 s.
@@ -26,10 +26,11 @@ Schémas d'entrée et de sortie : `packages/contracts/src/tools.ts`. Pour chaque
 | `find_similar_events` | `GET /agent/trucks/:truckId/similar-events` | Chutes de niveau comparables du même camion sur les jours précédents, avec l'heure, le lieu et le verdict passé s'il existe. Un motif répété renforce un soupçon. |
 
 ## Comportement
-- Arguments invalides → résultat d'outil en erreur (`isError: true`) avec un message clair et court (« `to` doit être postérieur à `from` ; fenêtre maximale 72 h »), pour que le modèle puisse se corriger. Pas d'exception non gérée.
+- Chaque outil est déclaré avec son schéma d'entrée **et son schéma de sortie** (ceux de `packages/contracts`) et l'annotation `readOnlyHint: true`.
+- Arguments invalides → résultat d'outil en erreur (`isError: true`), pour que le modèle puisse se corriger. Pas d'exception non gérée. La validation est faite par le SDK avant l'appel de l'outil : le message est celui du SDK, qui reprend les messages des schémas Zod (par exemple `MCP error -32602: Input validation error: Invalid arguments for tool compute_fuel_balance: fenêtre maximale 72 h at to`). On ne le réécrit pas.
 - Erreur de l'API (4xx) → résultat en erreur avec le message de l'API ; (5xx ou timeout) → résultat en erreur « service indisponible, réessaie plus tard ».
-- Résultat → `content` texte (JSON compact) **et** `structuredContent` (objet), conformément au SDK.
-- Journal d'une ligne par appel : outil, durée, statut, taille du résultat. **Jamais** le contenu.
+- Résultat → `content` texte (JSON compact) **et** `structuredContent` (objet), conformément au SDK. Le SDK vérifie `structuredContent` contre le schéma de sortie : une réponse de l'API hors contrat devient un résultat en erreur plutôt qu'une donnée transmise au modèle.
+- Journal d'une ligne par appel **transmis à l'API** : outil, durée, statut, code HTTP de l'API, taille du résultat. **Jamais** le contenu. Les appels refusés par la validation du SDK ne sont pas journalisés. Le journal est écrit sur stderr, car stdout est réservé au protocole en mode `--stdio`.
 
 ## Critères d'acceptation
 1. L'inspecteur MCP officiel liste les 7 outils avec leurs descriptions et schémas d'entrée.

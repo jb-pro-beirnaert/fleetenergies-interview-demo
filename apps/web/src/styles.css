@@ -1,1 +1,78 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'leaflet/dist/leaflet.css';
+
+/* Style sobre, lisible en partage d'écran : fond clair, une couleur d'accent, rien sous 13 px */
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface-2: #f1f4f8;
+  --border: #e2e7ee;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-soft: #e8f0fe;
+  --green: #16a34a;
+  --orange: #ea580c;
+  --red: #dc2626;
+  --alert-band: rgba(220, 38, 38, 0.14);
+  --off-band: rgba(100, 116, 139, 0.14);
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+button,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.leaflet-container {
+  font: inherit;
+  font-size: 13px;
+}

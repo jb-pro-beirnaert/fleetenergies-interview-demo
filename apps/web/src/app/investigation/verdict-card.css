@@ -1,0 +1,109 @@
+.card {
+  --c: var(--accent);
+  background: var(--surface);
+  border: 2px solid var(--c);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 6px 20px -12px var(--c);
+}
+[data-category='theft_suspected'] {
+  --c: var(--red);
+}
+[data-category='billing_discrepancy'],
+[data-category='inconclusive'] {
+  --c: var(--orange);
+}
+[data-category='sensor_fault'],
+[data-category='equipment_transfer'],
+[data-category='legitimate_operation'] {
+  --c: var(--green);
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.k {
+  color: var(--muted);
+  font-size: 13px;
+}
+h2 {
+  margin: 2px 0 0;
+  font-size: 26px;
+  color: var(--c);
+}
+.confidence {
+  width: 200px;
+  text-align: right;
+}
+.value {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.fill {
+  height: 100%;
+  background: var(--c);
+  transition: width 0.4s;
+}
+.summary {
+  font-size: 16px;
+  line-height: 1.5;
+}
+h3 {
+  margin: 12px 0 6px;
+  font-size: 14px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.evidence {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.evidence button {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: none;
+}
+.evidence button:hover {
+  background: var(--accent-soft);
+}
+.ref {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+.decision {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  --d: var(--orange);
+  color: var(--d);
+  background: color-mix(in srgb, var(--d) 10%, transparent);
+}
+[data-decision='auto_closed'] {
+  --d: var(--green);
+}

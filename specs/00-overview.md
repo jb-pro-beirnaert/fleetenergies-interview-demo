@@ -47,7 +47,7 @@ Principe directeur : **le code détecte et calcule, l'IA enquête et explique, l
 - **Tâche** : travail à faire par un worker, dans la table `tasks`.
 - **Enquête** (`investigation`) : exécution de l'agent sur une alerte, avec ses étapes et son verdict.
 - **Étape** (`investigation_step`) : un message du modèle, un appel d'outil, son résultat, une relance ou une erreur.
-- **Journée de démo** : 14 octobre 2026, rejouée en accéléré. Les journées du 1er au 13 octobre sont l'historique chargé d'avance.
+- **Journée de démo** : le jour J où `simulator generate` est lancé (heure de Paris), rejouée en accéléré. Le mois qui précède (J − 1 mois à J − 1) est l'historique chargé d'avance.
 
 ## Index des specs
 - `01-data-model.md` — schéma PostgreSQL

@@ -10,9 +10,9 @@ Le simulateur ne touche jamais la base : il ne parle qu'à l'API.
 ## Commandes
 | Commande | Effet |
 |---|---|
-| `simulator generate [--seed 42]` | écrit les fichiers dans `data/generated/` |
+| `simulator generate [--seed 42] [--today AAAA-MM-JJ]` | simule la période [J − 1 mois ; J], J = date d'exécution (heure de Paris) ou `--today`, et écrit les fichiers dans `data/generated/` |
 | `simulator load` | envoie référentiel + historique à `POST /admin/history/load` (lots de 500) |
-| `simulator replay [--speed 120] [--from 02:00] [--to 23:30]` | rejoue la journée de démo |
+| `simulator replay [--speed 120] [--from 00:00] [--to 23:55]` | rejoue la journée de démo (dernier jour généré, lu dans `ground-truth.json`) |
 | `simulator reset` | appelle `POST /admin/reset` |
 
 Scripts racine : `npm run seed` = `generate` + `load` ; `npm run demo` = `reset` + `replay`.
@@ -36,15 +36,18 @@ Scripts racine : `npm run seed` = `generate` + `load` ; `npm run demo` = `reset`
 - Messages de conducteurs : 1 ou 2 messages banals par jour et par conducteur (« bien arrivé chez le client », « bouchons à Lyon ») tirés d'une liste de modèles, plus les messages des scénarios. En V2, le générateur (spec 10) les réécrit de façon plus naturelle.
 
 ## Périodes
-- **Historique** : du 1er au 13 octobre 2026 (`source = history`), chargé d'avance. Sert aux outils `find_similar_events`, `compute_fuel_balance` et à la consommation habituelle.
-- **Journée de démo** : le 14 octobre 2026 (`source = live`), rejouée en accéléré.
+Période glissante, calculée à l'exécution de `generate` : **J = date du jour à Paris** (ou `--today`), début = J − 1 mois (même jour du mois précédent, borné au dernier jour du mois).
+- **Historique** : de J − 1 mois à J − 1 (`source = history`), chargé d'avance. Sert aux outils `find_similar_events`, `compute_fuel_balance` et à la consommation habituelle.
+- **Journée de démo** : J (`source = live`), rejouée en accéléré. Toujours travaillée, même un dimanche.
+- **Heures** : toutes les heures de cette spec sont des heures de Paris ; les fichiers et l'API portent des instants ISO UTC (`…Z`). Les changements d'heure sont gérés (journées de 23 h ou 25 h, relevés toujours espacés de 5 min).
+- **Déterminisme** : même graine **et** même J → mêmes fichiers. Régénérer un autre jour décale toute la période : il faut alors repartir d'une base vide (l'historique déjà chargé n'est pas supprimé par `/admin/reset`).
 
 ## Scénarios de la journée de démo
 Chaque scénario est injecté dans la courbe d'un camion et consigné dans `ground-truth.json`.
 
 | Id | Camion | Heure | Situation | Indices disponibles | Catégorie attendue |
 |---|---|---|---|---|---|
-| `S1-theft` | T07 | 02:35 | Aire d'autoroute, nuit, moteur coupé, −180 L en 12 min | Aucun plein, aucun message ; **historique** : deux chutes nocturnes de −55 L (3/10) et −60 L (9/10) sur des aires | `theft_suspected` |
+| `S1-theft` | T07 | 02:35 | Aire d'autoroute, nuit, moteur coupé, −180 L en 12 min | Aucun plein, aucun message ; **historique** : deux chutes nocturnes de −55 L (J − 11) et −60 L (J − 5) sur des aires | `theft_suspected` |
 | `S2-sensor` | T03 | 07:10 | Chez un client, −90 L en un relevé puis remontée de +88 L dix minutes après | `sensor_notes` renseigné ; message du conducteur : la jauge affiche n'importe quoi | `sensor_fault` |
 | `S3-reefer` | T10 | 11:05 | Site client, frigorifique, −50 L en 10 min | `has_reefer` ; message : plein du réservoir du groupe froid fait depuis le réservoir principal | `equipment_transfer` |
 | `S4-workshop` | T05 | 14:20 | Atelier poids lourds, −120 L | Message avec un **nom et un téléphone** de mécanicien (sert à démontrer le masquage) : réservoir vidangé pour réparer une fuite | `legitimate_operation` |
@@ -69,16 +72,17 @@ Pour B1, B2, B3 et B4, le simulateur écrit dans `ground-truth.json` les valeurs
 | Fichier | Contenu |
 |---|---|
 | `reference.json` | transporteurs, lieux, camions, conducteurs, affectations |
-| `history-telemetry.ndjson` | relevés du 1er au 13/10 |
+| `history-telemetry.ndjson` | relevés de J − 1 mois à J − 1 |
 | `history-refuels.json`, `history-messages.json` | pleins et messages d'historique |
-| `live-telemetry.ndjson` | relevés du 14/10 |
-| `live-refuels.json`, `live-messages.json` | transactions carte et messages du 14/10 |
+| `live-telemetry.ndjson` | relevés du jour J |
+| `live-refuels.json`, `live-messages.json` | transactions carte et messages du jour J |
 | `invoices-plan.json` | (V2) factures à produire : plein visé, fournisseur, gabarit, litres facturés, injection éventuelle |
 | `live-invoices/*.pdf` | (V2) produits par le générateur |
-| `ground-truth.json` | scénarios et valeurs attendues (sert aussi aux evals en V3) |
+| `ground-truth.json` | période, journée de démo, scénarios et valeurs attendues (sert aussi aux evals en V3) |
 
 ## Rejeu (`replay`)
-- Horloge simulée : de `--from` à `--to` le 14/10, par pas de 5 minutes simulées. À `--speed 120`, un pas dure 2,5 s réelles (≈ 11 min pour 02:00 → 23:30).
+- Horloge simulée : de `--from` à `--to` (heure de Paris) le jour J, par pas de 5 minutes simulées. À `--speed 120`, un pas dure 2,5 s réelles (≈ 11 min pour 02:00 → 23:30).
+- Le pas d'horloge T envoie ce qui s'est produit dans ]T − 5 min, T]. Le premier pas envoie aussi tout ce qui précède `--from` (rattrapage) : la courbe du jour reste complète et un rejeu interrompu reprend sans perte (ingestion idempotente).
 - À chaque pas, envoi de tout ce qui tombe dans le pas, dans l'ordre :
   1. les relevés (`POST /api/telemetry`, `source = live`, un lot pour tous les camions) ;
   2. les transactions carte (`POST /api/fuel-card-transactions`) ;
@@ -88,9 +92,9 @@ Pour B1, B2, B3 et B4, le simulateur écrit dans `ground-truth.json` les valeurs
 - Arrêt propre sur Ctrl-C ; reprise possible avec `--from`.
 
 ## Critères d'acceptation
-1. Deux `generate` avec la même graine produisent des fichiers identiques (test par empreinte).
+1. Deux `generate` avec la même graine et la même date J produisent des fichiers identiques (test par empreinte).
 2. Sur l'historique : aucun niveau hors `[0, capacité]` ; la consommation calculée sur chaque journée est à ± 10 % de la consommation attendue ; les pleins ont lieu en station.
-3. Chaque scénario de la table est présent au bon camion, à l'heure prévue (± 10 min), avec l'amplitude prévue (± 5 L).
+3. Chaque scénario de la table est présent au bon camion, à l'heure prévue (± 10 min), avec l'amplitude prévue (± 5 L). L'heure prévue doit tomber dans la fenêtre de l'alerte (± 10 min) : le début de fenêtre est l'instant du niveau maximal des 20 min précédentes, il peut donc précéder la chute.
 4. Hors scénarios, la journée de démo ne déclenche **pas** la règle du détecteur (test qui applique la règle aux fichiers générés).
 5. `load` puis `load` à nouveau n'ajoute rien.
 6. `replay` complet sur une base fraîche crée exactement les alertes des scénarios S1 à S8 (V2 : plus B1).

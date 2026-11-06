@@ -1,0 +1,42 @@
+[
+  {
+    "truckId": "79175daa-aea0-53a3-93a4-ec7c044001b4",
+    "occurredAt": "2026-11-06T08:07:00.000Z",
+    "placeId": "9daedfbb-8d23-5ca4-9941-634baaac70e6",
+    "liters": 370.4,
+    "unitPriceEur": 1.71,
+    "totalEur": 633.38
+  },
+  {
+    "truckId": "90c86353-3134-5219-9f74-95004fa2d3f5",
+    "occurredAt": "2026-11-06T09:06:00.000Z",
+    "placeId": "4d199fcf-62a9-56ea-9b92-2781b93d3448",
+    "liters": 169.2,
+    "unitPriceEur": 1.747,
+    "totalEur": 295.59
+  },
+  {
+    "truckId": "96089f2e-dfca-5cfd-88c7-242d43170fe6",
+    "occurredAt": "2026-11-06T10:34:00.000Z",
+    "placeId": "fdd070a2-6998-52a1-a15d-cf99c4a358a5",
+    "liters": 526.4,
+    "unitPriceEur": 1.717,
+    "totalEur": 903.83
+  },
+  {
+    "truckId": "279ac562-4d10-5175-b367-1266327cd33c",
+    "occurredAt": "2026-11-06T11:04:00.000Z",
+    "placeId": "9daedfbb-8d23-5ca4-9941-634baaac70e6",
+    "liters": 446.5,
+    "unitPriceEur": 1.645,
+    "totalEur": 734.49
+  },
+  {
+    "truckId": "3f5bc31b-aad5-5c49-8dbc-81d1035bddda",
+    "occurredAt": "2026-11-06T12:01:00.000Z",
+    "placeId": "54750bd3-fe29-544a-9653-cc2e502d7e7f",
+    "liters": 304,
+    "unitPriceEur": 1.764,
+    "totalEur": 536.26
+  }
+]

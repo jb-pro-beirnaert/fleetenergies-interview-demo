@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Les specs dans `specs/` font foi (en français) et portent la mémoire du projet. Commencer par `specs/00-overview.md` (services, flux, décisions structurantes, glossaire), puis la spec du service concerné. Le plan par jalons (M0–M10) est dans `specs/09-implementation-plan.md` : travailler jalon par jalon, ne pas ajouter de dépendances ni de fonctionnalités hors jalon (les noter comme « idées »). Si l'implémentation s'écarte d'une spec, proposer la mise à jour de la spec.
 
-État actuel : API V1 (M2 + M3) implémentée dans `apps/nestjs` avec ses contrats dans `packages/contracts` ; `apps/simulator` n'a qu'un `package.json`, `mcp-server` et `investigator` sont des stubs, `web` est un squelette.
+État actuel : API V1 (M2 + M3) implémentée dans `apps/nestjs` avec ses contrats dans `packages/contracts` ; simulateur V1 (`generate`, `load`, `replay`, `reset`) dans `apps/simulator`, données générées versionnées dans `data/generated/` ; serveur MCP V1 (M4, 7 outils, Express + Streamable HTTP sans état) dans `apps/mcp-server` ; `investigator` est un stub, `web` est un squelette.
 
 ## Commandes
 
@@ -40,7 +40,15 @@ Ollama tourne **sur l'hôte**, hors Docker (GPU Metal) ; les conteneurs y accèd
 ollama pull qwen2.5:7b-instruct && ollama create fleet-qwen -f infra/ollama/Modelfile
 ```
 
-Scripts prévus par les specs mais pas encore créés : `npm run seed` (simulator generate + load), `npm run demo` (reset + replay), `npm run smoke:tools -w apps/agents`.
+Simulateur (depuis l'hôte, API sur `http://localhost:3000` ; il ne lit pas `.env`, dont `API_URL` vise le réseau Docker) :
+```bash
+npm run seed                         # generate (graine SIM_SEED, défaut 42 ; période [aujourd'hui − 1 mois ; aujourd'hui], heure de Paris) + load
+npm run demo                         # reset + replay --speed 120 --from 02:00
+npm run sim -- replay --speed 3000   # toute commande : generate | load | replay | reset
+```
+`apps/simulator` est exécuté directement par Node 24 (type stripping, imports relatifs en `.ts`, pas de build). Le test `generate.spec.ts` applique la règle du détecteur de l'API (`apps/nestjs/src/detector/fuel-drop.rule.ts`) aux fichiers générés : toute modification de la règle ou de la physique doit le garder vert.
+
+Script prévu par les specs mais pas encore créé : `npm run smoke:tools -w apps/agents`.
 
 ## Architecture
 

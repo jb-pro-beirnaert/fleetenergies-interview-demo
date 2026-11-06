@@ -1,0 +1,104 @@
+.step {
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  scroll-margin: 16px;
+}
+.step.flash {
+  animation: flash 1.6s ease-out;
+}
+@keyframes flash {
+  0%,
+  40% {
+    box-shadow: 0 0 0 3px var(--accent);
+  }
+}
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ref {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1px 7px;
+}
+.phrase {
+  font-weight: 600;
+}
+.period,
+.duration {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.duration {
+  margin-left: auto;
+}
+.dots {
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.render {
+  margin-top: 10px;
+}
+pre {
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+  font-size: 13px;
+  background: var(--surface-2);
+  padding: 8px;
+  border-radius: 8px;
+}
+.tool-error {
+  margin-top: 8px;
+  color: var(--red);
+}
+.reasoning {
+  background: transparent;
+  border-style: dashed;
+  color: var(--muted);
+}
+.toggle {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+.reasoning p {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+}
+.retry {
+  color: var(--orange);
+  border-color: color-mix(in srgb, var(--orange) 40%, transparent);
+  background: color-mix(in srgb, var(--orange) 8%, var(--surface));
+}
+.error {
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 40%, transparent);
+  background: color-mix(in srgb, var(--red) 8%, var(--surface));
+}
+.verdict-line {
+  color: var(--green);
+  font-weight: 600;
+}
+.lazy {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}

@@ -29,6 +29,8 @@ COPY packages/contracts/package.json packages/contracts/
 COPY apps/mcp-server/package.json apps/mcp-server/
 RUN npm ci --omit=dev -w apps/mcp-server && npm cache clean --force
 
+# @fleet/contracts est consommé en TypeScript (type stripping natif de Node 24)
+COPY packages/contracts/src packages/contracts/src
 COPY --from=build /app/apps/mcp-server/dist apps/mcp-server/dist
 
 WORKDIR /app/apps/mcp-server
