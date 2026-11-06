@@ -1,9 +1,10 @@
+import { DOCUMENT } from '@angular/common';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import type { AlertDetail, AlertListItem, ReviewDecision, Stats } from '@fleet/contracts';
 import { Subject, filter, firstValueFrom, map, merge, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
-import { poll } from './polling';
+import { POLL_INTERVAL_MS, poll } from './polling';
 
 export type FeedFilter = 'all' | 'todo' | 'closed';
 
@@ -11,6 +12,7 @@ export type FeedFilter = 'all' | 'todo' | 'closed';
 @Injectable({ providedIn: 'root' })
 export class ControlRoomStore {
   private readonly api = inject(ApiService);
+  private readonly document = inject(DOCUMENT);
 
   // --- Health, statistics, alerts ---------------------------------------------------------
 
@@ -81,7 +83,8 @@ export class ControlRoomStore {
         if (!this.manualSelection()) this.autoSelection.set(id);
         if (!id) return of(null);
         return merge(
-          poll(() => this.api.alert(id)),
+          // created inside switchMap, outside the injection context: the document is passed in
+          poll(() => this.api.alert(id), POLL_INTERVAL_MS, this.document),
           // immediate refresh after a review
           this.refreshDetail$.pipe(
             filter((refreshId) => refreshId === id),

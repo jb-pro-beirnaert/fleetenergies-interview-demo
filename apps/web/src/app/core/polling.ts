@@ -22,13 +22,14 @@ export type PollResult<T> = { ok: true; value: T } | { ok: false; error: unknown
  * Calls `request` every `intervalMs` (immediately at first), suspended while the tab is
  * hidden and restarted as soon as it is visible again. An error does not stop the
  * polling: it is emitted as `{ ok: false }`.
- * Must be called in an injection context.
+ * Must be called in an injection context, unless `document` is passed explicitly (e.g. when
+ * the poll is created later, inside an RxJS operator).
  */
 export function poll<T>(
   request: () => Observable<T>,
   intervalMs = POLL_INTERVAL_MS,
+  document: Document = inject(DOCUMENT),
 ): Observable<PollResult<T>> {
-  const document = inject(DOCUMENT);
   return fromEvent(document, 'visibilitychange').pipe(
     map(() => document.visibilityState === 'visible'),
     startWith(document.visibilityState === 'visible'),
