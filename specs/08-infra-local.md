@@ -3,7 +3,7 @@
 Objectif : `docker compose up -d` démarre tout sauf Ollama, et l'environnement local ressemble déjà à la production (un conteneur par service, configuration par l'environnement). Le passage à Kubernetes en V5 ne doit demander aucune réécriture.
 
 ## Prérequis
-Node.js 22 LTS, Docker Desktop, Ollama installé nativement sur le Mac (M1, 16 Go).
+Node.js 24 LTS, Docker Desktop, Ollama installé nativement sur le Mac (M1, 16 Go).
 
 ## Modèle
 Ollama tourne **hors de Docker** : sur macOS, Docker n'a pas accès au GPU Apple (Metal), le modèle y serait 5 à 10 fois plus lent.
@@ -36,7 +36,7 @@ Depuis les conteneurs, Ollama est joignable à `http://host.docker.internal:1143
 Le simulateur et le générateur ne sont pas des services permanents : on les lance depuis l'hôte (`npm run …`) avec `API_URL=http://localhost:3000`.
 
 ## Images
-- Dockerfile multi-étapes par application (`node:22-alpine`), construit depuis la racine du monorepo pour inclure `packages/contracts`.
+- Dockerfile multi-étapes par application (`node:24-alpine`), construit depuis la racine du monorepo pour inclure `packages/contracts`.
 - Une seule image `agents`, deux commandes.
 - Utilisateur non root, `NODE_ENV=production`, uniquement les dépendances de production dans l'image finale.
 

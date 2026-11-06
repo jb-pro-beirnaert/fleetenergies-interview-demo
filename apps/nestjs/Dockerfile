@@ -1,5 +1,5 @@
 # Contexte de build : racine du monorepo (pour accéder au lockfile et aux packages partagés)
-FROM node:22-alpine AS dev
+FROM node:24-alpine AS dev
 WORKDIR /app
 
 # Manifestes uniquement, pour profiter du cache Docker sur `npm ci`
@@ -18,7 +18,7 @@ FROM dev AS build
 RUN npm run build
 
 # Image finale : dépendances de production + dist/ uniquement
-FROM node:22-alpine AS prod
+FROM node:24-alpine AS prod
 WORKDIR /app
 ENV NODE_ENV=production
 
