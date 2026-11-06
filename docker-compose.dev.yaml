@@ -17,18 +17,20 @@ services:
 
   nestjs:
     build:
-      context: ./feid-nestjs
+      context: .
+      dockerfile: apps/nestjs/Dockerfile
       target: dev
     env_file: .env
     environment:
       PORT: 3000
     ports:
-      - "${API_PORT}:3000"
+      - "${NESTJS_PORT}:3000"
     volumes:
       # Code source monté : `nest start --watch` recompile à chaque modification
-      - ./feid-nestjs:/app
+      - ./apps/nestjs:/app/apps/nestjs
       # node_modules de l'image (binaires Linux), pas ceux de l'hôte macOS
       - /app/node_modules
+      - /app/apps/nestjs/node_modules
     depends_on:
       postgres:
         condition: service_healthy

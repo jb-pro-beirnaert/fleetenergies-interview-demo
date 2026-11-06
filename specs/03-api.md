@@ -1,4 +1,4 @@
-# 03 — API NestJS (`apps/api`)
+# 03 — API NestJS (`apps/nestjs`)
 
 Centre de contrôle. **Seul service connecté à PostgreSQL.** NestJS 10+, TypeScript strict, validation des entrées par les schémas de `packages/contracts` (pipe Zod), documentation OpenAPI générée (`/docs`).
 

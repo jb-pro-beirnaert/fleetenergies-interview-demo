@@ -20,14 +20,15 @@ services:
 
   nestjs:
     build:
-      context: ./feid-nestjs
+      context: .
+      dockerfile: apps/nestjs/Dockerfile
       target: prod
     restart: unless-stopped
     env_file: .env
     environment:
       PORT: 3000
     ports:
-      - "${API_PORT}:3000"
+      - "${NESTJS_PORT}:3000"
     depends_on:
       postgres:
         condition: service_healthy

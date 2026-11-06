@@ -27,11 +27,11 @@ Depuis les conteneurs, Ollama est joignable à `http://host.docker.internal:1143
 | Service | Image / build | Port hôte | Dépend de | Notes |
 |---|---|---|---|---|
 | `postgres` | `postgres:18` | 5432 | — | volume `pgdata`, healthcheck `pg_isready` |
-| `api` | `apps/api` | 3000 | postgres (healthy) | applique les migrations au démarrage ; volume `invoices` (V2) ; healthcheck `/api/health` |
-| `mcp-server` | `apps/mcp-server` | 3100 | api | |
-| `investigator` | `apps/agents` (commande `node dist/investigator.js`) | — | api, mcp-server | `deploy.replicas: 1` (passer à 2 ou 3 pour la démo de parallélisme) |
-| `extractor` | `apps/agents` (commande `node dist/extractor.js`) | — | api | V2 |
-| `web` | `apps/web` (build Angular servi par nginx) | 4200 | api | en développement, `ng serve` hors Docker avec proxy vers l'API |
+| `nestjs` | `apps/nestjs` | 3000 | postgres (healthy) | applique les migrations au démarrage ; volume `invoices` (V2) ; healthcheck `/api/health` |
+| `mcp-server` | `apps/mcp-server` | 3100 | nestjs | |
+| `investigator` | `apps/agents` (commande `node dist/investigator.js`) | — | nestjs, mcp-server | `deploy.replicas: 1` (passer à 2 ou 3 pour la démo de parallélisme) |
+| `extractor` | `apps/agents` (commande `node dist/extractor.js`) | — | nestjs | V2 |
+| `web` | `apps/web` (build Angular servi par nginx) | 4200 | nestjs | en développement, `ng serve` hors Docker avec proxy vers l'API |
 
 Le simulateur et le générateur ne sont pas des services permanents : on les lance depuis l'hôte (`npm run …`) avec `API_URL=http://localhost:3000`.
 

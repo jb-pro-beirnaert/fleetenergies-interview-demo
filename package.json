@@ -1,9 +1,14 @@
 {
   "name": "fleetenergies-interview-demo",
+  "version": "0.0.1",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "docker compose -f docker-compose.dev.yaml up --build",
-    "dev:up":"docker compose -f docker-compose.dev.yaml up -d --build",
+    "dev:up": "docker compose -f docker-compose.dev.yaml up -d --build",
     "dev:down": "docker compose -f docker-compose.dev.yaml down",
     "dev:logs": "docker compose -f docker-compose.dev.yaml logs -f nestjs",
     "dev:rebuild": "docker compose -f docker-compose.dev.yaml up -d --build -V",
@@ -11,9 +16,10 @@
     "prod:up": "docker compose -f docker-compose.yaml up -d --build",
     "prod:down": "docker compose -f docker-compose.yaml down",
     "prod:logs": "docker compose -f docker-compose.yaml logs -f nestjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
   },
-  "version": "1.0.0",
   "description": "",
   "repository": {
     "type": "git",
