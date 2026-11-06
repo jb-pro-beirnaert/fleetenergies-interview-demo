@@ -1,0 +1,343 @@
+// Schéma PostgreSQL de Fleet Copilot (spec 01). Tables et colonnes en snake_case,
+// modèles Prisma en camelCase via @map / @@map.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Énumérations ----------
+
+enum PlaceType {
+  fuel_station
+  depot
+  workshop
+  rest_area
+  customer
+  other
+
+  @@map("place_type")
+}
+
+enum Energy {
+  diesel
+  b100
+  hvo
+
+  @@map("energy")
+}
+
+enum ReadingSource {
+  history
+  live
+
+  @@map("reading_source")
+}
+
+enum RefuelSource {
+  fuel_card
+  invoice
+
+  @@map("refuel_source")
+}
+
+enum AlertType {
+  fuel_drop
+
+  @@map("alert_type")
+}
+
+enum AlertStatus {
+  detected
+  investigating
+  closed
+  escalated
+  confirmed
+  dismissed
+
+  @@map("alert_status")
+}
+
+enum AlertDecision {
+  auto_closed
+  escalated
+
+  @@map("alert_decision")
+}
+
+enum InvestigationStatus {
+  running
+  completed
+  failed
+
+  @@map("investigation_status")
+}
+
+enum VerdictCategory {
+  theft_suspected
+  sensor_fault
+  equipment_transfer
+  legitimate_operation
+  billing_discrepancy
+  inconclusive
+
+  @@map("verdict_category")
+}
+
+enum StepKind {
+  reasoning
+  tool_call
+  tool_result
+  retry
+  error
+  verdict
+
+  @@map("step_kind")
+}
+
+enum ReviewDecision {
+  confirm
+  dismiss
+
+  @@map("review_decision")
+}
+
+enum TaskType {
+  investigate_alert
+
+  @@map("task_type")
+}
+
+enum TaskStatus {
+  pending
+  in_progress
+  done
+  failed
+
+  @@map("task_status")
+}
+
+// ---------- Référentiel ----------
+
+model Carrier {
+  id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
+  trucks  Truck[]
+  drivers Driver[]
+
+  @@map("carriers")
+}
+
+model Place {
+  id      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
+  type    PlaceType
+  brand   String?
+  lat     Float
+  lon     Float
+  radiusM Int       @default(150) @map("radius_m")
+  depotOf Truck[]
+  refuels Refuel[]
+
+  @@map("places")
+}
+
+model Truck {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carrierId         String  @map("carrier_id") @db.Uuid
+  plate             String  @unique
+  make              String
+  model             String
+  energy            Energy
+  tankCapacityL     Int     @map("tank_capacity_l")
+  hasReefer         Boolean @map("has_reefer")
+  baselineLPer100km Decimal @map("baseline_l_per_100km") @db.Decimal(4, 1)
+  idleLPerHour      Decimal @map("idle_l_per_hour") @db.Decimal(3, 1)
+  homeDepotId       String  @map("home_depot_id") @db.Uuid
+  sensorNotes       String? @map("sensor_notes")
+
+  carrier     Carrier            @relation(fields: [carrierId], references: [id])
+  homeDepot   Place              @relation(fields: [homeDepotId], references: [id])
+  assignments DriverAssignment[]
+  readings    TelemetryReading[]
+  refuels     Refuel[]
+  messages    DriverMessage[]
+  alerts      Alert[]
+
+  @@map("trucks")
+}
+
+model Driver {
+  id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carrierId   String             @map("carrier_id") @db.Uuid
+  /// Donnée personnelle : ne jamais exposer sur /agent/*
+  fullName    String             @map("full_name")
+  /// Donnée personnelle : ne jamais exposer sur /agent/*
+  phone       String
+  pseudonym   String             @unique
+  carrier     Carrier            @relation(fields: [carrierId], references: [id])
+  assignments DriverAssignment[]
+  messages    DriverMessage[]
+
+  @@map("drivers")
+}
+
+model DriverAssignment {
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  truckId  String   @map("truck_id") @db.Uuid
+  driverId String   @map("driver_id") @db.Uuid
+  startsAt DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt   DateTime @map("ends_at") @db.Timestamptz(3)
+  truck    Truck    @relation(fields: [truckId], references: [id])
+  driver   Driver   @relation(fields: [driverId], references: [id])
+
+  @@map("driver_assignments")
+}
+
+// ---------- Données d'activité ----------
+
+model TelemetryReading {
+  id         BigInt        @id @default(autoincrement())
+  truckId    String        @map("truck_id") @db.Uuid
+  recordedAt DateTime      @map("recorded_at") @db.Timestamptz(3)
+  lat        Float
+  lon        Float
+  speedKmh   Decimal       @map("speed_kmh") @db.Decimal(5, 1)
+  ignition   Boolean
+  fuelLevelL Decimal       @map("fuel_level_l") @db.Decimal(6, 1)
+  odometerKm Decimal       @map("odometer_km") @db.Decimal(9, 1)
+  source     ReadingSource
+  truck      Truck         @relation(fields: [truckId], references: [id])
+
+  @@unique([truckId, recordedAt])
+  @@index([truckId, recordedAt(sort: Desc)])
+  @@map("telemetry_readings")
+}
+
+model Refuel {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  truckId      String        @map("truck_id") @db.Uuid
+  occurredAt   DateTime      @map("occurred_at") @db.Timestamptz(3)
+  placeId      String?       @map("place_id") @db.Uuid
+  liters       Decimal       @db.Decimal(6, 1)
+  unitPriceEur Decimal?      @map("unit_price_eur") @db.Decimal(5, 3)
+  totalEur     Decimal?      @map("total_eur") @db.Decimal(8, 2)
+  source       RefuelSource
+  dataOrigin   ReadingSource @map("data_origin")
+  truck        Truck         @relation(fields: [truckId], references: [id])
+  place        Place?        @relation(fields: [placeId], references: [id])
+
+  @@unique([truckId, occurredAt])
+  @@map("refuels")
+}
+
+model DriverMessage {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  driverId   String        @map("driver_id") @db.Uuid
+  truckId    String        @map("truck_id") @db.Uuid
+  sentAt     DateTime      @map("sent_at") @db.Timestamptz(3)
+  body       String
+  dataOrigin ReadingSource @map("data_origin")
+  driver     Driver        @relation(fields: [driverId], references: [id])
+  truck      Truck         @relation(fields: [truckId], references: [id])
+
+  @@unique([driverId, sentAt])
+  @@index([truckId, sentAt])
+  @@map("driver_messages")
+}
+
+// ---------- Alertes et enquêtes ----------
+
+model Alert {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  truckId       String         @map("truck_id") @db.Uuid
+  type          AlertType
+  status        AlertStatus    @default(detected)
+  windowStart   DateTime       @map("window_start") @db.Timestamptz(3)
+  windowEnd     DateTime       @map("window_end") @db.Timestamptz(3)
+  dropL         Decimal?       @map("drop_l") @db.Decimal(6, 1)
+  details       Json           @default("{}")
+  detectedAt    DateTime       @map("detected_at") @db.Timestamptz(3)
+  decision      AlertDecision?
+  truck         Truck          @relation(fields: [truckId], references: [id])
+  investigation Investigation?
+  review        HumanReview?
+
+  @@index([truckId, type, windowEnd])
+  @@index([detectedAt(sort: Desc)])
+  @@map("alerts")
+}
+
+model Investigation {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  alertId        String              @unique @map("alert_id") @db.Uuid
+  status         InvestigationStatus
+  model          String?
+  promptVersion  String?             @map("prompt_version")
+  startedAt      DateTime?           @map("started_at") @db.Timestamptz(3)
+  finishedAt     DateTime?           @map("finished_at") @db.Timestamptz(3)
+  category       VerdictCategory?
+  confidence     Decimal?            @db.Decimal(3, 2)
+  summary        String?
+  verdict        Json?
+  toolCallsCount Int                 @default(0) @map("tool_calls_count")
+  alert          Alert               @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  steps          InvestigationStep[]
+
+  @@map("investigations")
+}
+
+model InvestigationStep {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  investigationId String        @map("investigation_id") @db.Uuid
+  attempt         Int           @default(1)
+  seq             Int
+  kind            StepKind
+  toolName        String?       @map("tool_name")
+  toolCallId      String?       @map("tool_call_id")
+  payload         Json
+  durationMs      Int?          @map("duration_ms")
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  investigation   Investigation @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+
+  @@unique([investigationId, attempt, seq])
+  @@map("investigation_steps")
+}
+
+model HumanReview {
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  alertId    String         @unique @map("alert_id") @db.Uuid
+  decision   ReviewDecision
+  comment    String?
+  reviewedAt DateTime       @default(now()) @map("reviewed_at") @db.Timestamptz(3)
+  alert      Alert          @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@map("human_reviews")
+}
+
+// ---------- File de tâches ----------
+
+model Task {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type        TaskType
+  payload     Json
+  status      TaskStatus @default(pending)
+  attempts    Int        @default(0)
+  maxAttempts Int        @default(3) @map("max_attempts")
+  availableAt DateTime   @default(now()) @map("available_at") @db.Timestamptz(3)
+  lockedUntil DateTime?  @map("locked_until") @db.Timestamptz(3)
+  lockedBy    String?    @map("locked_by")
+  lastError   String?    @map("last_error")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  // Index partiel `(type, created_at) WHERE status IN ('pending','in_progress')` :
+  // ajouté à la main dans la migration SQL (non exprimable en PSL).
+  @@map("tasks")
+}

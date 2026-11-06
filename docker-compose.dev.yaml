@@ -30,6 +30,7 @@ services:
       # Les node_modules (binaires Linux) restent ceux de l'image, sans volume à créer.
       # Changement de dépendance ou de config (package.json, tsconfig…) : relancer avec --build
       - ./apps/nestjs/src:/app/apps/nestjs/src
+      - ./apps/nestjs/prisma:/app/apps/nestjs/prisma
       - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
       postgres:

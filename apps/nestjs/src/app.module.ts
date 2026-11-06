@@ -1,10 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
+import { AdminModule } from './admin/admin.module.js';
+import { ConfigModule } from './config/config.module.js';
+import { DatabaseModule } from './database/database.module.js';
+import { InvestigationDataModule } from './investigation-data/investigation-data.module.js';
+import { InvestigationsModule } from './investigations/investigations.module.js';
+import { PiiModule } from './pii/pii.module.js';
+import { ScreenModule } from './screen/screen.module.js';
+import { TasksModule } from './tasks/tasks.module.js';
+import { TelemetryModule } from './telemetry/telemetry.module.js';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    PiiModule,
+    TelemetryModule,
+    TasksModule,
+    InvestigationsModule,
+    InvestigationDataModule,
+    ScreenModule,
+    AdminModule,
+  ],
 })
 export class AppModule {}

@@ -1,0 +1,23 @@
+# Base de test pour les tests d'intégration de l'API (`npm run test:e2e -w apps/nestjs`).
+# Projet séparé, données en mémoire (tmpfs) : rien ne persiste, rien n'est partagé avec le dev.
+# L'API ne parle qu'à Postgres : aucun autre service à simuler pour ses tests.
+name: fleetenergies-test
+
+services:
+  postgres-test:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: fleet
+      POSTGRES_PASSWORD: fleet
+      POSTGRES_DB: fleet_test
+    ports:
+      - "${POSTGRES_TEST_PORT:-5433}:5432"
+    tmpfs:
+      - /var/lib/postgresql
+    # Base jetable : durabilité inutile, tests plus rapides
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleet -d fleet_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20

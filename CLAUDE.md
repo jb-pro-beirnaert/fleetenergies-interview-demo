@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Les specs dans `specs/` font foi (en français) et portent la mémoire du projet. Commencer par `specs/00-overview.md` (services, flux, décisions structurantes, glossaire), puis la spec du service concerné. Le plan par jalons (M0–M10) est dans `specs/09-implementation-plan.md` : travailler jalon par jalon, ne pas ajouter de dépendances ni de fonctionnalités hors jalon (les noter comme « idées »). Si l'implémentation s'écarte d'une spec, proposer la mise à jour de la spec.
 
-État actuel : M0 en cours — infra Docker et squelettes des apps ; `packages/contracts/src` est vide, `apps/simulator` n'a qu'un `package.json`, `mcp-server` et `investigator` sont des stubs.
+État actuel : API V1 (M2 + M3) implémentée dans `apps/nestjs` avec ses contrats dans `packages/contracts` ; `apps/simulator` n'a qu'un `package.json`, `mcp-server` et `investigator` sont des stubs, `web` est un squelette.
 
 ## Commandes
 
@@ -29,7 +29,9 @@ npm run build | npm run lint         # idem, --if-present
 npm test -w apps/nestjs
 npx -w apps/nestjs vitest run src/app.controller.spec.ts
 npx -w apps/nestjs vitest run -t "nom du test"
-npm run test:e2e -w apps/nestjs      # vitest.config.e2e.ts
+npm run test:db:up                   # Postgres de test (docker-compose.test.yaml, port 5433, tmpfs)
+npm run test:e2e                     # intégration API (vitest.config.e2e.ts) : migrate deploy puis tests
+npm run prisma:migrate:dev -w apps/nestjs -- --name <nom>   # nouvelle migration (DATABASE_URL requis)
 npm run lint -w apps/nestjs          # oxlint --type-aware (pas ESLint)
 ```
 
@@ -45,12 +47,12 @@ Scripts prévus par les specs mais pas encore créés : `npm run seed` (simulato
 | Service (Compose) | Dossier | Rôle |
 |---|---|---|
 | `postgres` | — | données métier **et** file de tâches |
-| `nestjs` (« api » dans les specs) | `apps/nestjs` | seul service connecté à Postgres (Kysely + `pg`, migrations SQL) |
+| `nestjs` (« api » dans les specs) | `apps/nestjs` | seul service connecté à Postgres (Prisma 7 + `@prisma/adapter-pg`, migrations SQL dans `prisma/migrations`, appliquées au démarrage) ; Swagger sur `/docs` |
 | `mcp-server` | `apps/mcp-server` | 7 outils d'enquête en lecture seule, adaptateur fin sur `/agent/trucks/*` — aucune logique métier, aucun SQL |
 | `investigator` (V2 : `extractor`) | `apps/agents` | workers sans serveur HTTP ; une image, plusieurs commandes |
 | `web` | `apps/web` | Angular 22 (standalone, signals), polling 2 s ; `ng serve` proxifie `/api` (`proxy.conf.mjs`, `API_PROXY_TARGET`) |
 | — | `apps/simulator` | CLI lancée depuis l'hôte, ne parle qu'à l'API (`API_URL=http://localhost:3000`) |
-| — | `packages/contracts` | **uniquement** schémas Zod + types inférés + constantes, seule dépendance `zod` |
+| — | `packages/contracts` | **uniquement** schémas Zod + types inférés + constantes, seule dépendance `zod` ; consommé en TypeScript source (`exports` → `src/index.ts`, imports internes en `.ts`, type stripping de Node 24 : pas de build) |
 
 Décisions structurantes (ne pas remettre en cause sans discussion) :
 - **File de tâches dans Postgres** (table `tasks`, réservation `FOR UPDATE SKIP LOCKED`, verrou 5 min, balayage 30 s) ; workers en polling. Pas de Redis/BullMQ, pas de SSE/WebSocket.
@@ -62,6 +64,8 @@ Décisions structurantes (ne pas remettre en cause sans discussion) :
 - Ingestion idempotente (`ON CONFLICT DO NOTHING` sur clés naturelles) ; données `history` vs `live` — `/admin/reset` ne supprime que le `live`. Détection uniquement sur les lots `live`.
 - Auth par jetons statiques Bearer : `DEVICE_TOKEN` (ingestion), `AGENT_API_TOKEN` (`/agent/*`), `ADMIN_TOKEN` (`/admin/*`), `MCP_CLIENT_TOKEN` (entrant MCP).
 - **Contrats d'abord** : tout schéma qui traverse un service est écrit dans `packages/contracts` avant le code qui l'utilise.
+
+NestJS 12 : validation et documentation par les schémas Zod eux-mêmes (Standard Schema) — `@Body({ schema })`, `@Query({ schema })`, `@ApiOkResponse({ standardSchema })`, `StandardSchemaValidationPipe` global (`src/setup-app.ts`) ; pas de DTO de classe ni de `class-validator`. Le client Prisma est généré dans `src/generated/prisma` (ignoré par Git ; `prisma generate` est lancé par `build`, `start:dev` et `test:e2e`). Le tsconfig de l'API utilise `preserveSymlinks` pour que `tsc` ne recompile pas `@fleet/contracts`.
 
 Docker : Dockerfiles multi-étapes (`dev` / `build` / `prod`) construits depuis la **racine du monorepo** (contexte `.`) pour inclure `packages/contracts` ; installation par `npm ci -w <app>`. En dev, seuls `src/` de l'app et `packages/contracts/src` sont montés.
 
