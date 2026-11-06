@@ -33,5 +33,47 @@ services:
       postgres:
         condition: service_healthy
 
+  mcp-server:
+    build:
+      context: .
+      dockerfile: apps/mcp-server/Dockerfile
+      target: prod
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MCP_PORT: 3100
+    ports:
+      - "${MCP_PORT:-3100}:3100"
+    depends_on:
+      - nestjs
+
+  investigator:
+    build:
+      context: .
+      dockerfile: apps/agents/Dockerfile
+      target: prod
+    restart: unless-stopped
+    command: ["node", "dist/investigator.js"]
+    env_file: .env
+    # Ollama tourne sur l'hôte (GPU Metal) ; nécessaire sous Linux, implicite sur Docker Desktop
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - nestjs
+      - mcp-server
+    deploy:
+      replicas: 1
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: prod
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-4200}:8080"
+    depends_on:
+      - nestjs
+
 volumes:
   pgdata:

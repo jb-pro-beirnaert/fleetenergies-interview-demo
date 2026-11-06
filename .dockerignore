@@ -4,3 +4,4 @@
 **/*.tsbuildinfo
 .env
 .git
+**/.angular

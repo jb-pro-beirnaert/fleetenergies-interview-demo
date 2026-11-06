@@ -28,12 +28,72 @@ services:
     volumes:
       # Code source monté : `nest start --watch` recompile à chaque modification
       - ./apps/nestjs:/app/apps/nestjs
+      - ./packages/contracts:/app/packages/contracts
       # node_modules de l'image (binaires Linux), pas ceux de l'hôte macOS
       - /app/node_modules
       - /app/apps/nestjs/node_modules
     depends_on:
       postgres:
         condition: service_healthy
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: apps/mcp-server/Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      MCP_PORT: 3100
+    ports:
+      - "${MCP_PORT:-3100}:3100"
+    volumes:
+      # Code source monté : `tsx watch` relance à chaque modification
+      - ./apps/mcp-server:/app/apps/mcp-server
+      - ./packages/contracts:/app/packages/contracts
+      - /app/node_modules
+      - /app/apps/mcp-server/node_modules
+    depends_on:
+      - nestjs
+
+  investigator:
+    build:
+      context: .
+      dockerfile: apps/agents/Dockerfile
+      target: dev
+    command: ["npm", "run", "dev:investigator"]
+    env_file: .env
+    # Ollama tourne sur l'hôte (GPU Metal) ; nécessaire sous Linux, implicite sur Docker Desktop
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./apps/agents:/app/apps/agents
+      - ./packages/contracts:/app/packages/contracts
+      - /app/node_modules
+      - /app/apps/agents/node_modules
+    depends_on:
+      - nestjs
+      - mcp-server
+    deploy:
+      replicas: 1
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: dev
+    environment:
+      # Cible du proxy /api de `ng serve` (voir apps/web/proxy.conf.mjs)
+      API_PROXY_TARGET: http://nestjs:3000
+    ports:
+      - "${WEB_PORT:-4200}:4200"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages/contracts:/app/packages/contracts
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/web/.angular
+    depends_on:
+      - nestjs
 
 volumes:
   pgdata:

@@ -1,14 +1,12 @@
 {
   "name": "@fleet/agents",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run --passWithNoTests",
+    "build": "tsc -p tsconfig.json",
+    "dev:investigator": "tsx watch src/investigator.ts",
+    "start:investigator": "node dist/investigator.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "module",
   "dependencies": {
     "@fleet/contracts": "*",

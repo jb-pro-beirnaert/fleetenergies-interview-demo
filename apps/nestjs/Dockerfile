@@ -4,9 +4,11 @@ WORKDIR /app
 
 # Manifestes uniquement, pour profiter du cache Docker sur `npm ci`
 COPY package.json package-lock.json ./
+COPY packages/contracts/package.json packages/contracts/
 COPY apps/nestjs/package.json apps/nestjs/
 RUN npm ci -w apps/nestjs
 
+COPY packages/contracts packages/contracts
 COPY apps/nestjs apps/nestjs
 
 WORKDIR /app/apps/nestjs
@@ -23,6 +25,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
+COPY packages/contracts/package.json packages/contracts/
 COPY apps/nestjs/package.json apps/nestjs/
 RUN npm ci --omit=dev -w apps/nestjs && npm cache clean --force
 

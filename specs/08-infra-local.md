@@ -48,7 +48,7 @@ Le simulateur et le générateur ne sont pas des services permanents : on les la
 | `AGENT_API_TOKEN` | api, mcp-server, agents | `dev-agent-token` |
 | `ADMIN_TOKEN` | api, simulator | `dev-admin-token` |
 | `MCP_CLIENT_TOKEN` | mcp-server, agents | `dev-mcp-token` |
-| `API_URL` | mcp-server, agents, simulator | `http://api:3000` (conteneurs), `http://localhost:3000` (hôte) |
+| `API_URL` | mcp-server, agents, simulator | `http://nestjs:3000` (conteneurs), `http://localhost:3000` (hôte) |
 | `MCP_URL` | agents | `http://mcp-server:3100/mcp` |
 | `LLM_BASE_URL` | agents, generator | `http://host.docker.internal:11434/v1` |
 | `LLM_API_KEY` | agents, generator | `ollama` |
