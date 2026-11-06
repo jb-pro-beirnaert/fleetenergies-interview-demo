@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "simulator": "node src/cli.ts",
+    "serve": "node src/cli.ts serve",
+    "dev": "node --watch src/cli.ts serve",
     "generate": "node src/cli.ts generate",
-    "load": "node src/cli.ts load",
-    "replay": "node src/cli.ts replay",
-    "reset": "node src/cli.ts reset",
     "test": "vitest run",
     "lint": "tsc -p tsconfig.json"
   },

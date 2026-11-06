@@ -1,10 +1,11 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
-  HistoryLoadBatch,
-  HistoryLoadResult,
-  ResetResult,
-} from '@fleet/contracts';
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { HistoryLoadBatch, HistoryLoadResult } from '@fleet/contracts';
 import { RequireToken } from '../auth/require-token.decorator.js';
 import { AdminService } from './admin.service.js';
 
@@ -18,22 +19,22 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Charger le référentiel et l'historique",
-    description: 'Lots envoyés par `simulator load`. Idempotent.',
+    description: 'Lots envoyés par le simulateur (état `preparing`). Idempotent.',
   })
   @ApiOkResponse({ standardSchema: HistoryLoadResult })
   loadHistory(@Body({ schema: HistoryLoadBatch }) batch: HistoryLoadBatch) {
     return this.admin.loadHistory(batch);
   }
 
-  @Post('reset')
-  @HttpCode(HttpStatus.OK)
+  @Post('wipe')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Remettre à zéro la journée de démo',
+    summary: 'Vider toute la base',
     description:
-      "Supprime les données `live` et tout ce qui en découle ; l'historique est conservé.",
+      'Référentiel, historique, journée de démo, alertes, enquêtes et tâches. Appelé par le simulateur à chaque « Démarrer » et « Reset ».',
   })
-  @ApiOkResponse({ standardSchema: ResetResult })
-  reset() {
-    return this.admin.reset();
+  @ApiNoContentResponse()
+  wipe() {
+    return this.admin.wipe();
   }
 }

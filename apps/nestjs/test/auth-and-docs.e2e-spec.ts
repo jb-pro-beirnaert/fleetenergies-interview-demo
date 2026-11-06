@@ -12,7 +12,7 @@ describe('Authentification et documentation', () => {
     ['post', '/api/telemetry', 'device'],
     ['post', '/agent/tasks/claim', 'agent'],
     ['get', '/agent/alerts/00000000-0000-4000-8000-000000000001', 'agent'],
-    ['post', '/admin/reset', 'admin'],
+    ['post', '/admin/wipe', 'admin'],
   ] as const)(
     '%s %s : 401 sans jeton ou avec un mauvais jeton, 403 avec un autre rôle',
     async (method, path, role) => {

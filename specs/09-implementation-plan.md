@@ -8,12 +8,13 @@ Chaque jalon se termine par : tests verts, critères d'acceptation concernés v�
 |---|---|---|---|
 | **M0** | Monorepo npm workspaces, TypeScript strict partagé, ESLint/Prettier, `packages/contracts` (premiers schémas), Docker Compose avec Postgres, `.env.example`, CI GitHub Actions | 00, 02, 08 | ½ j |
 | **M1** | Simulateur `generate` : référentiel, physique, historique, journée de démo, scénarios S1-S8, `ground-truth.json` + tests | 04 | ¾ j |
-| **M2** | API : migrations, `admin/history/load` et `admin/reset`, ingestion (télémétrie, cartes, messages), détecteur, file de tâches et balayage | 01, 03 | 1 j |
+| **M2** | API : migrations, `admin/history/load` et `admin/reset` (remplacé par `admin/wipe` en M6b), ingestion (télémétrie, cartes, messages), détecteur, file de tâches et balayage | 01, 03 | 1 j |
 | **M3** | API : routes de données des outils, pseudonymisation, contexte d'alerte, étapes, verdict et décision, routes écran, statistiques, OpenAPI | 03 | ½ j |
 | **M4** | Serveur MCP : 7 outils, authentification, gestion d'erreurs ; vérification avec l'inspecteur MCP | 05 | ¼ j |
 | **M5** | Agents : `fleet-qwen`, `smoke:tools`, boucle générique, agent enquêteur, prompt `investigator-v1`, tests avec faux modèle | 06 | ¾ j |
 | **M6** | Salle de contrôle Angular : flux, trace avec rendus par outil, verdict, revue, valeur | 07 | ¾ j |
-| **M7** | Bout en bout : `simulator load` et `replay`, Compose complet, réglage du prompt et des descriptions d'outils sur S1-S8, README de démo | tous | ½ j |
+| **M6b** | Simulation pilotée : contrats `simulation.ts`, `POST /admin/wipe` (remplace `/admin/reset`), service `simulator` (machine à états, API de contrôle, volume `simdata`, reprise), barre de simulation dans l'écran, fin des données versionnées | 00, 01, 02, 03, 04, 07, 08 | ¾ j |
+| **M7** | Bout en bout : simulation pilotée depuis l'écran, Compose complet, réglage du prompt et des descriptions d'outils sur S1-S8, README de démo | tous | ½ j |
 
 ## V2 (≈ 1,5 jour)
 

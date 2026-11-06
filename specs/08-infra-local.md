@@ -31,9 +31,10 @@ Depuis les conteneurs, Ollama est joignable à `http://host.docker.internal:1143
 | `mcp-server` | `apps/mcp-server` | 3100 | nestjs | |
 | `investigator` | `apps/agents` (commande `node dist/investigator.js`) | — | nestjs, mcp-server | `deploy.replicas: 1` (passer à 2 ou 3 pour la démo de parallélisme) |
 | `extractor` | `apps/agents` (commande `node dist/extractor.js`) | — | nestjs | V2 |
-| `web` | `apps/web` (build Angular servi par nginx) | 4200 | nestjs | en développement, `ng serve` hors Docker avec proxy vers l'API |
+| `simulator` | `apps/simulator` (commande `node src/cli.ts serve`, pas de build : type stripping) | 3200 | nestjs | volume `simdata` (`/data` : `state.json`, `dataset.json`) ; healthcheck `/health` |
+| `web` | `apps/web` (build Angular servi par nginx) | 4200 | nestjs, simulator | proxy `/api` → nestjs, `/simulation` → simulator (`ng serve` en dev, nginx en prod) |
 
-Le simulateur et le générateur ne sont pas des services permanents : on les lance depuis l'hôte (`npm run …`) avec `API_URL=http://localhost:3000`.
+Le simulateur est un service permanent, piloté depuis la salle de contrôle. Seul le générateur (V2) se lance depuis l'hôte. `simulator generate --out` reste disponible depuis l'hôte pour le débogage (`npm run sim -- generate`).
 
 ## Images
 - Dockerfile multi-étapes par application (`node:24-alpine`), construit depuis la racine du monorepo pour inclure `packages/contracts`.
@@ -60,6 +61,11 @@ Le simulateur et le générateur ne sont pas des services permanents : on les la
 | `MAX_TOOL_CALLS` | agents | `10` |
 | `INVOICE_STORAGE_DIR` | api | `/data/invoices` (V2) |
 | `SIM_SEED` | simulator | `42` |
+| `SIM_SPEED` | simulator | `120` (vitesse initiale, l'un des paliers) |
+| `SIM_FROM` | simulator | `02:00` (heure de Paris de début du rejeu) |
+| `SIM_PORT` | simulator | `3200` |
+| `SIM_DATA_DIR` | simulator | `/data` (volume `simdata`) |
+| `SIMULATION_PROXY_TARGET` | web (dev) | `http://simulator:3200` |
 
 Les jetons ci-dessus sont des valeurs de développement : `.env` est ignoré par Git, seul `.env.example` est versionné.
 
@@ -67,8 +73,8 @@ Les jetons ci-dessus sont des valeurs de développement : `.env` est ignoré par
 | Script | Effet |
 |---|---|
 | `npm run up` | `docker compose up -d --build` |
-| `npm run seed` | `simulator generate` puis `simulator load` |
-| `npm run demo` | `simulator reset` puis `simulator replay --speed 120 --from 02:00` |
+| `npm run sim -- generate` | (débogage) écrit le jeu de données dans `data/generated/` (ignoré par Git) |
+| `npm run dev:db:reset` | supprime les volumes (`pgdata` et `simdata`) et relance |
 | `npm test` | tests de tous les workspaces |
 | `npm run lint` | ESLint + Prettier |
 | `npm run generate:docs` | (V2) générateur de factures et messages |
@@ -77,6 +83,7 @@ Les jetons ci-dessus sont des valeurs de développement : `.env` est ignoré par
 GitHub Actions sur chaque push : installation, lint, compilation TypeScript, tests unitaires de tous les workspaces, tests d'intégration de l'API avec un service Postgres. Pas d'appel au modèle en CI (les tests des workers utilisent un faux modèle).
 
 ## Critères d'acceptation
-1. Sur une machine neuve avec les prérequis : `ollama create …`, `cp .env.example .env`, `npm run up`, `npm run seed`, `npm run demo` suffisent à voir la démo à `http://localhost:4200`.
+1. Sur une machine neuve avec les prérequis : `ollama create …`, `cp .env.example .env`, `npm run up`, puis « Démarrer » dans la salle de contrôle à `http://localhost:4200` suffisent à voir la démo.
 2. Arrêter puis relancer le conteneur `investigator` pendant le rejeu ne perd aucune alerte (les tâches reprennent).
-3. La CI passe au vert sur la branche principale.
+3. Arrêter puis relancer le conteneur `simulator` pendant le rejeu : la simulation revient en pause à la même heure simulée et reprend sans perte.
+4. La CI passe au vert sur la branche principale.

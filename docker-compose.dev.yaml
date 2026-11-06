@@ -72,14 +72,34 @@ services:
     deploy:
       replicas: 1
 
+  simulator:
+    build:
+      context: .
+      dockerfile: apps/simulator/Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      SIM_PORT: 3200
+      SIM_DATA_DIR: /data
+    ports:
+      - "${SIM_PORT:-3200}:3200"
+    volumes:
+      # `node --watch` relance à chaque modification ; l'état de la simulation est repris depuis simdata
+      - ./apps/simulator/src:/app/apps/simulator/src
+      - ./packages/contracts/src:/app/packages/contracts/src
+      - simdata:/data
+    depends_on:
+      - nestjs
+
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
       target: dev
     environment:
-      # Cible du proxy /api de `ng serve` (voir apps/web/proxy.conf.mjs)
+      # Cibles des proxys de `ng serve` (voir apps/web/proxy.conf.mjs)
       API_PROXY_TARGET: http://nestjs:3000
+      SIMULATION_PROXY_TARGET: http://simulator:3200
     ports:
       - "${WEB_PORT:-4200}:4200"
     volumes:
@@ -88,6 +108,8 @@ services:
       - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
       - nestjs
+      - simulator
 
 volumes:
   pgdata:
+  simdata:

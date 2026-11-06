@@ -1,4 +1,5 @@
-// `simulator replay` : rejoue la journée de démo en accéléré (spec 04, « Rejeu »).
+// Rejeu de la journée de démo (spec 04, « Rejeu ») : découpage en pas et envoi d'un pas.
+// La cadence (vitesse, pause, arrêt) est pilotée par la simulation (`simulation.ts`).
 
 import type {
   DriverMessageInput,
@@ -9,7 +10,7 @@ import type {
 } from '@fleet/contracts';
 import { chunk, type ApiClient } from './api.ts';
 import type { ActivityData } from './generate.ts';
-import { STEP_MS, localHHMM } from './time.ts';
+import { STEP_MS } from './time.ts';
 
 /** Taille maximale des lots d'ingestion (contrats). */
 const INGEST_BATCH_SIZE = 500;
@@ -46,36 +47,8 @@ export function planSteps(live: ActivityData, from: number, to: number): ReplayS
   return steps;
 }
 
-export interface ReplayOptions {
-  /** Instants UTC (ms) de début et de fin du rejeu. */
-  from: number;
-  to: number;
-  speed: number;
-  signal?: AbortSignal;
-  log?: (line: string) => void;
-}
-
-export interface ReplayResult {
-  completed: boolean;
-  /** Dernier pas envoyé (pour reprendre avec --from). */
-  lastClock: number | null;
-  alertsCreated: number;
-}
-
-const sleep = (ms: number, signal?: AbortSignal) =>
-  new Promise<void>((resolve) => {
-    if (ms <= 0 || signal?.aborted) return resolve();
-    const timer = setTimeout(done, ms);
-    function done() {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', done);
-      resolve();
-    }
-    signal?.addEventListener('abort', done, { once: true });
-  });
-
 /** Ordre dans un pas : relevés, transactions carte, messages. */
-async function sendStep(api: ApiClient, step: ReplayStep): Promise<number> {
+export async function sendStep(api: ApiClient, step: ReplayStep): Promise<number> {
   let alerts = 0;
   for (const readings of chunk(step.telemetry, INGEST_BATCH_SIZE)) {
     const result = await api.post<TelemetryIngestResult>('/api/telemetry', 'device', { readings, source: 'live' });
@@ -88,26 +61,4 @@ async function sendStep(api: ApiClient, step: ReplayStep): Promise<number> {
     await api.post<IngestResult>('/api/driver-messages', 'device', { messages, source: 'live' });
   }
   return alerts;
-}
-
-export async function replay(api: ApiClient, live: ActivityData, options: ReplayOptions): Promise<ReplayResult> {
-  const log = options.log ?? console.log;
-  const steps = planSteps(live, options.from, options.to);
-  const stepMs = STEP_MS / options.speed;
-  const startedAt = performance.now();
-  let alertsCreated = 0;
-  let lastClock: number | null = null;
-
-  for (const [index, step] of steps.entries()) {
-    if (options.signal?.aborted) return { completed: false, lastClock, alertsCreated };
-    const alerts = await sendStep(api, step);
-    alertsCreated += alerts;
-    lastClock = step.clock;
-    log(
-      `${localHHMM(step.clock)} │ relevés ${String(step.telemetry.length).padStart(3)} · pleins ${step.refuels.length} · messages ${step.messages.length} │ ` +
-        (alerts > 0 ? `alertes +${alerts} (total ${alertsCreated}) 🚨` : `alertes ${alertsCreated}`),
-    );
-    await sleep(startedAt + (index + 1) * stepMs - performance.now(), options.signal);
-  }
-  return { completed: true, lastClock, alertsCreated };
 }

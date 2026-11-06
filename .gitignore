@@ -47,6 +47,9 @@ pids
 *.seed
 *.pid.lock
 
+# Jeu de données du simulateur (`npm run sim -- generate`, débogage)
+/data/generated/
+
 # Dependencies & build output
 node_modules/
 dist/

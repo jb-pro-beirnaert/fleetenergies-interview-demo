@@ -2,12 +2,14 @@
 
 CLI lancée **une fois, hors ligne**, pour produire des documents réalistes et variés. Ses sorties sont **versionnées dans le repo** : la démo et les tests ne dépendent jamais d'une nouvelle génération.
 
+> **À trancher en M8** : le jeu de données du simulateur est désormais recalculé à chaque « Démarrer » avec J = date du jour (spec 04), donc les dates et instants des pleins changent d'une simulation à l'autre. Les PDF versionnés ne peuvent plus porter de dates figées : soit le code les produit au `start` en réinjectant les faits du jour dans un habillage versionné (le modèle n'intervient qu'une fois, hors ligne), soit les factures sont générées à chaque simulation sans modèle. Les chiffres restent toujours fixés par le code.
+
 Principe : **le code fixe les faits, le modèle habille.** Les chiffres (litres, prix, montants, dates, immatriculations) viennent toujours des fichiers du simulateur ; le modèle ne produit que la forme (intitulés, mentions, tournures).
 
 ## Commandes
 | Commande | Effet |
 |---|---|
-| `generator invoices` | lit `invoices-plan.json`, `live-refuels.json`, `reference.json` ; écrit `data/generated/live-invoices/*.pdf` et `live-invoices/manifest.json` |
+| `generator invoices` | lit `invoices-plan.json`, `live-refuels.json`, `reference.json` (produits par `simulator generate --out`, ou en appelant `generate()` directement) ; écrit `data/generated/live-invoices/*.pdf` et `live-invoices/manifest.json` |
 | `generator messages` | réécrit les messages de `live-messages.json` en langage naturel ; écrit `live-messages.json` (l'original est conservé dans `live-messages.templates.json`) |
 
 ## Factures

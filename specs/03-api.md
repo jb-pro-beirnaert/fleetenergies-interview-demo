@@ -16,7 +16,7 @@ Centre de contrôle. **Seul service connecté à PostgreSQL.** NestJS 10+, TypeS
 | `investigation-data` | Calculs des 7 outils (résumés) — appelé par les routes agents |
 | `pii` | Pseudonymisation et masquage |
 | `screen` | Routes de lecture pour la salle de contrôle, revue humaine, statistiques |
-| `admin` | Réinitialisation de la journée de démo, chargement de l'historique |
+| `admin` | Remise à zéro complète, chargement de l'historique |
 | `invoices` | (V2) Réception, texte, extraction, rapprochement |
 
 ## Authentification
@@ -121,8 +121,8 @@ Les routes écran renvoient les vrais noms (humain authentifié — hors périm�
 - `GET /api/health`.
 
 ## Administration (jeton admin)
-- `POST /admin/history/load` — reçoit les fichiers générés par le simulateur (voir `04-simulator.md`) : référentiel + historique, en lots. Idempotent.
-- `POST /admin/reset` — supprime la journée de démo (voir `01-data-model.md`). Répond avec les compteurs supprimés.
+- `POST /admin/history/load` — reçoit le référentiel et l'historique générés par le simulateur (voir `04-simulator.md`), en lots. Idempotent.
+- `POST /admin/wipe` — vide toutes les tables (voir `01-data-model.md`). Répond 204. Appelé par le simulateur à chaque « Démarrer » et « Reset ».
 
 ## V2 — Factures
 - `POST /api/invoices` (jeton device, multipart `file` + `receivedAt`) :
@@ -155,7 +155,7 @@ Pour une alerte `billing_mismatch`, l'outil `find_fuel_transactions` renvoie bie
 7. Les règles de décision sont respectées (tests unitaires sur chaque catégorie et seuil).
 8. Aucune réponse `/agent/*` ne contient un `full_name` ou un `phone` de conducteur (test qui parcourt toutes les routes agents sur les données de test).
 9. `compute_fuel_balance` donne le résultat attendu sur un jeu de relevés construit à la main.
-10. `/admin/reset` remet la journée de démo à zéro sans toucher à l'historique.
+10. `/admin/wipe` vide toutes les tables, référentiel et historique compris.
 11. `/docs` expose la documentation OpenAPI.
 
 **V2**

@@ -60,7 +60,7 @@ export type DriverAssignmentInput = z.infer<typeof DriverAssignmentInput>;
 
 const MAX_BATCH = 1000;
 
-// Un lot de `simulator load` : chaque liste est facultative, tout est idempotent.
+// Un lot de chargement de l'historique (simulateur, état `preparing`) : chaque liste est facultative, tout est idempotent.
 // Les relevés, pleins et messages sont enregistrés avec la source `history`.
 export const HistoryLoadBatch = z
   .object({
@@ -91,19 +91,3 @@ export const HistoryLoadResult = z
   .object({ inserted: Counts })
   .meta({ id: 'HistoryLoadResult' });
 export type HistoryLoadResult = z.infer<typeof HistoryLoadResult>;
-
-export const ResetResult = z
-  .object({
-    deleted: z.object({
-      telemetry: z.int(),
-      refuels: z.int(),
-      messages: z.int(),
-      alerts: z.int(),
-      investigations: z.int(),
-      steps: z.int(),
-      reviews: z.int(),
-      tasks: z.int(),
-    }),
-  })
-  .meta({ id: 'ResetResult' });
-export type ResetResult = z.infer<typeof ResetResult>;

@@ -2,7 +2,7 @@
 
 Application Angular (version récente, composants autonomes, signals). C'est **l'écran de la démo** : il doit rendre visible que des agents IA travaillent seuls, chacun avec un chemin d'enquête différent, et la valeur que ça apporte.
 
-Données : uniquement via l'API (`/api/*`). **Polling toutes les 2 s** (RxJS `timer` + `switchMap`), suspendu quand l'onglet du navigateur est masqué.
+Données : via l'API (`/api/*`) et, pour le pilotage de la simulation, via l'API de contrôle du simulateur (`/simulation*`, spec 04). Les deux sont proxifiés (`ng serve` en dev, nginx en prod). **Polling toutes les 2 s** (RxJS `timer` + `switchMap`), suspendu quand l'onglet du navigateur est masqué.
 
 Bibliothèques proposées (à valider avant installation) : Chart.js pour la courbe, Leaflet + tuiles OpenStreetMap pour la mini-carte. Style sobre et lisible en partage d'écran : fond clair, une couleur d'accent, gros chiffres pour les indicateurs. Pas de bibliothèque de composants lourde obligatoire.
 
@@ -10,6 +10,8 @@ Bibliothèques proposées (à valider avant installation) : Chart.js pour la cou
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │ Fleet Copilot · Salle de contrôle   Heure simulée 06/11 02:47   modèle │
+├──────────────────────────────────────────────────────────────────────┤
+│ Simulation : ▶ Démarrer  ⏸ Pause  ⏹ Terminer  − ×120 +  ↺ Reset  état │
 ├───────────────┬──────────────────────────────────────┬───────────────┤
 │ Flux          │ Enquête sélectionnée                 │ Valeur        │
 │ d'alertes     │ (en-tête, trace, verdict, revue)     │               │
@@ -19,6 +21,13 @@ Onglets en haut : **Alertes** (V1), **Factures** (V2).
 
 ## Bandeau
 Titre, heure simulée (`stats.simulatedNow`), modèle utilisé, point vert/rouge selon la santé de l'API.
+
+## Barre de simulation
+Sous le bandeau, pleine largeur, alimentée par `GET /simulation` (polling 2 s) :
+- **Démarrer**, **Pause** / **Reprendre** (un seul bouton selon l'état), **Terminer**, **−** / **vitesse** / **+** (paliers ×30 → ×600), **Reset** (demande de confirmation : « Toutes les données seront supprimées »).
+- Chaque bouton est grisé quand la commande n'est pas acceptée dans l'état courant (`SIMULATION_COMMANDS` des contrats) ; après une commande, la vue renvoyée remplace l'état affiché sans attendre le polling.
+- État lisible : « Prête à démarrer », « Préparation… 42 / 216 lots », « En cours · journée du 06/11 », « En pause », « Terminée » ; nombre d'alertes créées ; message d'erreur éventuel (`error`) en rouge ; « Simulateur injoignable » si `/simulation` ne répond pas.
+- Pendant `preparing`, une barre de progression ; pendant `running`, la progression de la journée (pas envoyés / total).
 
 ## Flux d'alertes (gauche)
 - Liste des alertes, la plus récente en haut ; une nouvelle alerte apparaît avec une animation discrète.
@@ -69,10 +78,11 @@ Depuis `/api/stats` :
 - Dans le flux d'alertes, les alertes `billing_mismatch` mènent à la même vue d'enquête.
 
 ## Critères d'acceptation
-1. Pendant `npm run demo`, les alertes apparaissent seules, passent « En enquête » puis « Classée » ou « Escaladée », sans rechargement de la page.
+1. Après « Démarrer », les alertes apparaissent seules, passent « En enquête » puis « Classée » ou « Escaladée », sans rechargement de la page.
 2. La trace d'une enquête en cours s'enrichit étape par étape ; chaque outil a son rendu visuel.
 3. Le graphique de S2 montre la chute puis la remontée ; la carte de S1 montre l'arrêt sur l'aire d'autoroute.
 4. Cliquer sur une preuve du verdict amène à l'étape citée.
 5. Confirmer ou rejeter une alerte met à jour son statut et l'indicateur d'accord.
 6. Lisible en partage d'écran à 1 280 × 720 (pas de texte sous 13 px).
-7. (V2) La facture B3 affiche le badge « Contenu suspect » et le passage surligné ; la facture B1 mène à l'enquête d'écart.
+7. Toute la démo se pilote depuis l'écran (démarrer, pause, reprise, vitesse, terminer, reset), sans terminal ; les boutons non applicables sont grisés.
+8. (V2) La facture B3 affiche le badge « Contenu suspect » et le passage surligné ; la facture B1 mène à l'enquête d'écart.

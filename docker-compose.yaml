@@ -1,4 +1,4 @@
-# Projet séparé du dev : conteneurs et volume pgdata distincts
+# Projet séparé du dev : conteneurs et volumes (pgdata, simdata) distincts
 name: fleetenergies-prod
 
 services:
@@ -64,6 +64,27 @@ services:
     deploy:
       replicas: 1
 
+  simulator:
+    build:
+      context: .
+      dockerfile: apps/simulator/Dockerfile
+      target: prod
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SIM_PORT: 3200
+      SIM_DATA_DIR: /data
+    # Pas de port publié : piloté depuis la salle de contrôle (nginx relaie /simulation)
+    volumes:
+      - simdata:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3200/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - nestjs
+
   web:
     build:
       context: .
@@ -74,6 +95,8 @@ services:
       - "${WEB_PORT:-4200}:8080"
     depends_on:
       - nestjs
+      - simulator
 
 volumes:
   pgdata:
+  simdata:

@@ -72,7 +72,7 @@ describe('Administration', () => {
     ).toBe(true);
   });
 
-  it('/admin/reset remet la journée de démo à zéro sans toucher à l’historique', async () => {
+  it('/admin/wipe vide toute la base, référentiel et historique compris', async () => {
     await load(HISTORY).expect(200);
     await t
       .http()
@@ -89,64 +89,32 @@ describe('Administration', () => {
       .expect(202);
     await t
       .http()
-      .post('/api/fuel-card-transactions')
-      .set(auth('device'))
-      .send({
-        transactions: [
-          {
-            truckId: IDS.truck,
-            occurredAt: '2026-10-14T09:00:00Z',
-            liters: 200,
-          },
-        ],
-        source: 'live',
-      })
-      .expect(200);
-    await t
-      .http()
-      .post('/api/driver-messages')
-      .set(auth('device'))
-      .send({
-        messages: [
-          {
-            driverId: IDS.driver,
-            truckId: IDS.truck,
-            sentAt: '2026-10-14T09:05:00Z',
-            body: 'Plein fait',
-          },
-        ],
-        source: 'live',
-      })
-      .expect(200);
-    await t
-      .http()
       .post('/agent/tasks/claim')
       .set(auth('agent'))
       .send({ type: 'investigate_alert', workerId: 'w' })
       .expect(200);
+    expect(await t.prisma.alert.count()).toBe(1);
 
-    const response = await t
-      .http()
-      .post('/admin/reset')
-      .set(auth('admin'))
-      .expect(200);
-    expect(response.body.deleted).toEqual({
-      telemetry: 3,
-      refuels: 1,
-      messages: 1,
-      alerts: 1,
-      investigations: 1,
-      steps: 0,
-      reviews: 0,
-      tasks: 1,
-    });
+    await t.http().post('/admin/wipe').set(auth('admin')).expect(204);
 
-    expect(await t.prisma.telemetryReading.count()).toBe(2);
-    expect(await t.prisma.refuel.count()).toBe(1);
-    expect(await t.prisma.driverMessage.count()).toBe(1);
-    expect(await t.prisma.truck.count()).toBe(2);
-    expect(await t.prisma.alert.count()).toBe(0);
-    expect(await t.prisma.task.count()).toBe(0);
+    const counts = await Promise.all([
+      t.prisma.telemetryReading.count(),
+      t.prisma.refuel.count(),
+      t.prisma.driverMessage.count(),
+      t.prisma.driverAssignment.count(),
+      t.prisma.driver.count(),
+      t.prisma.truck.count(),
+      t.prisma.place.count(),
+      t.prisma.carrier.count(),
+      t.prisma.alert.count(),
+      t.prisma.investigation.count(),
+      t.prisma.task.count(),
+    ]);
+    expect(counts.every((count) => count === 0)).toBe(true);
+
+    // Rechargeable aussitôt (mêmes identifiants)
+    const reloaded = await load(HISTORY).expect(200);
+    expect(reloaded.body.inserted.trucks).toBe(2);
   });
 
   it('refuse un lot invalide', async () => {

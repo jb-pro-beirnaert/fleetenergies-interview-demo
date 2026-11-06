@@ -14,13 +14,14 @@ Principe directeur : **le code détecte et calcule, l'IA enquête et explique, l
 | `mcp-server` | 7 outils d'enquête en lecture seule (adaptateur fin sur les routes agents de l'API) | V1 | 3100 | api |
 | `investigator` | Worker : agent enquêteur | V1 | — | api (pilotage), mcp-server (outils), Ollama |
 | `extractor` | Worker : extracteur IA de factures | V2 | — | api, Ollama |
-| `web` (Angular) | Salle de contrôle | V1 | 4200 | api |
-| `simulator` | CLI : génère les données, les charge, rejoue la journée de démo | V1 | — | api |
+| `web` (Angular) | Salle de contrôle, dont le pilotage de la simulation | V1 | 4200 | api, simulator |
+| `simulator` | Service permanent : simule les boîtiers des camions et les fournisseurs ; génère les données au démarrage de la simulation, les charge, rejoue la journée de démo ; piloté depuis l'écran | V1 | 3200 | api |
 | `generator` | CLI hors ligne : factures PDF et messages conducteurs | V2 | — | Ollama, fichiers |
 | Ollama (hôte) | Modèle `fleet-qwen` | V1 | 11434 | — |
 
 ## Flux V1 : de l'alerte au verdict
-1. `simulator replay` envoie les relevés de la journée de démo : `POST /api/telemetry`.
+0. Dans la salle de contrôle, « Démarrer » : le simulateur vide la base, génère le jeu de données en mémoire, charge le référentiel et l'historique, puis rejoue la journée de démo pas à pas (vitesse réglable, pause, arrêt, reset).
+1. Le simulateur envoie les relevés de la journée de démo : `POST /api/telemetry`.
 2. L'API les enregistre. Le module détecteur applique ses règles ; s'il y a chute anormale, il crée une `alert` (statut `detected`) et une `task` `investigate_alert` (statut `pending`).
 3. `investigator` interroge `POST /agent/tasks/claim` toutes les 2 s. L'API réserve une tâche (`FOR UPDATE SKIP LOCKED`) et passe l'alerte en `investigating`.
 4. Le worker récupère le contexte de l'alerte, la liste des outils du serveur MCP, et lance la boucle avec le modèle. Chaque outil demandé est exécuté via MCP ; chaque étape est enregistrée via `POST /agent/investigations/:alertId/steps`.
@@ -28,7 +29,7 @@ Principe directeur : **le code détecte et calcule, l'IA enquête et explique, l
 6. `web` interroge l'API toutes les 2 s et affiche alertes, trace et verdict. Un humain peut confirmer ou rejeter.
 
 ## Flux V2 : de la facture à l'alerte
-1. `simulator replay` dépose les factures PDF de la journée : `POST /api/invoices` (multipart).
+1. Le simulateur dépose les factures PDF de la journée pendant le rejeu : `POST /api/invoices` (multipart).
 2. L'API stocke le fichier, extrait son texte (code, pas IA) et crée une `task` `extract_invoice`.
 3. `extractor` réclame la tâche, lit le texte via l'API, appelle le modèle avec un format de sortie imposé, valide (Zod, 2 relances), renvoie le résultat.
 4. L'API enregistre le plein et lance le **rapprochement** (code). En cas d'écart, alerte `billing_mismatch` + tâche d'enquête : l'enquêteur s'en saisit comme de toute autre alerte.
@@ -41,19 +42,21 @@ Principe directeur : **le code détecte et calcule, l'IA enquête et explique, l
 - **Le modèle ne voit que des outils de lecture**, des résultats résumés et des conducteurs pseudonymisés.
 - **L'extracteur n'est pas un agent** (pas de boucle, pas d'outils) : c'est un pipeline LLM à sortie structurée.
 - **Polling** côté écran (pas de SSE ni WebSocket en V1/V2).
+- **La simulation est pilotée depuis l'écran** : le simulateur est un service qui garde son propre état (mémoire + volume), sans table dans Postgres ; l'écran lui parle directement (proxy `/simulation`), l'API ne le connaît pas.
 
 ## Glossaire
 - **Alerte** : anomalie détectée par une règle en code (`fuel_drop`, V2 : `billing_mismatch`).
 - **Tâche** : travail à faire par un worker, dans la table `tasks`.
 - **Enquête** (`investigation`) : exécution de l'agent sur une alerte, avec ses étapes et son verdict.
 - **Étape** (`investigation_step`) : un message du modèle, un appel d'outil, son résultat, une relance ou une erreur.
-- **Journée de démo** : le jour J où `simulator generate` est lancé (heure de Paris), rejouée en accéléré. Le mois qui précède (J − 1 mois à J − 1) est l'historique chargé d'avance.
+- **Journée de démo** : le jour J où la simulation est démarrée (heure de Paris), rejouée en accéléré. Le mois qui précède (J − 1 mois à J − 1) est l'historique chargé au démarrage.
+- **Simulation** : une exécution du simulateur, de « Démarrer » à la fin de la journée ou au reset ; états `idle`, `preparing`, `running`, `paused`, `finished`.
 
 ## Index des specs
 - `01-data-model.md` — schéma PostgreSQL
 - `02-contracts.md` — schémas partagés (`packages/contracts`)
 - `03-api.md` — NestJS
-- `04-simulator.md` — données, scénarios, rejeu
+- `04-simulator.md` — données, scénarios, rejeu, pilotage de la simulation
 - `05-mcp-server.md` — outils d'enquête
 - `06-agents.md` — enquêteur et extracteur
 - `07-web.md` — salle de contrôle

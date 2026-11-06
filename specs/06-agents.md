@@ -36,6 +36,7 @@ apps/agents/src/
    - données incohérentes, verdict impossible à obtenir → `retryable: false`.
 5. Une seule tâche à la fois par worker. Pour aller plus vite, on lance plusieurs conteneurs.
 6. `SIGTERM` : ne plus réclamer ; si une tâche est en cours, la faire échouer en `retryable: true` puis quitter.
+7. **Base vidée pendant le traitement** : la salle de contrôle peut réinitialiser la simulation (`/admin/wipe`) pendant une enquête. Une réponse 404 sur l'alerte, la tâche, une étape ou le verdict signifie « tâche abandonnée » : le worker journalise, abandonne la tâche sans `fail` et reprend le polling. Ce n'est pas une erreur fatale.
 
 ## Modèle (`llm.ts`)
 - SDK `openai`, `baseURL = LLM_BASE_URL`, `model = LLM_MODEL`, `temperature: 0`.

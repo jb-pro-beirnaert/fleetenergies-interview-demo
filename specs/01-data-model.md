@@ -213,5 +213,5 @@ Une tâche `in_progress` dont le verrou a expiré et dont `attempts >= max_attem
 | received_at | timestamptz | |
 | data_origin | enum `reading_source` | |
 
-## Réinitialisation de la journée de démo
-`POST /admin/reset` supprime tout ce qui a `data_origin`/`source = 'live'`, puis toutes les alertes, enquêtes, étapes, revues, tâches et factures liées à la journée de démo. L'historique (`history`) est conservé.
+## Remise à zéro complète
+`POST /admin/wipe` vide **toutes** les tables (`TRUNCATE … CASCADE`) : référentiel, historique, journée de démo, alertes, enquêtes, étapes, revues, tâches et (V2) factures. Appelé par le simulateur à chaque « Démarrer » et « Reset » : chaque simulation repart d'une base vide. L'état de la simulation n'est pas stocké en base (voir `04-simulator.md`).

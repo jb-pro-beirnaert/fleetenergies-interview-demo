@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type {
-  HistoryLoadBatch,
-  HistoryLoadResult,
-  ResetResult,
-} from '@fleet/contracts';
+import type { HistoryLoadBatch, HistoryLoadResult } from '@fleet/contracts';
 import { PrismaService } from '../database/prisma.service.js';
 
 @Injectable()
@@ -11,7 +7,7 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Chargement du référentiel et de l'historique (`simulator load`). Idempotent :
+   * Chargement du référentiel et de l'historique (simulateur, état `preparing`). Idempotent :
    * identifiants stables fournis par le simulateur, ON CONFLICT DO NOTHING partout.
    * Ordre d'insertion compatible avec les clés étrangères.
    */
@@ -110,37 +106,14 @@ export class AdminService {
   }
 
   /**
-   * Remise à zéro de la journée de démo : données `live`, puis alertes, enquêtes,
-   * étapes, revues et tâches (toutes issues des lots `live`). L'historique est conservé.
+   * Remise à zéro complète (spec 01) : chaque simulation repart d'une base vide.
+   * Une seule instruction TRUNCATE, donc atomique.
    */
-  async reset(): Promise<ResetResult> {
-    return this.prisma.$transaction(async (tx) => {
-      const steps = await tx.investigationStep.deleteMany();
-      const investigations = await tx.investigation.deleteMany();
-      const reviews = await tx.humanReview.deleteMany();
-      const alerts = await tx.alert.deleteMany();
-      const tasks = await tx.task.deleteMany();
-      const telemetry = await tx.telemetryReading.deleteMany({
-        where: { source: 'live' },
-      });
-      const refuels = await tx.refuel.deleteMany({
-        where: { dataOrigin: 'live' },
-      });
-      const messages = await tx.driverMessage.deleteMany({
-        where: { dataOrigin: 'live' },
-      });
-      return {
-        deleted: {
-          telemetry: telemetry.count,
-          refuels: refuels.count,
-          messages: messages.count,
-          alerts: alerts.count,
-          investigations: investigations.count,
-          steps: steps.count,
-          reviews: reviews.count,
-          tasks: tasks.count,
-        },
-      };
-    });
+  async wipe(): Promise<void> {
+    await this.prisma.$executeRawUnsafe(`
+      TRUNCATE TABLE investigation_steps, investigations, human_reviews, alerts, tasks,
+        telemetry_readings, refuels, driver_messages, driver_assignments,
+        drivers, trucks, places, carriers
+      RESTART IDENTITY CASCADE`);
   }
 }

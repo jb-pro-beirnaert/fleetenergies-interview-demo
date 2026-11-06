@@ -12,6 +12,9 @@ packages/contracts/src/
   verdict.ts        verdict de l'enquêteur
   steps.ts          étapes d'enquête
   screen.ts         réponses des routes écran
+  admin.ts          chargement de l'historique
+  simulation.ts     pilotage du simulateur (états, vue, commandes)
+  simulation-constants.ts  paliers de vitesse et commandes par état, sans zod (importés par l'écran)
   invoice.ts        (V2) extraction de facture
   index.ts
 ```
@@ -41,6 +44,25 @@ TelemetryReading = {
 }
 TelemetryBatch = { readings: TelemetryReading[1..500], source: 'history' | 'live' }
 ```
+
+## Simulation (API de contrôle du simulateur)
+```ts
+SimulationStatus  = 'idle' | 'preparing' | 'running' | 'paused' | 'finished'
+SIMULATION_SPEEDS = [30, 60, 120, 300, 600]           // paliers ; SimulationSpeed = l'un d'eux
+SimulationCommand = 'start' | 'pause' | 'resume' | 'stop' | 'reset'
+SIMULATION_COMMANDS: Record<SimulationStatus, SimulationCommand[]>   // commandes acceptées par état
+SimulationView = {
+  status: SimulationStatus,
+  demoDate: 'AAAA-MM-JJ' | null,
+  clock: ISO datetime | null,            // heure simulée du dernier pas envoyé
+  speed: SimulationSpeed,
+  progress: { done: int, total: int } | null,   // lots d'historique (preparing) ou pas de la journée
+  alertsCreated: int,
+  error: string | null,
+}
+SimulationSpeedRequest = { speed: SimulationSpeed }
+```
+`SIMULATION_COMMANDS` est partagé : le simulateur s'en sert pour répondre 409, l'écran pour griser les boutons. Les constantes sont dans un module sans zod et le paquet est déclaré `"sideEffects": false` : l'écran les importe sans embarquer zod dans son bundle.
 
 ## Tâches (pilotage des workers)
 ```ts
