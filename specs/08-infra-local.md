@@ -26,7 +26,7 @@ Depuis les conteneurs, Ollama est joignable à `http://host.docker.internal:1143
 ## Services Docker Compose
 | Service | Image / build | Port hôte | Dépend de | Notes |
 |---|---|---|---|---|
-| `postgres` | `postgres:17` | 5432 | — | volume `pgdata`, healthcheck `pg_isready` |
+| `postgres` | `postgres:18` | 5432 | — | volume `pgdata`, healthcheck `pg_isready` |
 | `api` | `apps/api` | 3000 | postgres (healthy) | applique les migrations au démarrage ; volume `invoices` (V2) ; healthcheck `/api/health` |
 | `mcp-server` | `apps/mcp-server` | 3100 | api | |
 | `investigator` | `apps/agents` (commande `node dist/investigator.js`) | — | api, mcp-server | `deploy.replicas: 1` (passer à 2 ou 3 pour la démo de parallélisme) |

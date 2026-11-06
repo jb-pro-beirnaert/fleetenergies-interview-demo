@@ -1,4 +1,4 @@
-# 01 — Modèle de données (PostgreSQL 17)
+# 01 — Modèle de données (PostgreSQL 18)
 
 Propriétaire : `apps/api`. Migrations versionnées (outil au choix de l'API : migrations TypeORM, Prisma ou Kysely + fichiers SQL ; **préférer des migrations SQL lisibles**). Identifiants `uuid` (générés par `gen_random_uuid()`) sauf mention contraire. Horodatages en `timestamptz`, stockés en UTC.
 
