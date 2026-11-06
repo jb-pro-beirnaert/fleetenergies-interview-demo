@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 
-// Tests d'intégration : base Postgres de docker-compose.test.yaml (`npm run test:db:up`)
+// Integration tests: Postgres database from docker-compose.test.yaml (`npm run test:db:up`)
 export const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
   'postgres://fleet:fleet@localhost:5433/fleet_test';
@@ -12,7 +12,7 @@ export default defineConfig({
     root: './',
     include: ['test/**/*.e2e-spec.ts'],
     globalSetup: ['./test/support/global-setup.ts'],
-    // Une seule base partagée : fichiers exécutés l'un après l'autre
+    // A single shared database: files run one after the other
     fileParallelism: false,
     hookTimeout: 30_000,
     env: {

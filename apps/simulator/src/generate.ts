@@ -1,4 +1,4 @@
-// `simulator generate` : fonction pure graine → jeu de données, puis sérialisation.
+// `simulator generate`: pure function seed → dataset, then serialisation.
 
 import type {
   DriverMessageInput,
@@ -48,9 +48,9 @@ export interface GroundTruthEvent {
 export interface GroundTruth {
   seed: number;
   timeZone: string;
-  /** Période simulée (dates locales de Paris, bornes incluses). */
+  /** Simulated period (Paris local dates, bounds included). */
   period: { start: string; end: string };
-  /** Journée de démo (`live`) = dernier jour de la période. */
+  /** Demo day (`live`) = last day of the period. */
   demoDay: string;
   trucks: Record<string, { id: string; plate: string }>;
   scenarios: GroundTruthEvent[];
@@ -65,7 +65,7 @@ export interface Dataset {
   history: ActivityData;
   live: ActivityData;
   groundTruth: GroundTruth;
-  /** Simulation brute (niveaux réels, statistiques journalières), pour les tests. */
+  /** Raw simulation (real levels, daily statistics), for the tests. */
   sims: TruckSim[];
 }
 
@@ -80,7 +80,7 @@ export const FILES = {
   groundTruth: 'ground-truth.json',
 } as const;
 
-/** Artefact de sonde : les relevés de [début, début + durée[ sont faussés de −amountL. */
+/** Sensor artefact: the readings in [start, start + duration[ are skewed by −amountL. */
 const eventDay = (cal: Calendar, event: ScenarioDef) => cal.liveDay + event.dayOffset;
 
 function applySensorArtifact(sim: TruckSim, event: ScenarioDef): void {
@@ -92,7 +92,7 @@ function applySensorArtifact(sim: TruckSim, event: ScenarioDef): void {
   }
 }
 
-/** Le camion doit être arrêté au bon type de lieu pendant tout l'épisode (± 20 min). */
+/** The truck must be stopped at the right place type during the whole episode (± 20 min). */
 function scenarioPlace(world: World, sim: TruckSim, event: ScenarioDef) {
   const day = eventDay(world.cal, event);
   const start = world.cal.at(day, event.time);
@@ -100,8 +100,8 @@ function scenarioPlace(world: World, sim: TruckSim, event: ScenarioDef) {
   const place = stay ? world.place(stay.placeCode) : undefined;
   if (!stay || !place || stay.end < start + event.durationMin + 20 || place.type !== event.placeType) {
     throw new Error(
-      `${event.id} : ${event.truck} n'est pas arrêté sur un lieu « ${event.placeType} » autour de ${event.time} le ${world.cal.date(day)}` +
-        (stay ? ` (arrêt « ${stay.placeCode} »)` : ''),
+      `${event.id}: ${event.truck} is not stopped at a "${event.placeType}" place around ${event.time} on ${world.cal.date(day)}` +
+        (stay ? ` (stop "${stay.placeCode}")` : ''),
     );
   }
   return place;
@@ -127,14 +127,14 @@ function buildMessages(world: World, sims: TruckSim[]): { minute: number; messag
     });
   };
 
-  // Messages des scénarios d'abord (prioritaires sur la minute)
+  // Scenario messages first (they take priority on the minute)
   for (const event of SCENARIOS) {
     if (!event.message) continue;
     const day = eventDay(cal, event);
     add(event.truck, cal.at(day, event.message.time), event.message.body(world.driverOf(event.truck, day)));
   }
 
-  // 1 ou 2 messages banals par jour travaillé et par conducteur, selon la situation du camion
+  // 1 or 2 everyday messages per working day and per driver, depending on the truck's situation
   for (const sim of sims) {
     const rng = createRng(world.seed, 'messages', sim.truck.code);
     for (let day = 0; day < cal.days; day++) {
@@ -152,8 +152,8 @@ function buildMessages(world: World, sims: TruckSim[]): { minute: number; messag
 }
 
 /**
- * Génère la période [today − 1 mois ; today] (dates de Paris), `today` étant la journée de démo.
- * Déterministe : même graine et même date → mêmes fichiers.
+ * Generates the period [today − 1 month; today] (Paris dates), `today` being the demo day.
+ * Deterministic: same seed and same date → same files.
  */
 export function generate(seed: number, today: string): Dataset {
   const cal = buildCalendar(today);
@@ -171,8 +171,8 @@ export function generate(seed: number, today: string): Dataset {
     const place = scenarioPlace(world, sim, event);
     const day = eventDay(cal, event);
     const start = cal.at(day, event.time);
-    if (event.clues.includes('aucun plein') && sim.refuels.some((r) => Math.abs(r.minute - start) < 120)) {
-      throw new Error(`${event.id} : un plein a lieu à moins de 2 h de l'épisode`);
+    if (event.clues.includes('no refuel') && sim.refuels.some((r) => Math.abs(r.minute - start) < 120)) {
+      throw new Error(`${event.id}: a refuel happens less than 2 h from the episode`);
     }
     return {
       id: event.id,
@@ -262,7 +262,7 @@ export function generate(seed: number, today: string): Dataset {
 const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 const ndjson = (items: readonly unknown[]) => items.map((item) => `${JSON.stringify(item)}\n`).join('');
 
-/** Contenu des fichiers de `data/generated/`, indexé par nom de fichier. */
+/** Content of the `data/generated/` files, indexed by file name. */
 export function serialize(dataset: Dataset): Record<string, string> {
   return {
     [FILES.reference]: json(dataset.reference),

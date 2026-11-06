@@ -1,4 +1,4 @@
-// Calculs des outils d'enquête (spec 02 et 03). Fonctions pures : le code calcule, jamais le LLM.
+// Investigation tool calculations (specs 02 and 03). Pure functions: code computes, never the LLM.
 import { MAX_LIST_ITEMS, MAX_SAMPLES } from '@fleet/contracts';
 import { MINUTE_MS, round1 } from '../common/serialize.js';
 
@@ -30,7 +30,7 @@ export interface PlaceRef {
 export interface LevelChange {
   from: Reading;
   to: Reading;
-  /** Litres perdus (chute) ou gagnés (remontée), toujours positifs */
+  /** Liters lost (drop) or gained (rise), always positive */
   liters: number;
   readings: Reading[];
 }
@@ -40,9 +40,9 @@ const minutesBetween = (from: Date, to: Date) =>
   (to.getTime() - from.getTime()) / MINUTE_MS;
 
 /**
- * Variations de niveau entre deux relevés distants d'au plus 20 min, sans chevauchement :
- * on retient d'abord la plus forte, puis la suivante qui ne la recoupe pas, etc.
- * `direction = 'drop'` : baisses, véhicule à l'arrêt sur tout l'intervalle.
+ * Level changes between two readings at most 20 min apart, without overlap:
+ * the largest one is kept first, then the next one that does not overlap it, etc.
+ * `direction = 'drop'`: decreases, vehicle stopped over the whole interval.
  */
 export function findLevelChanges(
   readings: Reading[],
@@ -81,7 +81,7 @@ export function findLevelChanges(
     }));
 }
 
-/** 30 points max en conservant le premier, le dernier et les extremums (min/max par tranche). */
+/** 30 points max, keeping the first, the last and the extremes (min/max per bucket). */
 export function downsample<T>(
   points: T[],
   value: (point: T) => number,
@@ -133,7 +133,7 @@ export function distanceMeters(
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
 }
 
-/** Lieu le plus proche dont le rayon contient la position, sinon `null`. */
+/** Nearest place whose radius contains the position, otherwise `null`. */
 export function nearestPlace<P extends PlaceRef>(
   position: { lat: number; lon: number },
   places: P[],
@@ -156,7 +156,7 @@ export interface Stop {
   readings: Reading[];
 }
 
-/** Arrêt : suite de relevés à vitesse < 3 km/h pendant au moins 5 min. */
+/** Stop: run of readings at speed < 3 km/h lasting at least 5 min. */
 export function findStops(readings: Reading[]): Stop[] {
   const stops: Stop[] = [];
   let run: Reading[] = [];
@@ -170,7 +170,7 @@ export function findStops(readings: Reading[]): Stop[] {
           from,
           to,
           durationMin: Math.round(minutesBetween(from.at, to.at)),
-          // Moteur coupé sur la majorité des relevés de l'arrêt
+          // Engine off on the majority of the stop's readings
           ignitionOff: off * 2 >= run.length,
           readings: run,
         });
@@ -186,7 +186,7 @@ export function findStops(readings: Reading[]): Stop[] {
   return stops;
 }
 
-/** Garde les `max` plus longs arrêts, remis dans l'ordre chronologique. */
+/** Keeps the `max` longest stops, put back in chronological order. */
 export function longestStops(stops: Stop[], max = MAX_LIST_ITEMS): Stop[] {
   return [...stops]
     .sort((a, b) => b.durationMin - a.durationMin)
@@ -204,7 +204,7 @@ export function distanceKm(readings: Reading[]): number {
   );
 }
 
-/** Minutes en mouvement : intervalles entre relevés consécutifs dont l'arrivée est à ≥ 3 km/h. */
+/** Minutes moving: intervals between consecutive readings whose end is at ≥ 3 km/h. */
 export function movingMinutes(readings: Reading[]): number {
   let total = 0;
   for (let k = 1; k < readings.length; k++) {
@@ -214,7 +214,7 @@ export function movingMinutes(readings: Reading[]): number {
   return Math.round(total);
 }
 
-/** Heures moteur tournant à l'arrêt : intervalles dont les deux relevés sont arrêtés, contact mis. */
+/** Engine-running hours while stopped: intervals whose two readings are stopped, ignition on. */
 export function idleHours(readings: Reading[]): number {
   let minutes = 0;
   for (let k = 1; k < readings.length; k++) {
@@ -234,9 +234,9 @@ export interface FuelBalanceInput {
 }
 
 /**
- * Bilan carburant (spec 02) :
- * attendu = km × conso/100 + heures au ralenti × conso ralenti ;
- * inexpliqué = baisse observée + pleins − attendu.
+ * Fuel balance (spec 02):
+ * expected = km × consumption/100 + idle hours × idle consumption;
+ * unexplained = observed decrease + refuels − expected.
  */
 export function computeFuelBalance(input: FuelBalanceInput) {
   const { readings, refueledL, baselineLPer100km, idleLPerHour } = input;
@@ -259,7 +259,7 @@ export function computeFuelBalance(input: FuelBalanceInput) {
   };
 }
 
-/** Remontées ≥ 25 L sans plein enregistré à ± 30 min : signe d'artefact de sonde. */
+/** Rises ≥ 25 L with no refuel recorded within ± 30 min: sign of a sensor artefact. */
 export function findRecoveries(readings: Reading[], refuelTimes: Date[]) {
   return findLevelChanges(readings, 'rise', RECOVERY_MIN_L)
     .filter(
@@ -280,7 +280,7 @@ const PARIS_HOUR = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Paris',
 });
 
-/** Heure locale (Europe/Paris) : « la nuit » doit se lire en heure française. */
+/** Local hour (Europe/Paris): "at night" must be read in French time. */
 export function hourOfDayParis(date: Date): number {
   const hour = PARIS_HOUR.formatToParts(date).find(
     (part) => part.type === 'hour',

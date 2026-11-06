@@ -8,7 +8,7 @@ import { mergeMap, type Observable } from 'rxjs';
 import { maskDeep } from './pii.js';
 import { PiiService } from './pii.service.js';
 
-// Filet de sécurité des routes /agent/* : toute chaîne de la réponse passe par le masquage
+// Safety net of the /agent/* routes: every string of the response goes through masking
 @Injectable()
 export class PiiInterceptor implements NestInterceptor {
   constructor(private readonly pii: PiiService) {}

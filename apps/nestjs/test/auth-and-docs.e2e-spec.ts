@@ -1,6 +1,6 @@
 import { auth, createTestApp, type TestApp } from './support/app.js';
 
-describe('Authentification et documentation', () => {
+describe('Authentication and documentation', () => {
   let t: TestApp;
 
   beforeAll(async () => {
@@ -14,7 +14,7 @@ describe('Authentification et documentation', () => {
     ['get', '/agent/alerts/00000000-0000-4000-8000-000000000001', 'agent'],
     ['post', '/admin/wipe', 'admin'],
   ] as const)(
-    '%s %s : 401 sans jeton ou avec un mauvais jeton, 403 avec un autre rôle',
+    '%s %s: 401 without a token or with a wrong token, 403 with another role',
     async (method, path, role) => {
       await t.http()[method](path).expect(401);
       await t
@@ -27,7 +27,7 @@ describe('Authentification et documentation', () => {
     },
   );
 
-  it('/docs expose Swagger UI et le document OpenAPI', async () => {
+  it('/docs serves Swagger UI and the OpenAPI document', async () => {
     const ui = await t.http().get('/docs').expect(200);
     expect(ui.text).toContain('swagger-ui');
 

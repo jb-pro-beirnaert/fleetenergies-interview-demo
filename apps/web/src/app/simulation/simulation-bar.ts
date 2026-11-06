@@ -1,43 +1,50 @@
 import { Component, computed, inject } from '@angular/core';
 import type { SimulationCommand } from '@fleet/contracts';
 import { fmtNumber } from '../core/format';
+import { t } from '../core/i18n/i18n';
 import { canRun, neighbourSpeed, simulationLabel } from '../core/simulation';
 import { SimulationStore } from '../core/simulation.store';
 
 @Component({
   selector: 'app-simulation-bar',
   template: `
-    <strong class="title">Simulation</strong>
+    <strong class="title">{{ t('sim.title') }}</strong>
 
     <div class="group">
       <button type="button" class="primary" [disabled]="!can('start')" (click)="run('start')">
-        ▶ Démarrer
+        {{ t('sim.start') }}
       </button>
       @if (view()?.status === 'paused') {
-        <button type="button" [disabled]="!can('resume')" (click)="run('resume')">▶ Reprendre</button>
+        <button type="button" [disabled]="!can('resume')" (click)="run('resume')">
+          {{ t('sim.resume') }}
+        </button>
       } @else {
-        <button type="button" [disabled]="!can('pause')" (click)="run('pause')">⏸ Pause</button>
+        <button type="button" [disabled]="!can('pause')" (click)="run('pause')">
+          {{ t('sim.pause') }}
+        </button>
       }
-      <button type="button" [disabled]="!can('stop')" (click)="run('stop')">⏹ Terminer</button>
+      <button type="button" [disabled]="!can('stop')" (click)="run('stop')">
+        {{ t('sim.stop') }}
+      </button>
     </div>
 
-    <div class="group speed" aria-label="Vitesse">
+    <div class="group speed" [attr.aria-label]="t('sim.speed')">
       <button
         type="button"
         class="icon"
-        title="Ralentir"
-        aria-label="Ralentir"
+        [title]="t('sim.slower')"
+        [attr.aria-label]="t('sim.slower')"
         [disabled]="!slower()"
         (click)="setSpeed(slower())"
       >
         −
       </button>
-      <span class="value" title="Vitesse (× temps réel)">×{{ view()?.speed ?? '—' }}</span>
+      <span class="value" [title]="t('sim.speedTitle')">×{{ view()?.speed ?? '—' }}</span>
       <button
         type="button"
         class="icon"
-        title="Accélérer"
-        aria-label="Accélérer"
+        [title]="t('sim.faster')"
+        [attr.aria-label]="t('sim.faster')"
         [disabled]="!faster()"
         (click)="setSpeed(faster())"
       >
@@ -45,7 +52,9 @@ import { SimulationStore } from '../core/simulation.store';
       </button>
     </div>
 
-    <button type="button" class="reset" [disabled]="!can('reset')" (click)="reset()">↺ Reset</button>
+    <button type="button" class="reset" [disabled]="!can('reset')" (click)="reset()">
+      {{ t('sim.reset') }}
+    </button>
 
     <div class="status" [attr.data-status]="statusKey()">
       <span class="label">{{ label() }}</span>
@@ -56,7 +65,7 @@ import { SimulationStore } from '../core/simulation.store';
       }
       @if (view(); as v) {
         @if (v.status !== 'idle') {
-          <span class="alerts">{{ fmtNumber(v.alertsCreated) }} alerte(s)</span>
+          <span class="alerts">{{ t('sim.alertsCount', { n: fmtNumber(v.alertsCreated) }) }}</span>
         }
       }
       @if (error(); as e) {
@@ -163,6 +172,7 @@ export class SimulationBar {
   private readonly store = inject(SimulationStore);
   protected readonly view = this.store.view;
   protected readonly fmtNumber = fmtNumber;
+  protected readonly t = t;
 
   protected readonly slower = computed(() => this.speedStep(-1));
   protected readonly faster = computed(() => this.speedStep(1));
@@ -171,16 +181,20 @@ export class SimulationBar {
     this.store.reachable() === false ? 'unreachable' : (this.view()?.status ?? 'unknown'),
   );
   protected readonly label = computed(() => {
-    if (this.store.reachable() === false) return 'Simulateur injoignable';
+    if (this.store.reachable() === false) return t('sim.unreachable');
     const view = this.view();
-    return view ? simulationLabel(view) : 'Connexion au simulateur…';
+    return view ? simulationLabel(view) : t('sim.connecting');
   });
   protected readonly percent = computed(() => {
     const progress = this.view()?.progress;
     if (!progress || progress.total === 0) return null;
     return Math.round((progress.done / progress.total) * 100);
   });
-  protected readonly error = computed(() => this.store.commandError() ?? this.view()?.error ?? null);
+  protected readonly error = computed(() => {
+    const failure = this.store.commandError();
+    if (failure) return failure.message ?? t('sim.commandFailed');
+    return this.view()?.error ?? null;
+  });
 
   protected can(command: SimulationCommand) {
     return !this.store.busy() && this.store.reachable() !== false && canRun(this.view(), command);
@@ -195,7 +209,7 @@ export class SimulationBar {
   }
 
   protected reset() {
-    if (confirm('Toutes les données seront supprimées (historique, alertes, enquêtes). Continuer ?')) {
+    if (confirm(t('sim.resetConfirm'))) {
       this.run('reset');
     }
   }

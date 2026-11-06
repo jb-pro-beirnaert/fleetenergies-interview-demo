@@ -20,7 +20,7 @@ const item = (id: string, status: AlertListItem['status']): AlertListItem => ({
   toolCallsCount: null,
 });
 
-describe('ControlRoomStore — sélection', () => {
+describe('ControlRoomStore — selection', () => {
   let store: ControlRoomStore;
   let http: HttpTestingController;
 
@@ -35,7 +35,7 @@ describe('ControlRoomStore — sélection', () => {
 
   afterEach(() => vi.useRealTimers());
 
-  // premier tick du polling (timer(0)), puis réponse de l'API
+  // first polling tick (timer(0)), then the API response
   const answerAlerts = (alerts: AlertListItem[]) => {
     vi.advanceTimersByTime(0);
     const requests = http.match((r) => r.url === '/api/alerts');
@@ -43,23 +43,23 @@ describe('ControlRoomStore — sélection', () => {
     requests.forEach((r) => r.flush(alerts));
   };
 
-  it('sélectionne automatiquement la dernière alerte en enquête', () => {
+  it('automatically selects the latest alert under investigation', () => {
     answerAlerts([item('a', 'closed'), item('b', 'investigating'), item('c', 'investigating')]);
     expect(store.selectedId()).toBe('b');
   });
 
-  it('se rabat sur la plus récente quand aucune enquête ne tourne', () => {
+  it('falls back to the most recent one when no investigation is running', () => {
     answerAlerts([item('a', 'escalated'), item('b', 'closed')]);
     expect(store.selectedId()).toBe('a');
   });
 
-  it('respecte un choix explicite de l’utilisateur', () => {
+  it('respects an explicit user choice', () => {
     answerAlerts([item('a', 'investigating'), item('b', 'closed')]);
     store.select('b');
     expect(store.selectedId()).toBe('b');
   });
 
-  it('filtre les alertes à traiter et les classées', () => {
+  it('filters the alerts to review and the closed ones', () => {
     answerAlerts([
       item('a', 'escalated'),
       item('b', 'closed'),

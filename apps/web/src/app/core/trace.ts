@@ -1,6 +1,6 @@
 import type { InvestigationStepView } from '@fleet/contracts';
 
-// Vue de la trace : un appel d'outil et son résultat sont réunis en un seul élément.
+// Trace view: a tool call and its result are merged into a single item.
 export type TraceItem =
   | {
       kind: 'tool';
@@ -9,7 +9,7 @@ export type TraceItem =
       ref: string | null;
       toolName: string | null;
       args: Record<string, unknown>;
-      /** `undefined` tant que le résultat n'est pas arrivé */
+      /** `undefined` until the result has arrived */
       result: { ok: true; value: unknown } | { ok: false; error: string } | undefined;
       durationMs: number | null;
     }
@@ -31,7 +31,7 @@ const text = (payload: unknown, key: string): string => {
   return JSON.stringify(payload);
 };
 
-// Le worker peut avoir conservé l'enveloppe `{ ref, result }` vue par le modèle
+// The worker may have kept the `{ ref, result }` envelope seen by the model
 const unwrap = (value: unknown): unknown =>
   isRecord(value) && 'ref' in value && 'result' in value ? value['result'] : value;
 
@@ -45,7 +45,7 @@ function toolResult(
   return { ok: true, value: payload };
 }
 
-/** Regroupe les étapes par tentative, dans l'ordre, et associe chaque `tool_result` à son `tool_call`. */
+/** Groups the steps by attempt, in order, and pairs each `tool_result` with its `tool_call`. */
 export function buildTrace(steps: readonly InvestigationStepView[]): TraceAttempt[] {
   const sorted = [...steps].sort((a, b) => a.attempt - b.attempt || a.seq - b.seq);
   const attempts = new Map<number, TraceItem[]>();
@@ -83,7 +83,7 @@ export function buildTrace(steps: readonly InvestigationStepView[]): TraceAttemp
           call.durationMs = step.durationMs;
           openCalls.delete(key);
         } else {
-          // résultat orphelin : affiché quand même
+          // orphan result: displayed anyway
           items.push({
             ...base,
             kind: 'tool',
@@ -112,5 +112,5 @@ export function buildTrace(steps: readonly InvestigationStepView[]): TraceAttemp
   return [...attempts.entries()].map(([attempt, items]) => ({ attempt, items }));
 }
 
-/** Identifiant DOM de l'étape citée par une preuve (dernière tentative). */
+/** DOM id of the step cited by a piece of evidence (last attempt). */
 export const stepAnchor = (attempt: number, ref: string) => `step-${attempt}-${ref}`;

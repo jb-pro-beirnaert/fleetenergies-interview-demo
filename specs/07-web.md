@@ -1,88 +1,96 @@
-# 07 — Salle de contrôle (`apps/web`)
+# 07 — Control room (`apps/web`)
 
-Application Angular (version récente, composants autonomes, signals). C'est **l'écran de la démo** : il doit rendre visible que des agents IA travaillent seuls, chacun avec un chemin d'enquête différent, et la valeur que ça apporte.
+Angular application (recent version, standalone components, signals). It is **the demo screen**: it must make visible that AI agents work on their own, each with a different investigation path, and the value this brings.
 
-Données : via l'API (`/api/*`) et, pour le pilotage de la simulation, via l'API de contrôle du simulateur (`/simulation*`, spec 04). Les deux sont proxifiés (`ng serve` en dev, nginx en prod). **Polling toutes les 2 s** (RxJS `timer` + `switchMap`), suspendu quand l'onglet du navigateur est masqué.
+Data: through the API (`/api/*`) and, for simulation control, through the simulator control API (`/simulation*`, spec 04). Both are proxied (`ng serve` in dev, nginx in prod). **Polling every 2 s** (RxJS `timer` + `switchMap`), suspended while the browser tab is hidden.
 
-Bibliothèques proposées (à valider avant installation) : Chart.js pour la courbe, Leaflet + tuiles OpenStreetMap pour la mini-carte. Style sobre et lisible en partage d'écran : fond clair, une couleur d'accent, gros chiffres pour les indicateurs. Pas de bibliothèque de composants lourde obligatoire.
+Proposed libraries (to be validated before installation): Chart.js for the curve, Leaflet + OpenStreetMap tiles for the mini-map. Plain style, readable when screen sharing: light background, one accent colour, big numbers for the indicators. No heavy component library required.
 
-## Mise en page (écran large, ≥ 1 280 px)
+## Languages
+The UI is available in **English (default)** and **French**, switchable from the header (`EN` / `FR`); the choice is remembered in the browser (`localStorage`, key `fleet.lang`).
+- No i18n dependency: dictionaries in `src/app/core/i18n/` (`en.ts` is the reference and defines the keys, `fr.ts` must provide every key — enforced by its type); `t(key, params?)` reads the current language from a global signal, so templates call it directly and re-render on a switch.
+- Dates and numbers follow the language (`en-GB` / `fr-FR`); times are always shown in Paris time.
+- `<html lang>` and the tab title follow the language.
+- Content produced by the API, the simulator or the agents (verdict summaries, driver messages, error messages) is shown as received.
+
+## Layout (wide screen, ≥ 1,280 px)
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Fleet Copilot · Salle de contrôle   Heure simulée 06/11 02:47   modèle │
+│ Fleet Copilot · Control room   Simulated time 06/11 02:47  model  EN FR │
 ├──────────────────────────────────────────────────────────────────────┤
-│ Simulation : ▶ Démarrer  ⏸ Pause  ⏹ Terminer  − ×120 +  ↺ Reset  état │
+│ Simulation: ▶ Start  ⏸ Pause  ⏹ Finish  − ×120 +  ↺ Reset     state │
 ├───────────────┬──────────────────────────────────────┬───────────────┤
-│ Flux          │ Enquête sélectionnée                 │ Valeur        │
-│ d'alertes     │ (en-tête, trace, verdict, revue)     │               │
+│ Alert         │ Selected investigation               │ Value         │
+│ feed          │ (header, trace, verdict, review)     │               │
 └───────────────┴──────────────────────────────────────┴───────────────┘
 ```
-Onglets en haut : **Alertes** (V1), **Factures** (V2).
+Tabs at the top: **Alerts** (V1), **Invoices** (V2).
 
-## Bandeau
-Titre, heure simulée (`stats.simulatedNow`), modèle utilisé, point vert/rouge selon la santé de l'API.
+## Header
+Title, simulated time (`stats.simulatedNow`), model used, language switch, green/red dot depending on the API health.
 
-## Barre de simulation
-Sous le bandeau, pleine largeur, alimentée par `GET /simulation` (polling 2 s) :
-- **Démarrer**, **Pause** / **Reprendre** (un seul bouton selon l'état), **Terminer**, **−** / **vitesse** / **+** (paliers ×30 → ×600), **Reset** (demande de confirmation : « Toutes les données seront supprimées »).
-- Chaque bouton est grisé quand la commande n'est pas acceptée dans l'état courant (`SIMULATION_COMMANDS` des contrats) ; après une commande, la vue renvoyée remplace l'état affiché sans attendre le polling.
-- État lisible : « Prête à démarrer », « Préparation… 42 / 216 lots », « En cours · journée du 06/11 », « En pause », « Terminée » ; nombre d'alertes créées ; message d'erreur éventuel (`error`) en rouge ; « Simulateur injoignable » si `/simulation` ne répond pas.
-- Pendant `preparing`, une barre de progression ; pendant `running`, la progression de la journée (pas envoyés / total).
+## Simulation bar
+Below the header, full width, fed by `GET /simulation` (2 s polling):
+- **Start**, **Pause** / **Resume** (a single button depending on the state), **Finish**, **−** / **speed** / **+** (steps ×30 → ×600), **Reset** (asks for confirmation: "All data will be deleted").
+- Each button is disabled when the command is not accepted in the current state (`SIMULATION_COMMANDS` from the contracts); after a command, the returned view replaces the displayed state without waiting for the polling.
+- Readable state: "Ready to start", "Preparing… 42 / 216 batches", "Running · day of 06/11", "Paused", "Finished"; number of alerts created; error message if any (`error`) in red; "Simulator unreachable" if `/simulation` does not answer.
+- During `preparing`, a progress bar; during `running`, the progress of the day (steps sent / total).
 
-## Flux d'alertes (gauche)
-- Liste des alertes, la plus récente en haut ; une nouvelle alerte apparaît avec une animation discrète.
-- Chaque élément : immatriculation, transporteur, heure simulée, type (« Chute de carburant », V2 « Écart de facturation »), litres, **pastille de statut** :
-  - Détectée (gris) → En enquête (bleu, animée) → Classée auto (vert) / Escaladée (orange) → Confirmée / Rejetée par un humain.
-- Une fois l'enquête finie : libellé de catégorie et confiance (« Vol probable · 86 % »).
-- Filtre rapide : toutes / à traiter (escaladées) / classées.
-- Clic → sélection. Par défaut, la dernière alerte en enquête est sélectionnée automatiquement.
+## Alert feed (left)
+- List of alerts, most recent at the top; a new alert appears with a subtle animation.
+- Each item: number plate, carrier, simulated time, type ("Fuel drop", V2 "Billing discrepancy"), liters, **status pill**:
+  - Detected (grey) → Investigating (blue, animated) → Auto-closed (green) / Escalated (orange) → Confirmed / Dismissed by a human.
+- Once the investigation is over: category label and confidence ("Suspected theft · 86%").
+- Quick filter: all / to review (escalated) / closed.
+- Click → selection. By default, the latest alert under investigation is selected automatically.
 
-## Enquête sélectionnée (centre)
-**En-tête** : immatriculation, lieu et heure, litres, statut, durée de l'enquête, nombre d'appels d'outils.
+## Selected investigation (centre)
+**Header**: number plate, place and time, liters, status, investigation duration, number of tool calls.
 
-**Trace** : les étapes dans l'ordre, ajoutées au fil du polling (« Enquête en cours… » tant qu'elle tourne). Chaque appel d'outil est affiché avec une phrase lisible (« Consulte la courbe du réservoir ») et un **rendu visuel de son résultat** :
+**Trace**: the steps in order, added as polling goes ("Investigation in progress…" while it runs). Each tool call is shown with a readable phrase ("Checks the tank curve") and a **visual rendering of its result**:
 
-| Outil | Rendu |
+| Tool | Rendering |
 |---|---|
-| `get_truck_profile` | Carte d'identité : modèle, réservoir, badges « Groupe frigo », « Notes sonde » avec le texte |
-| `get_tank_curve` | Graphique du niveau (points complets via `/api/trucks/:id/tank-curve`), période de l'alerte surlignée, zones moteur coupé grisées |
-| `get_vehicle_activity` | Mini-carte des positions et arrêts (couleur par type de lieu) + liste des arrêts |
-| `find_fuel_transactions` | Liste des pleins (heure, station, litres, source carte/facture) ou « Aucun plein sur la période » |
-| `read_driver_messages` | Bulles de messages, signées du pseudonyme ; les parties masquées sont visibles comme telles |
-| `compute_fuel_balance` | Quatre chiffres (attendu, pleins, baisse observée, **inexpliqué** mis en évidence) |
-| `find_similar_events` | Petite frise des chutes passées, avec leur verdict |
+| `get_truck_profile` | ID card: model, tank, "Reefer unit" and "Sensor notes" badges with the text |
+| `get_tank_curve` | Level chart (full points via `/api/trucks/:id/tank-curve`), alert period highlighted, engine-off areas greyed out |
+| `get_vehicle_activity` | Mini-map of positions and stops (colour by place type) + list of stops |
+| `find_fuel_transactions` | List of refuels (time, station, liters, card/invoice source) or "No refuels over the period" |
+| `read_driver_messages` | Message bubbles, signed with the pseudonym; masked parts are visible as such |
+| `compute_fuel_balance` | Four figures (expected, refuels, observed decrease, **unexplained** highlighted) |
+| `find_similar_events` | Small timeline of past drops, with their verdict |
 
-Autres étapes :
-- `reasoning` : texte du modèle, replié par défaut, en gris ;
-- `retry` et `error` : ligne orange ou rouge avec le message (montre la robustesse en démo) ;
-- chaque étape porte sa référence (`E1`, `E2`…).
+Other steps:
+- `reasoning`: model text, collapsed by default, in grey;
+- `retry` and `error`: orange or red line with the message (shows robustness during the demo);
+- each step carries its reference (`E1`, `E2`…).
 
-**Verdict** : carte mise en avant avec la catégorie en français, une barre de confiance, le résumé, les preuves (cliquer sur une preuve fait défiler jusqu'à l'étape `E…` correspondante), et la **décision** (« Classée automatiquement » ou « Escaladée à un analyste ») avec sa raison (règle de l'API).
+**Verdict**: highlighted card with the category label, a confidence bar, the summary, the evidence (clicking a piece of evidence scrolls to the matching `E…` step), and the **decision** ("Closed automatically" or "Escalated to an analyst") with its reason (API rule).
 
-**Revue humaine** (si l'alerte est escaladée ou classée) : boutons « Confirmer » et « Rejeter » + commentaire facultatif.
+**Human review** (if the alert is escalated or closed): "Confirm" and "Dismiss" buttons + optional comment.
 
-Libellés des catégories : `theft_suspected` → Vol probable ; `sensor_fault` → Défaillance de sonde ; `equipment_transfer` → Transfert vers équipement ; `legitimate_operation` → Opération légitime ; `billing_discrepancy` → Écart de facturation ; `inconclusive` → Indéterminé.
+Category labels (EN / FR): `theft_suspected` → Suspected theft / Vol probable; `sensor_fault` → Sensor fault / Défaillance de sonde; `equipment_transfer` → Transfer to equipment / Transfert vers équipement; `legitimate_operation` → Legitimate operation / Opération légitime; `billing_discrepancy` → Billing discrepancy / Écart de facturation; `inconclusive` → Inconclusive / Indéterminé.
 
-## Valeur (droite)
-Depuis `/api/stats` :
-- **Sans agents** : « N alertes à analyser à la main » (toutes les alertes) ;
-- **Avec agents** : classées automatiquement, escaladées, en attente ou en cours ;
-- temps moyen d'enquête, appels d'outils moyens, enquêtes en échec ;
-- accord avec les humains (revues cohérentes / revues) ;
-- petit histogramme des catégories.
+## Value (right)
+From `/api/stats`:
+- **Without agents**: "N alerts to analyse by hand" (all alerts);
+- **With agents**: auto-closed, escalated, pending or in progress;
+- average investigation time, average tool calls, failed investigations;
+- agreement with humans (consistent reviews / reviews);
+- small histogram of the categories.
 
-## V2 — onglet Factures
-- Liste : fournisseur, immatriculation, date du plein, litres, montant, statut (Reçue, En lecture, Lue, Rapprochée, **Écart**, À vérifier, Échec), badge rouge **« Contenu suspect »**.
-- Détail en deux colonnes : le PDF (`/api/invoices/:id/file`) à gauche ; à droite les champs extraits, le rapprochement (litres facturés, hausse constatée, écart, station reconnue), et le passage suspect surligné s'il y en a un.
-- Lien vers l'alerte d'écart de facturation et son enquête.
-- Dans le flux d'alertes, les alertes `billing_mismatch` mènent à la même vue d'enquête.
+## V2 — Invoices tab
+- List: supplier, number plate, refuel date, liters, amount, status (Received, Reading, Read, Matched, **Discrepancy**, To check, Failed), red **"Suspicious content"** badge.
+- Two-column detail: the PDF (`/api/invoices/:id/file`) on the left; on the right the extracted fields, the reconciliation (billed liters, observed rise, gap, recognised station), and the suspicious passage highlighted if there is one.
+- Link to the billing discrepancy alert and its investigation.
+- In the alert feed, `billing_mismatch` alerts lead to the same investigation view.
 
-## Critères d'acceptation
-1. Après « Démarrer », les alertes apparaissent seules, passent « En enquête » puis « Classée » ou « Escaladée », sans rechargement de la page.
-2. La trace d'une enquête en cours s'enrichit étape par étape ; chaque outil a son rendu visuel.
-3. Le graphique de S2 montre la chute puis la remontée ; la carte de S1 montre l'arrêt sur l'aire d'autoroute.
-4. Cliquer sur une preuve du verdict amène à l'étape citée.
-5. Confirmer ou rejeter une alerte met à jour son statut et l'indicateur d'accord.
-6. Lisible en partage d'écran à 1 280 × 720 (pas de texte sous 13 px).
-7. Toute la démo se pilote depuis l'écran (démarrer, pause, reprise, vitesse, terminer, reset), sans terminal ; les boutons non applicables sont grisés.
-8. (V2) La facture B3 affiche le badge « Contenu suspect » et le passage surligné ; la facture B1 mène à l'enquête d'écart.
+## Acceptance criteria
+1. After "Start", alerts appear on their own, move to "Investigating" then "Auto-closed" or "Escalated", without reloading the page.
+2. The trace of an ongoing investigation grows step by step; each tool has its visual rendering.
+3. The S2 chart shows the drop then the rise; the S1 map shows the stop at the motorway rest area.
+4. Clicking a piece of evidence of the verdict leads to the cited step.
+5. Confirming or dismissing an alert updates its status and the agreement indicator.
+6. Readable when screen sharing at 1,280 × 720 (no text below 13 px).
+7. The whole demo is driven from the screen (start, pause, resume, speed, finish, reset), without a terminal; non-applicable buttons are disabled.
+8. (V2) Invoice B3 shows the "Suspicious content" badge and the highlighted passage; invoice B1 leads to the discrepancy investigation.
+9. The UI is in English by default and switches to French (and back) without reloading; the choice survives a reload.

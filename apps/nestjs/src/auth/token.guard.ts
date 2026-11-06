@@ -20,7 +20,7 @@ function sameToken(a: string, b: string): boolean {
   return left.length === right.length && timingSafeEqual(left, right);
 }
 
-// Jetons statiques Bearer : mauvais jeton → 401, jeton d'un autre rôle → 403
+// Static Bearer tokens: wrong token → 401, token of another role → 403
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(
@@ -40,9 +40,9 @@ export class TokenGuard implements CanActivate {
     const token = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
     const role = token ? this.roleOf(token) : undefined;
 
-    if (!role) throw new UnauthorizedException('Jeton manquant ou invalide');
+    if (!role) throw new UnauthorizedException('Missing or invalid token');
     if (role !== required) {
-      throw new ForbiddenException(`Jeton « ${role} » non autorisé ici`);
+      throw new ForbiddenException(`Token "${role}" not allowed here`);
     }
     return true;
   }

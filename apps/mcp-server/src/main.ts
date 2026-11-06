@@ -11,7 +11,7 @@ const api = createApiClient({
   token: config.AGENT_API_TOKEN,
 });
 
-// `--stdio` : client local en développement (inspecteur MCP), sans authentification
+// `--stdio`: local client in development (MCP inspector), without authentication
 if (process.argv.includes('--stdio')) {
   await createMcpServer(api).connect(new StdioServerTransport());
   log({ msg: 'mcp-server on stdio', apiUrl: config.API_URL });

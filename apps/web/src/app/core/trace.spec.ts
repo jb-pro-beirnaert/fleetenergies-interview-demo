@@ -16,7 +16,7 @@ const step = (partial: Partial<InvestigationStepView>): InvestigationStepView =>
 });
 
 describe('buildTrace', () => {
-  it('réunit chaque appel d’outil et son résultat, dans l’ordre des seq', () => {
+  it('pairs each tool call with its result, in seq order', () => {
     const trace = buildTrace([
       step({
         seq: 2,
@@ -26,7 +26,7 @@ describe('buildTrace', () => {
         payload: { result: { plate: 'AB-123-CD' } },
         durationMs: 42,
       }),
-      step({ seq: 0, kind: 'reasoning', payload: { text: 'Je commence' } }),
+      step({ seq: 0, kind: 'reasoning', payload: { text: 'Starting' } }),
       step({
         seq: 1,
         kind: 'tool_call',
@@ -37,7 +37,7 @@ describe('buildTrace', () => {
     ]);
     expect(trace).toHaveLength(1);
     const [reasoning, tool] = trace[0]!.items;
-    expect(reasoning).toMatchObject({ kind: 'reasoning', text: 'Je commence' });
+    expect(reasoning).toMatchObject({ kind: 'reasoning', text: 'Starting' });
     expect(tool).toMatchObject({
       kind: 'tool',
       ref: 'E1',
@@ -47,7 +47,7 @@ describe('buildTrace', () => {
     });
   });
 
-  it('laisse le résultat indéfini tant que l’outil n’a pas répondu', () => {
+  it('leaves the result undefined until the tool has answered', () => {
     const [attempt] = buildTrace([
       step({
         seq: 0,
@@ -60,7 +60,7 @@ describe('buildTrace', () => {
     expect(attempt!.items[0]).toMatchObject({ kind: 'tool', result: undefined });
   });
 
-  it('retire l’enveloppe { ref, result } et remonte les erreurs d’outil', () => {
+  it('strips the { ref, result } envelope and surfaces tool errors', () => {
     const [attempt] = buildTrace([
       step({
         seq: 0,
@@ -88,19 +88,19 @@ describe('buildTrace', () => {
         kind: 'tool_result',
         toolName: 'b',
         toolCallId: 'E2',
-        payload: { error: 'fenêtre maximale 72 h' },
+        payload: { error: 'maximum window 72 h' },
       }),
-      step({ seq: 4, kind: 'retry', payload: { message: 'Référence inconnue E9' } }),
+      step({ seq: 4, kind: 'retry', payload: { message: 'Unknown reference E9' } }),
     ]);
     expect(attempt!.items.map((i) => i.kind)).toEqual(['tool', 'tool', 'retry']);
     expect(attempt!.items[0]).toMatchObject({ result: { ok: true, value: { x: 1 } } });
     expect(attempt!.items[1]).toMatchObject({
-      result: { ok: false, error: 'fenêtre maximale 72 h' },
+      result: { ok: false, error: 'maximum window 72 h' },
     });
-    expect(attempt!.items[2]).toMatchObject({ message: 'Référence inconnue E9' });
+    expect(attempt!.items[2]).toMatchObject({ message: 'Unknown reference E9' });
   });
 
-  it('sépare les tentatives, où les références E1… repartent de zéro', () => {
+  it('separates the attempts, where the E1… references start over', () => {
     const trace = buildTrace([
       step({
         attempt: 2,
@@ -118,7 +118,7 @@ describe('buildTrace', () => {
         toolCallId: 'E1',
         payload: { arguments: {} },
       }),
-      step({ attempt: 1, seq: 1, kind: 'error', payload: { message: 'Ollama injoignable' } }),
+      step({ attempt: 1, seq: 1, kind: 'error', payload: { message: 'Ollama unreachable' } }),
       step({
         attempt: 2,
         seq: 1,

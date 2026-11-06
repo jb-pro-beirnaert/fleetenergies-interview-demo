@@ -4,14 +4,14 @@ import type {
   VerdictCategory,
 } from '@fleet/contracts';
 
-// Catégories qui exigent toujours un regard humain, quelle que soit la confiance
+// Categories that always require a human look, whatever the confidence
 export const ALWAYS_ESCALATED: ReadonlySet<VerdictCategory> = new Set([
   'theft_suspected',
   'billing_discrepancy',
   'inconclusive',
 ]);
 
-/** Décision après verdict (spec 03) : règles en code, pas IA. */
+/** Decision after the verdict (spec 03): rules in code, not AI. */
 export function decide(
   category: VerdictCategory,
   confidence: number,

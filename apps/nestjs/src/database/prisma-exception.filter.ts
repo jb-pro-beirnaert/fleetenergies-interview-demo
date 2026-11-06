@@ -8,13 +8,13 @@ import type { Response } from 'express';
 import { Prisma } from '../generated/prisma/client.js';
 
 const STATUS_BY_CODE: Record<string, { status: number; message: string }> = {
-  // Clé étrangère : identifiant de camion, conducteur ou lieu inconnu
-  P2003: { status: HttpStatus.BAD_REQUEST, message: 'Référence inconnue' },
+  // Foreign key: unknown truck, driver or place id
+  P2003: { status: HttpStatus.BAD_REQUEST, message: 'Unknown reference' },
   P2002: { status: HttpStatus.CONFLICT, message: 'Doublon' },
-  P2025: { status: HttpStatus.NOT_FOUND, message: 'Introuvable' },
+  P2025: { status: HttpStatus.NOT_FOUND, message: 'Not found' },
 };
 
-// Traduit les erreurs Prisma attendues en réponses HTTP ; les autres restent des 500
+// Maps the expected Prisma errors to HTTP responses; the others stay 500s
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {

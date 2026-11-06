@@ -1,4 +1,4 @@
-// Persistance de la simulation sur le volume du simulateur (spec 04) : `state.json` et `dataset.json`.
+// Simulation persistence on the simulator volume (spec 04): `state.json` and `dataset.json`.
 
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -6,10 +6,10 @@ import type { SimulationSpeed, SimulationStatus } from '@fleet/contracts';
 import type { ActivityData } from './generate.ts';
 import type { Reference } from './world.ts';
 
-/** Ce que le rejeu envoie : calculé une fois au `start`, jamais régénéré pendant la simulation. */
+/** What the replay sends: computed once at `start`, never regenerated during the simulation. */
 export interface SimDataset {
   seed: number;
-  /** Journée de démo (J, date de Paris). */
+  /** Demo day (D, Paris date). */
   demoDate: string;
   reference: Reference;
   history: ActivityData;
@@ -20,7 +20,7 @@ export interface SimState {
   status: SimulationStatus;
   seed: number;
   demoDate: string | null;
-  /** Heure simulée du dernier pas envoyé (ISO). */
+  /** Simulated time of the last step sent (ISO). */
   clock: string | null;
   speed: SimulationSpeed;
   alertsCreated: number;
@@ -49,10 +49,10 @@ export function fileStore(dir: string): SimStore {
     }
   }
 
-  /** Écritures en file : deux écritures concurrentes ne se marchent pas dessus. */
+  /** Queued writes: two concurrent writes do not step on each other. */
   let writes: Promise<unknown> = Promise.resolve();
 
-  /** Écriture atomique : un plantage ne laisse jamais un fichier à moitié écrit. */
+  /** Atomic write: a crash never leaves a half-written file. */
   function write(name: string, value: unknown): Promise<void> {
     const content = JSON.stringify(value);
     const result = writes.then(async () => {

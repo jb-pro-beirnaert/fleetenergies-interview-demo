@@ -1,7 +1,8 @@
 import { Component, computed, input, output } from '@angular/core';
 import type { AlertDetail, Verdict } from '@fleet/contracts';
 import { fmtPercent } from '../core/format';
-import { CATEGORY_LABELS, decisionReason } from '../core/labels';
+import { t } from '../core/i18n/i18n';
+import { categoryLabel, decisionReason } from '../core/labels';
 
 @Component({
   selector: 'app-verdict-card',
@@ -9,7 +10,7 @@ import { CATEGORY_LABELS, decisionReason } from '../core/labels';
     <section class="card" [attr.data-category]="verdict().category">
       <div class="top">
         <div>
-          <span class="k">Verdict de l’agent</span>
+          <span class="k">{{ t('verdict.title') }}</span>
           <h2>{{ categoryLabel() }}</h2>
         </div>
         <div class="confidence">
@@ -17,7 +18,7 @@ import { CATEGORY_LABELS, decisionReason } from '../core/labels';
           <div
             class="bar"
             role="meter"
-            aria-label="Confiance"
+            [attr.aria-label]="t('verdict.confidence')"
             aria-valuemin="0"
             aria-valuemax="100"
             [attr.aria-valuenow]="percent()"
@@ -29,14 +30,14 @@ import { CATEGORY_LABELS, decisionReason } from '../core/labels';
 
       <p class="summary">{{ verdict().summary }}</p>
 
-      <h3>Preuves</h3>
+      <h3>{{ t('verdict.evidence') }}</h3>
       <ul class="evidence">
         @for (e of verdict().evidence; track $index) {
           <li>
             <button
               type="button"
               (click)="evidenceClick.emit(e.toolCallId)"
-              title="Voir l’étape citée"
+              [title]="t('verdict.seeStep')"
             >
               <span class="ref">{{ e.toolCallId }}</span>
               <span>{{ e.finding }}</span>
@@ -48,7 +49,7 @@ import { CATEGORY_LABELS, decisionReason } from '../core/labels';
       @if (alert().decision; as decision) {
         <div class="decision" [attr.data-decision]="decision">
           <strong>{{
-            decision === 'auto_closed' ? 'Classée automatiquement' : 'Escaladée à un analyste'
+            t(decision === 'auto_closed' ? 'verdict.autoClosed' : 'verdict.escalated')
           }}</strong>
           @if (reason(); as r) {
             <span>— {{ r }}</span>
@@ -64,7 +65,8 @@ export class VerdictCard {
   readonly alert = input.required<AlertDetail>();
   readonly evidenceClick = output<string>();
 
-  protected readonly categoryLabel = computed(() => CATEGORY_LABELS[this.verdict().category]);
+  protected readonly t = t;
+  protected readonly categoryLabel = computed(() => categoryLabel(this.verdict().category));
   protected readonly percent = computed(() => Math.round(this.verdict().confidence * 100));
   protected readonly confidence = computed(() => fmtPercent(this.verdict().confidence));
   protected readonly reason = computed(() => decisionReason(this.alert()));

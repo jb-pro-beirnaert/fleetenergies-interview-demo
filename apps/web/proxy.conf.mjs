@@ -1,5 +1,5 @@
-// Proxy de `ng serve` (localhost hors Docker, services Compose sinon) :
-// /api -> NestJS, /simulation -> API de contrôle du simulateur
+// `ng serve` proxy (localhost outside Docker, Compose services otherwise):
+// /api -> NestJS, /simulation -> simulator control API
 export default {
   '/api': {
     target: process.env.API_PROXY_TARGET ?? 'http://localhost:3000',

@@ -1,26 +1,30 @@
 import { Component, computed, input } from '@angular/core';
 import type { FuelTransactions } from '@fleet/contracts';
-import { fmtDateTime, fmtLiters } from '../../core/format';
+import { fmtDateTime, fmtEuros, fmtLiters } from '../../core/format';
+import { type MessageKey, t } from '../../core/i18n/i18n';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord } from './tool-window';
 
-const SOURCE_LABELS: Record<string, string> = { fuel_card: 'Carte', invoice: 'Facture' };
+const SOURCE_LABELS: Record<string, MessageKey> = {
+  fuel_card: 'tools.transactions.source.fuel_card',
+  invoice: 'tools.transactions.source.invoice',
+};
 
 @Component({
   selector: 'app-fuel-transactions-view',
   template: `
     @let refuels = list();
     @if (refuels.length === 0) {
-      <p class="empty">Aucun plein sur la période</p>
+      <p class="empty">{{ t('tools.transactions.none') }}</p>
     } @else {
       <table>
         <thead>
           <tr>
-            <th>Heure</th>
-            <th>Station</th>
-            <th class="num">Litres</th>
-            <th class="num">Montant</th>
-            <th>Source</th>
+            <th>{{ t('tools.transactions.time') }}</th>
+            <th>{{ t('tools.transactions.station') }}</th>
+            <th class="num">{{ t('tools.transactions.liters') }}</th>
+            <th class="num">{{ t('tools.transactions.amount') }}</th>
+            <th>{{ t('tools.transactions.source') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -32,11 +36,7 @@ const SOURCE_LABELS: Record<string, string> = { fuel_card: 'Carte', invoice: 'Fa
                 <strong>{{ fmtLiters(r.liters) }}</strong>
               </td>
               <td class="num">
-                {{
-                  r.totalEur === null
-                    ? '—'
-                    : r.totalEur.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
-                }}
+                {{ fmtEuros(r.totalEur) }}
               </td>
               <td>
                 <span class="badge">{{ source(r.source) }}</span>
@@ -59,7 +59,10 @@ export class FuelTransactionsView {
   });
   protected readonly fmtDateTime = fmtDateTime;
   protected readonly fmtLiters = fmtLiters;
+  protected readonly fmtEuros = fmtEuros;
+  protected readonly t = t;
   protected source(source: string) {
-    return SOURCE_LABELS[source] ?? source;
+    const key = SOURCE_LABELS[source];
+    return key ? t(key) : source;
   }
 }

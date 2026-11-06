@@ -13,7 +13,8 @@ import type { AlertDetail, Positions, VehicleActivity } from '@fleet/contracts';
 import * as L from 'leaflet';
 import { ApiService } from '../../core/api.service';
 import { fmtDateTime, fmtMinutes, fmtNumber, fmtTime } from '../../core/format';
-import { PLACE_TYPE_COLORS, PLACE_TYPE_LABELS } from '../../core/labels';
+import { currentLang, t } from '../../core/i18n/i18n';
+import { PLACE_TYPE_COLORS, placeTypeLabel } from '../../core/labels';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord, toolWindow } from './tool-window';
 
@@ -27,11 +28,11 @@ type Stop = VehicleActivity['stops'][number];
       <div class="side">
         @if (activity(); as a) {
           <p class="totals">
-            <strong>{{ fmtNumber(a.distanceKm) }} km</strong> · {{ fmtMinutes(a.movingMinutes) }} en
-            roulage
+            <strong>{{ fmtNumber(a.distanceKm) }} km</strong> ·
+            {{ t('tools.activity.moving', { duration: fmtMinutes(a.movingMinutes) }) }}
           </p>
           @if (a.stops.length === 0) {
-            <p class="empty">Aucun arrêt</p>
+            <p class="empty">{{ t('tools.activity.noStops') }}</p>
           } @else {
             <ol class="stops">
               @for (s of a.stops; track $index) {
@@ -39,16 +40,16 @@ type Stop = VehicleActivity['stops'][number];
                   <span class="dot" [style.background]="color(s)"></span>
                   <div>
                     <div>
-                      <strong>{{ s.place?.name ?? 'Lieu non référencé' }}</strong>
+                      <strong>{{ s.place?.name ?? t('common.unlistedPlace') }}</strong>
                       <span class="muted">
-                        · {{ s.place ? placeLabels[s.place.type] : 'Autre' }}</span
+                        · {{ placeTypeLabel(s.place?.type ?? 'other') }}</span
                       >
                     </div>
                     <div class="muted">
                       {{ fmtDateTime(s.from) }}–{{ fmtTime(s.to) }} ·
                       {{ fmtMinutes(s.durationMin) }}
                       @if (s.ignitionOff) {
-                        · <span class="off">moteur coupé</span>
+                        · <span class="off">{{ t('common.engineOff') }}</span>
                       }
                     </div>
                   </div>
@@ -57,7 +58,7 @@ type Stop = VehicleActivity['stops'][number];
             </ol>
           }
         } @else {
-          <p class="empty">Résultat illisible</p>
+          <p class="empty">{{ t('common.unreadable') }}</p>
         }
       </div>
     </div>
@@ -130,7 +131,8 @@ export class ActivityView {
     return isRecord(r) && Array.isArray(r['stops']) ? (r as VehicleActivity) : null;
   });
 
-  protected readonly placeLabels = PLACE_TYPE_LABELS;
+  protected readonly t = t;
+  protected readonly placeTypeLabel = placeTypeLabel;
   protected readonly fmtDateTime = fmtDateTime;
   protected readonly fmtTime = fmtTime;
   protected readonly fmtMinutes = fmtMinutes;
@@ -142,6 +144,7 @@ export class ActivityView {
   constructor() {
     effect(() => {
       const positions = this.positions.hasValue() ? this.positions.value() : [];
+      currentLang(); // redraw the tooltips when the language changes
       this.draw(positions, this.activity()?.stops ?? []);
     });
     inject(DestroyRef).onDestroy(() => this.map?.remove());
@@ -180,7 +183,7 @@ export class ActivityView {
         fillOpacity: 1,
       })
         .bindTooltip(
-          `${stop.place?.name ?? 'Lieu non référencé'} · ${fmtTime(stop.from)}–${fmtTime(stop.to)}${stop.ignitionOff ? ' · moteur coupé' : ''}`,
+          `${stop.place?.name ?? t('common.unlistedPlace')} · ${fmtTime(stop.from)}–${fmtTime(stop.to)}${stop.ignitionOff ? ` · ${t('common.engineOff')}` : ''}`,
         )
         .addTo(layers);
     }

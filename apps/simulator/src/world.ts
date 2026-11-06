@@ -1,5 +1,5 @@
-// Monde simulé (spec 04) : axe Marseille – Avignon – Valence – Lyon.
-// Les définitions sont fixes ; seuls les identifiants dépendent de la graine (UUID v5).
+// Simulated world (spec 04): Marseille – Avignon – Valence – Lyon corridor.
+// The definitions are fixed; only the ids depend on the seed (UUID v5).
 
 import type {
   CarrierInput,
@@ -13,7 +13,7 @@ import type {
 import { v5 as uuidv5 } from 'uuid';
 import type { Calendar } from './time.ts';
 
-/** Espace de noms des UUID v5 du simulateur (valeur arbitraire, figée). */
+/** Namespace of the simulator's UUID v5 (arbitrary, frozen value). */
 const NAMESPACE = '3f6c2b1e-8d4a-4f7e-9b52-0c1d2e3f4a5b';
 
 export const stableId = (seed: number, kind: string, code: string): string =>
@@ -47,9 +47,9 @@ export interface TruckDef {
   idleLPerHour: number;
   homeDepot: string;
   sensorNotes: string | null;
-  /** Longue distance : nuit sur une aire d'autoroute en semaine. */
+  /** Long haul: nights at a motorway rest area on weekdays. */
   longHaul: boolean;
-  /** Sites clients desservis. */
+  /** Customer sites served. */
   customers: readonly string[];
 }
 
@@ -76,36 +76,36 @@ const place = (
 ): PlaceDef => ({ code, name, type, brand, lat, lon, radiusM });
 
 export const PLACES: readonly PlaceDef[] = [
-  // Dépôts
-  place('DEP-MRS', 'Dépôt Transports Durance – Marseille Nord', 'depot', 43.3655, 5.364, 300),
-  place('DEP-AVI', 'Dépôt Transports Durance – Avignon Courtine', 'depot', 43.923, 4.81, 300),
-  place('DEP-CAV', 'Dépôt Frigo Sud – Cavaillon', 'depot', 43.845, 5.033, 300),
-  // Atelier
-  place('WS-PONTET', 'Atelier Poids Lourds du Pontet', 'workshop', 43.964, 4.866, 200),
-  // Stations
+  // Depots
+  place('DEP-MRS', 'Transports Durance depot – Marseille Nord', 'depot', 43.3655, 5.364, 300),
+  place('DEP-AVI', 'Transports Durance depot – Avignon Courtine', 'depot', 43.923, 4.81, 300),
+  place('DEP-CAV', 'Frigo Sud depot – Cavaillon', 'depot', 43.845, 5.033, 300),
+  // Workshop
+  place('WS-PONTET', 'Le Pontet truck workshop', 'workshop', 43.964, 4.866, 200),
+  // Fuel stations
   place('ST-AS24-VAL', 'AS24 Valence Sud', 'fuel_station', 44.889, 4.893, 120, 'AS24'),
   place('ST-AS24-VIT', 'AS24 Vitrolles', 'fuel_station', 43.447, 5.247, 120, 'AS24'),
   place('ST-AS24-STP', 'AS24 Lyon Saint-Priest', 'fuel_station', 45.708, 4.956, 120, 'AS24'),
   place('ST-TOT-PONTET', 'TotalEnergies Le Pontet', 'fuel_station', 43.97, 4.879, 120, 'TotalEnergies'),
   place('ST-TOT-MONT', 'TotalEnergies Montélimar Nord', 'fuel_station', 44.58, 4.755, 120, 'TotalEnergies'),
-  place('ST-DKV-SALON', 'Station DKV Salon-de-Provence', 'fuel_station', 43.638, 5.083, 120, 'DKV'),
-  place('ST-DKV-ORANGE', 'Station DKV Orange', 'fuel_station', 44.125, 4.824, 120, 'DKV'),
+  place('ST-DKV-SALON', 'DKV station Salon-de-Provence', 'fuel_station', 43.638, 5.083, 120, 'DKV'),
+  place('ST-DKV-ORANGE', 'DKV station Orange', 'fuel_station', 44.125, 4.824, 120, 'DKV'),
   place('ST-ROUX-BOLLENE', 'Garage Roux – Bollène', 'fuel_station', 44.281, 4.748, 120),
-  // Aires d'autoroute (A7)
-  place('RA-STRAMBERT', "Aire de Saint-Rambert-d'Albon", 'rest_area', 45.292, 4.815, 250),
-  place('RA-PORTES', 'Aire de Portes-lès-Valence', 'rest_area', 44.873, 4.878, 250),
-  place('RA-MONTELIMAR', 'Aire de Montélimar', 'rest_area', 44.595, 4.77, 250),
-  place('RA-MORNAS', 'Aire de Mornas', 'rest_area', 44.202, 4.738, 250),
-  place('RA-LANCON', 'Aire de Lançon-Provence', 'rest_area', 43.588, 5.178, 250),
-  // Sites clients
+  // Motorway rest areas (A7)
+  place('RA-STRAMBERT', "Saint-Rambert-d'Albon rest area", 'rest_area', 45.292, 4.815, 250),
+  place('RA-PORTES', 'Portes-lès-Valence rest area', 'rest_area', 44.873, 4.878, 250),
+  place('RA-MONTELIMAR', 'Montélimar rest area', 'rest_area', 44.595, 4.77, 250),
+  place('RA-MORNAS', 'Mornas rest area', 'rest_area', 44.202, 4.738, 250),
+  place('RA-LANCON', 'Lançon-Provence rest area', 'rest_area', 43.588, 5.178, 250),
+  // Customer sites
   place('CU-FOS', 'Plateforme Méditerranée Logistique – Fos-sur-Mer', 'customer', 43.44, 4.942, 200),
-  place('CU-STPRIEST', 'Entrepôt Rhône Distribution – Saint-Priest', 'customer', 45.72, 4.93, 200),
+  place('CU-STPRIEST', 'Rhône Distribution warehouse – Saint-Priest', 'customer', 45.72, 4.93, 200),
   place('CU-LYONPORT', 'Port Lyon Édouard-Herriot', 'customer', 45.73, 4.837, 200),
   place('CU-LORIOL', 'Drôme Emballages – Loriol-sur-Drôme', 'customer', 44.752, 4.815, 200),
   place('CU-VEDENE', 'Centrale Grand Delta – Vedène', 'customer', 43.978, 4.905, 200),
-  place('CU-CHATEAURENARD', 'Coopérative fruitière de Châteaurenard', 'customer', 43.883, 4.856, 200),
+  place('CU-CHATEAURENARD', 'Châteaurenard fruit cooperative', 'customer', 43.883, 4.856, 200),
   place('CU-CARPENTRAS', 'Primeurs du Comtat – Carpentras', 'customer', 44.048, 5.038, 200),
-  place('CU-STREMY', 'Laiterie des Alpilles – Saint-Rémy-de-Provence', 'customer', 43.793, 4.838, 200),
+  place('CU-STREMY', 'Alpilles dairy – Saint-Rémy-de-Provence', 'customer', 43.793, 4.838, 200),
 ];
 
 const DURANCE_CUSTOMERS = ['CU-FOS', 'CU-STPRIEST', 'CU-LYONPORT', 'CU-LORIOL', 'CU-VEDENE', 'CU-CHATEAURENARD'];
@@ -138,20 +138,20 @@ export const TRUCKS: readonly TruckDef[] = [
   durance({ code: 'T02', plate: 'GA-541-PR', make: 'Volvo', model: 'FH 460', energy: 'hvo', tankCapacityL: 700, baselineLPer100km: 30.8, idleLPerHour: 2.9, homeDepot: 'DEP-MRS' }),
   durance({
     code: 'T03', plate: 'FK-307-BN', make: 'Scania', model: 'R 450', energy: 'diesel', tankCapacityL: 600, baselineLPer100km: 32.0, idleLPerHour: 3.0, homeDepot: 'DEP-MRS',
-    sensorNotes: 'Sonde de niveau remplacée le 02/09/2026 ; valeurs erratiques signalées depuis par les conducteurs.',
+    sensorNotes: 'Level sensor replaced on 02/09/2026; erratic values reported by drivers since then.',
   }),
   durance({ code: 'T04', plate: 'GB-772-LT', make: 'DAF', model: 'XF 480', energy: 'hvo', tankCapacityL: 650, baselineLPer100km: 31.0, idleLPerHour: 2.7, homeDepot: 'DEP-MRS' }),
   durance({ code: 'T05', plate: 'FH-126-DS', make: 'Mercedes-Benz', model: 'Actros 1845', energy: 'diesel', tankCapacityL: 600, baselineLPer100km: 30.5, idleLPerHour: 2.8, homeDepot: 'DEP-AVI' }),
   durance({ code: 'T06', plate: 'GC-903-AV', make: 'Iveco', model: 'S-Way 490', energy: 'diesel', tankCapacityL: 700, baselineLPer100km: 32.5, idleLPerHour: 3.1, homeDepot: 'DEP-AVI' }),
   durance({ code: 'T07', plate: 'FJ-458-RW', make: 'Volvo', model: 'FH 500 Globetrotter', energy: 'diesel', tankCapacityL: 800, baselineLPer100km: 33.0, idleLPerHour: 3.2, homeDepot: 'DEP-AVI', longHaul: true }),
   durance({ code: 'T08', plate: 'GD-384-HN', make: 'Renault Trucks', model: 'T 440', energy: 'hvo', tankCapacityL: 600, baselineLPer100km: 31.2, idleLPerHour: 2.9, homeDepot: 'DEP-AVI' }),
-  frigo({ code: 'T09', plate: 'FL-615-CJ', make: 'Renault Trucks', model: 'D Wide 19 t frigorifique', energy: 'diesel', tankCapacityL: 400, baselineLPer100km: 27.5, idleLPerHour: 2.4, homeDepot: 'DEP-CAV' }),
-  frigo({ code: 'T10', plate: 'GE-290-TZ', make: 'Volvo', model: 'FL 280 frigorifique', energy: 'diesel', tankCapacityL: 400, baselineLPer100km: 26.8, idleLPerHour: 2.3, homeDepot: 'DEP-CAV' }),
-  frigo({ code: 'T11', plate: 'FM-847-VE', make: 'DAF', model: 'XD 19 t frigorifique', energy: 'diesel', tankCapacityL: 450, baselineLPer100km: 28.2, idleLPerHour: 2.5, homeDepot: 'DEP-CAV' }),
-  frigo({ code: 'T12', plate: 'GF-163-SB', make: 'Mercedes-Benz', model: 'Atego 1530 frigorifique', energy: 'diesel', tankCapacityL: 450, baselineLPer100km: 28.0, idleLPerHour: 2.4, homeDepot: 'DEP-CAV' }),
+  frigo({ code: 'T09', plate: 'FL-615-CJ', make: 'Renault Trucks', model: 'D Wide 19 t refrigerated', energy: 'diesel', tankCapacityL: 400, baselineLPer100km: 27.5, idleLPerHour: 2.4, homeDepot: 'DEP-CAV' }),
+  frigo({ code: 'T10', plate: 'GE-290-TZ', make: 'Volvo', model: 'FL 280 refrigerated', energy: 'diesel', tankCapacityL: 400, baselineLPer100km: 26.8, idleLPerHour: 2.3, homeDepot: 'DEP-CAV' }),
+  frigo({ code: 'T11', plate: 'FM-847-VE', make: 'DAF', model: 'XD 19 t refrigerated', energy: 'diesel', tankCapacityL: 450, baselineLPer100km: 28.2, idleLPerHour: 2.5, homeDepot: 'DEP-CAV' }),
+  frigo({ code: 'T12', plate: 'GF-163-SB', make: 'Mercedes-Benz', model: 'Atego 1530 refrigerated', energy: 'diesel', tankCapacityL: 450, baselineLPer100km: 28.0, idleLPerHour: 2.4, homeDepot: 'DEP-CAV' }),
 ];
 
-// Numéros dans la tranche réservée à la fiction (06 39 98 xx xx).
+// Numbers in the range reserved for fiction (06 39 98 xx xx).
 export const DRIVERS: readonly DriverDef[] = [
   { code: 'C-01', carrier: 'DURANCE', fullName: 'Karim Benali', phone: '06 39 98 41 27' },
   { code: 'C-02', carrier: 'DURANCE', fullName: 'Julien Marchetti', phone: '06 39 98 52 08' },
@@ -179,7 +179,7 @@ export interface World {
   place(code: string): PlaceDef;
   truck(code: string): TruckDef;
   driver(code: string): DriverDef;
-  /** Conducteur affecté au camion pour un jour donné (rotation dans le transporteur). */
+  /** Driver assigned to the truck on a given day (rotation within the carrier). */
   driverOf(truckCode: string, day: number): DriverDef;
   id(kind: 'carrier' | 'place' | 'truck' | 'driver', code: string): string;
 }
@@ -188,13 +188,13 @@ const byCode = <T extends { code: string }>(items: readonly T[], label: string) 
   const map = new Map(items.map((item) => [item.code, item]));
   return (code: string): T => {
     const item = map.get(code);
-    if (!item) throw new Error(`${label} inconnu : ${code}`);
+    if (!item) throw new Error(`Unknown ${label}: ${code}`);
     return item;
   };
 };
 
 export function buildWorld(seed: number, cal: Calendar): World {
-  const truck = byCode(TRUCKS, 'Camion');
+  const truck = byCode(TRUCKS, 'truck');
   return {
     seed,
     cal,
@@ -202,9 +202,9 @@ export function buildWorld(seed: number, cal: Calendar): World {
     places: PLACES,
     trucks: TRUCKS,
     drivers: DRIVERS,
-    place: byCode(PLACES, 'Lieu'),
+    place: byCode(PLACES, 'place'),
     truck,
-    driver: byCode(DRIVERS, 'Conducteur'),
+    driver: byCode(DRIVERS, 'driver'),
     driverOf(truckCode, day) {
       const target = truck(truckCode);
       const fleet = TRUCKS.filter((t) => t.carrier === target.carrier);
@@ -226,7 +226,7 @@ export interface Reference {
   assignments: DriverAssignmentInput[];
 }
 
-/** Référentiel au format des contrats (`HistoryLoadBatch`). */
+/** Reference data in the contracts format (`HistoryLoadBatch`). */
 export function buildReference(world: World): Reference {
   const assignments: DriverAssignmentInput[] = [];
   const { cal } = world;

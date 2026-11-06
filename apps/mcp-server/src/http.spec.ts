@@ -33,7 +33,7 @@ describe('transport HTTP', () => {
     return client;
   };
 
-  it('accepte le bon jeton et liste les outils', async () => {
+  it('accepts the right token and lists the tools', async () => {
     const client = await connect('mcp-token');
     const { tools } = await client.listTools();
     expect(tools).toHaveLength(7);
@@ -41,9 +41,9 @@ describe('transport HTTP', () => {
   });
 
   it.each([
-    ['sans jeton', undefined],
-    ['avec un mauvais jeton', 'wrong-token'],
-  ])('refuse un appel %s (401)', async (_label, token) => {
+    ['without a token', undefined],
+    ['with a wrong token', 'wrong-token'],
+  ])('rejects a call %s (401)', async (_label, token) => {
     const response = await fetch(mcpUrl, {
       method: 'POST',
       headers: {
@@ -57,7 +57,7 @@ describe('transport HTTP', () => {
     await expect(connect(token)).rejects.toThrow();
   });
 
-  it('répond au healthcheck sans jeton', async () => {
+  it('answers the healthcheck without a token', async () => {
     const response = await fetch(new URL('/health', mcpUrl));
     expect(response.status).toBe(200);
   });

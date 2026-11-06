@@ -8,7 +8,7 @@ import {
 import { APP_CONFIG, type AppConfig } from '../config/config.js';
 import { TasksService } from './tasks.service.js';
 
-// Balayage périodique de la file (30 s par défaut), sans dépendance de planification
+// Periodic sweep of the queue (30 s by default), without a scheduling dependency
 @Injectable()
 export class TaskSweeperService
   implements OnApplicationBootstrap, OnApplicationShutdown
@@ -35,9 +35,9 @@ export class TaskSweeperService
   private async run() {
     try {
       const failed = await this.tasks.sweep();
-      if (failed > 0) this.logger.warn(`${failed} tâche(s) en échec définitif`);
+      if (failed > 0) this.logger.warn(`${failed} task(s) permanently failed`);
     } catch (error) {
-      this.logger.error('Balayage de la file en erreur', error as Error);
+      this.logger.error('Queue sweep failed', error as Error);
     }
   }
 }

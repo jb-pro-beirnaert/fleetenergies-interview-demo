@@ -6,7 +6,7 @@ import {
 } from './support/app.js';
 import { DRIVERS, IDS, readings, seedReference } from './support/fixtures.js';
 
-// Chute de 60 L à l'arrêt en 12 min
+// 60 L drop while stopped in 12 min
 const DROP = readings([
   { minute: 0, level: 400 },
   { minute: 4, level: 380 },
@@ -14,7 +14,7 @@ const DROP = readings([
   { minute: 12, level: 340 },
 ]);
 
-describe('Ingestion et détecteur', () => {
+describe('Ingestion and detector', () => {
   let t: TestApp;
 
   beforeAll(async () => {
@@ -29,7 +29,7 @@ describe('Ingestion et détecteur', () => {
   const postTelemetry = (body: object) =>
     t.http().post('/api/telemetry').set(auth('device')).send(body);
 
-  it('un lot `history` ne crée aucune alerte', async () => {
+  it('a `history` batch creates no alert', async () => {
     const response = await postTelemetry({
       readings: DROP,
       source: 'history',
@@ -39,7 +39,7 @@ describe('Ingestion et détecteur', () => {
     expect(await t.prisma.task.count()).toBe(0);
   });
 
-  it('un lot `live` avec une chute de 60 L à l’arrêt en 12 min crée une alerte et une tâche', async () => {
+  it('a `live` batch with a 60 L drop while stopped in 12 min creates an alert and a task', async () => {
     const response = await postTelemetry({
       readings: DROP,
       source: 'live',
@@ -69,7 +69,7 @@ describe('Ingestion et détecteur', () => {
     });
   });
 
-  it('rejouer le même lot n’insère rien la seconde fois', async () => {
+  it('replaying the same batch inserts nothing the second time', async () => {
     await postTelemetry({ readings: DROP, source: 'live' }).expect(202);
     const again = await postTelemetry({
       readings: DROP,
@@ -80,7 +80,7 @@ describe('Ingestion et détecteur', () => {
     expect(await t.prisma.alert.count()).toBe(1);
   });
 
-  it('une chute en plusieurs lots successifs ne crée qu’une alerte, prolongée tant qu’elle est `detected`', async () => {
+  it('a drop over several successive batches creates a single alert, extended while it is `detected`', async () => {
     const steps = readings([
       { minute: 0, level: 400 },
       { minute: 5, level: 390 },
@@ -111,7 +111,7 @@ describe('Ingestion et détecteur', () => {
     expect(await t.prisma.task.count()).toBe(1);
   });
 
-  it('une alerte déjà en enquête n’est ni prolongée ni dupliquée', async () => {
+  it('an alert already under investigation is neither extended nor duplicated', async () => {
     const steps = readings([
       { minute: 0, level: 400 },
       { minute: 10, level: 350 },
@@ -130,7 +130,7 @@ describe('Ingestion et détecteur', () => {
     expect(alerts[0].dropL?.toNumber()).toBe(50);
   });
 
-  it('une baisse en roulant ne déclenche rien', async () => {
+  it('a decrease while driving triggers nothing', async () => {
     const driving = readings([
       { minute: 0, level: 400, speed: 80 },
       { minute: 5, level: 370, speed: 82 },
@@ -143,7 +143,7 @@ describe('Ingestion et détecteur', () => {
     expect(response.body.alertsCreated).toBe(0);
   });
 
-  it('refuse un corps invalide (400) et un camion inconnu (400)', async () => {
+  it('rejects an invalid body (400) and an unknown truck (400)', async () => {
     await postTelemetry({ readings: [], source: 'live' }).expect(400);
     await postTelemetry({ readings: DROP, source: 'demo' }).expect(400);
     const unknown = readings([{ minute: 0, level: 400 }], {
@@ -153,10 +153,10 @@ describe('Ingestion et détecteur', () => {
       readings: unknown,
       source: 'live',
     }).expect(400);
-    expect(response.body.message).toBe('Référence inconnue');
+    expect(response.body.message).toBe('Unknown reference');
   });
 
-  it('cartes carburant et messages : idempotents', async () => {
+  it('fuel cards and messages: idempotent', async () => {
     const transactions = {
       transactions: [
         {
@@ -176,7 +176,7 @@ describe('Ingestion et détecteur', () => {
           driverId: DRIVERS[0].id,
           truckId: IDS.truck,
           sentAt: '2026-10-14T09:20:00Z',
-          body: 'Bien arrivé chez le client',
+          body: 'Arrived safely at the customer',
         },
       ],
       source: 'live',

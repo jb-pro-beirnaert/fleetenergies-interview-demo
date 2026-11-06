@@ -6,7 +6,7 @@ import {
   TelemetryReading,
 } from './telemetry.ts';
 
-// Référentiel (identifiants fournis par le simulateur : UUID v5 stables)
+// Reference data (ids supplied by the simulator: stable UUID v5)
 export const CarrierInput = z.object({
   id: z.uuid(),
   name: z.string().min(1),
@@ -60,8 +60,8 @@ export type DriverAssignmentInput = z.infer<typeof DriverAssignmentInput>;
 
 const MAX_BATCH = 1000;
 
-// Un lot de chargement de l'historique (simulateur, état `preparing`) : chaque liste est facultative, tout est idempotent.
-// Les relevés, pleins et messages sont enregistrés avec la source `history`.
+// One history loading batch (simulator, `preparing` state): every list is optional, everything is idempotent.
+// Readings, refuels and messages are stored with the `history` source.
 export const HistoryLoadBatch = z
   .object({
     carriers: z.array(CarrierInput).max(MAX_BATCH).optional(),

@@ -18,8 +18,8 @@ export class AdminController {
   @Post('history/load')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Charger le référentiel et l'historique",
-    description: 'Lots envoyés par le simulateur (état `preparing`). Idempotent.',
+    summary: 'Load the reference data and the history',
+    description: 'Batches sent by the simulator (`preparing` state). Idempotent.',
   })
   @ApiOkResponse({ standardSchema: HistoryLoadResult })
   loadHistory(@Body({ schema: HistoryLoadBatch }) batch: HistoryLoadBatch) {
@@ -29,9 +29,9 @@ export class AdminController {
   @Post('wipe')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Vider toute la base',
+    summary: 'Wipe the whole database',
     description:
-      'Référentiel, historique, journée de démo, alertes, enquêtes et tâches. Appelé par le simulateur à chaque « Démarrer » et « Reset ».',
+      'Reference data, history, demo day, alerts, investigations and tasks. Called by the simulator on every "Start" and "Reset".',
   })
   @ApiNoContentResponse()
   wipe() {

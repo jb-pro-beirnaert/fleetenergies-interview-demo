@@ -30,7 +30,7 @@ export class InvestigationsService {
       where: { id: alertId },
       include: { truck: { select: { plate: true } } },
     });
-    if (!alert) throw new NotFoundException('Alerte introuvable');
+    if (!alert) throw new NotFoundException('Alert not found');
     return {
       alertId: alert.id,
       type: alert.type,
@@ -44,7 +44,7 @@ export class InvestigationsService {
     };
   }
 
-  // Idempotent sur (investigation, attempt, seq)
+  // Idempotent on (investigation, attempt, seq)
   async addStep(alertId: string, step: StepInput): Promise<StepInputResult> {
     const investigation = await this.findInvestigation(alertId);
     const { count } = await this.prisma.investigationStep.createMany({
@@ -70,7 +70,7 @@ export class InvestigationsService {
     return this.prisma.$transaction(async (tx) => {
       const [locked] = await tx.$queryRaw<{ id: string }[]>`
         SELECT id FROM investigations WHERE alert_id = ${alertId}::uuid FOR UPDATE`;
-      if (!locked) throw new NotFoundException('Enquête introuvable');
+      if (!locked) throw new NotFoundException('Investigation not found');
       const investigation = await tx.investigation.findUniqueOrThrow({
         where: { id: locked.id },
         include: { alert: true },
@@ -85,10 +85,10 @@ export class InvestigationsService {
         };
       }
       if (investigation.status === 'failed') {
-        throw new ConflictException('Enquête en échec définitif');
+        throw new ConflictException('Investigation permanently failed');
       }
 
-      // Les preuves doivent citer des appels d'outils de la tentative en cours
+      // The evidence must cite tool calls of the current attempt
       const attempt = await this.currentAttempt(tx, alertId);
       const toolCalls = await tx.investigationStep.findMany({
         where: {
@@ -105,7 +105,7 @@ export class InvestigationsService {
       if (unknownToolCallIds.length > 0) {
         throw new UnprocessableEntityException({
           statusCode: 422,
-          message: `Preuves citant des appels d'outils inexistants dans la tentative ${attempt}`,
+          message: `Evidence citing tool calls that do not exist in attempt ${attempt}`,
           unknownToolCallIds,
         });
       }
@@ -144,11 +144,11 @@ export class InvestigationsService {
     const investigation = await this.prisma.investigation.findUnique({
       where: { alertId },
     });
-    if (!investigation) throw new NotFoundException('Enquête introuvable');
+    if (!investigation) throw new NotFoundException('Investigation not found');
     return investigation;
   }
 
-  // Tentative en cours = nombre de réservations de la tâche d'enquête de l'alerte
+  // Current attempt = number of claims of the alert's investigation task
   private async currentAttempt(
     tx: Prisma.TransactionClient,
     alertId: string,

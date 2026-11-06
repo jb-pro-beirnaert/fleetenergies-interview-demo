@@ -22,9 +22,9 @@ type Options = {
   createMcpServer: () => McpServer;
 };
 
-// Streamable HTTP sans état : chaque POST /mcp a son propre serveur et son transport
+// Stateless Streamable HTTP: each POST /mcp gets its own server and transport
 export function createHttpApp({ clientToken, createMcpServer }: Options): Express {
-  // Application Express du SDK (JSON parsé) ; écoute sur toutes les interfaces dans Docker
+  // SDK Express application (parsed JSON); listens on all interfaces in Docker
   const app = createMcpExpressApp({ host: '0.0.0.0' });
 
   app.get('/health', (_req, res) => {
@@ -38,7 +38,7 @@ export function createHttpApp({ clientToken, createMcpServer }: Options): Expres
       res
         .status(401)
         .set('WWW-Authenticate', 'Bearer')
-        .json(rpcError(-32001, 'Jeton manquant ou invalide'));
+        .json(rpcError(-32001, 'Missing or invalid token'));
       return;
     }
     next();
@@ -59,13 +59,13 @@ export function createHttpApp({ clientToken, createMcpServer }: Options): Expres
       await transport.handleRequest(req, res, req.body);
     } catch (error) {
       log({ msg: 'mcp_request_failed', error: String(error) });
-      if (!res.headersSent) res.status(500).json(rpcError(-32603, 'Erreur interne'));
+      if (!res.headersSent) res.status(500).json(rpcError(-32603, 'Internal error'));
     }
   });
 
-  // Pas de session : ni flux SSE (GET) ni fermeture de session (DELETE)
+  // No session: neither SSE stream (GET) nor session termination (DELETE)
   app.all('/mcp', requireToken, (_req, res) => {
-    res.status(405).set('Allow', 'POST').json(rpcError(-32000, 'Méthode non autorisée'));
+    res.status(405).set('Allow', 'POST').json(rpcError(-32000, 'Method not allowed'));
   });
 
   return app;

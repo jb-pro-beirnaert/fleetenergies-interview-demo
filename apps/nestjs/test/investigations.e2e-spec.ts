@@ -12,7 +12,7 @@ import {
   verdict,
 } from './support/investigation.js';
 
-describe('Enquêtes : contexte, étapes, verdict et décision', () => {
+describe('Investigations: context, steps, verdict and decision', () => {
   let t: TestApp;
 
   beforeAll(async () => {
@@ -24,7 +24,7 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
     await seedReference(t.prisma);
   });
 
-  it('renvoie le contexte de l’alerte', async () => {
+  it('returns the alert context', async () => {
     const { alert } = await startInvestigation(t);
     const response = await t
       .http()
@@ -49,13 +49,13 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
       .expect(404);
   });
 
-  it('les étapes sont idempotentes sur (enquête, tentative, seq)', async () => {
+  it('steps are idempotent on (investigation, attempt, seq)', async () => {
     const { alert } = await startInvestigation(t);
     const step = {
       attempt: 1,
       seq: 1,
       kind: 'reasoning',
-      payload: { text: 'Je regarde la courbe' },
+      payload: { text: 'Looking at the curve' },
     };
     expect((await postStep(t, alert.id, step).expect(200)).body).toEqual({
       created: true,
@@ -67,7 +67,7 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
     await postStep(t, alert.id, { ...step, kind: 'unknown' }).expect(400);
   });
 
-  it('un verdict citant un `toolCallId` inexistant est refusé (422)', async () => {
+  it('a verdict citing a non-existent `toolCallId` is rejected (422)', async () => {
     const { alert } = await startInvestigation(t);
     const response = await postVerdict(
       t,
@@ -75,7 +75,7 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
       verdict({
         evidence: [
           { toolCallId: 'E1', finding: 'ok' },
-          { toolCallId: 'E7', finding: 'inventé' },
+          { toolCallId: 'E7', finding: 'made up' },
         ],
       }),
     ).expect(422);
@@ -87,7 +87,7 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
     });
   });
 
-  it('auto-clôture un `sensor_fault` confiant ; un second envoi est sans effet (200)', async () => {
+  it('auto-closes a confident `sensor_fault`; a second submission has no effect (200)', async () => {
     const { alert } = await startInvestigation(t);
     const first = await postVerdict(t, alert.id, verdict()).expect(200);
     expect(first.body).toEqual({
@@ -131,7 +131,7 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
     ['inconclusive', 0.9, 'escalated'],
     ['equipment_transfer', 0.6, 'escalated'],
     ['legitimate_operation', 0.8, 'closed'],
-  ] as const)('%s à %s → %s', async (category, confidence, status) => {
+  ] as const)('%s at %s → %s', async (category, confidence, status) => {
     const { alert } = await startInvestigation(t);
     const response = await postVerdict(
       t,
@@ -144,9 +144,9 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
     ).toMatchObject({ status });
   });
 
-  it('les preuves doivent venir de la tentative en cours', async () => {
+  it('the evidence must come from the current attempt', async () => {
     const { alert, task } = await startInvestigation(t);
-    // Seconde tentative : E1 et E2 appartiennent à la tentative 1
+    // Second attempt: E1 and E2 belong to attempt 1
     await t.prisma.task.update({
       where: { id: task.id },
       data: { lockedUntil: new Date(Date.now() - 1000) },
@@ -168,11 +168,11 @@ describe('Enquêtes : contexte, étapes, verdict et décision', () => {
       payload: {},
     }).expect(200);
     await postVerdict(t, alert.id, verdict()).expect(200);
-    // Les étapes de la tentative 1 sont conservées
+    // The steps of attempt 1 are kept
     expect(await t.prisma.investigationStep.count()).toBe(3);
   });
 
-  it('refuse un verdict invalide (400) et un verdict sur une enquête en échec (409)', async () => {
+  it('rejects an invalid verdict (400) and a verdict on a failed investigation (409)', async () => {
     const { alert, task } = await startInvestigation(t);
     await postVerdict(t, alert.id, verdict({ summary: 'trop court' })).expect(
       400,

@@ -1,4 +1,4 @@
-// Styles communs aux rendus d'outils
+// Styles shared by the tool renderings
 export const TOOL_STYLES = `
   :host { display: block; }
   .empty { color: var(--muted); font-style: italic; margin: 0; }

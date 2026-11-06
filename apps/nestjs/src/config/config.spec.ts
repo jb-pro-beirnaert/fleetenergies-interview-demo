@@ -8,7 +8,7 @@ const base = {
 };
 
 describe('loadConfig', () => {
-  it('applique les valeurs par défaut des specs', () => {
+  it('applies the default values from the specs', () => {
     expect(loadConfig(base)).toMatchObject({
       PORT: 3000,
       FUEL_DROP_MIN_L: 40,
@@ -18,13 +18,13 @@ describe('loadConfig', () => {
     });
   });
 
-  it('convertit les nombres fournis en texte', () => {
+  it('converts numbers supplied as text', () => {
     expect(loadConfig({ ...base, FUEL_DROP_MIN_L: '55' }).FUEL_DROP_MIN_L).toBe(
       55,
     );
   });
 
-  it('refuse de démarrer sans jeton', () => {
+  it('refuses to start without a token', () => {
     expect(() => loadConfig({ ...base, ADMIN_TOKEN: undefined })).toThrow(
       /ADMIN_TOKEN/,
     );

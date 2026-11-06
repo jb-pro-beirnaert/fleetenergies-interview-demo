@@ -1,4 +1,4 @@
-// API de contrôle du simulateur (spec 04), proxifiée par la salle de contrôle sous `/simulation`.
+// Simulator control API (spec 04), proxied by the control room under `/simulation`.
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { SimulationCommand, SimulationSpeedRequest } from '@fleet/contracts';
@@ -41,7 +41,7 @@ export function createControlServer(simulation: Simulation): Server {
       if (req.method === 'POST' && command?.success) {
         return send(res, 200, await simulation.command(command.data));
       }
-      return problem(res, 404, `Route inconnue : ${req.method} ${path}`);
+      return problem(res, 404, `Unknown route: ${req.method} ${path}`);
     } catch (error) {
       if (error instanceof CommandRejected) return problem(res, 409, error.message);
       console.error(error);

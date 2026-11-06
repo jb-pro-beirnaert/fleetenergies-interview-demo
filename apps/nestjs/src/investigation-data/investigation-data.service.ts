@@ -34,7 +34,7 @@ export interface Window {
 }
 
 const DAY_MS = 24 * 60 * MINUTE_MS;
-// Une alerte est rattachée à une chute passée si leurs périodes se recoupent à 30 min près
+// An alert is linked to a past drop if their periods overlap within 30 min
 const ALERT_MATCH_MARGIN_MS = 30 * MINUTE_MS;
 
 @Injectable()
@@ -49,7 +49,7 @@ export class InvestigationDataService {
       where: { id: truckId },
       include: { homeDepot: { select: { name: true } } },
     });
-    if (!truck) throw new NotFoundException('Camion introuvable');
+    if (!truck) throw new NotFoundException('Truck not found');
     return {
       plate: truck.plate,
       make: truck.make,
@@ -155,7 +155,7 @@ export class InvestigationDataService {
     window: Window,
   ): Promise<DriverMessages> {
     await this.ensureTruck(truckId);
-    // Les 20 plus récents, remis dans l'ordre chronologique
+    // The 20 most recent, put back in chronological order
     const messages = await this.prisma.driverMessage.findMany({
       where: { truckId, sentAt: { gte: window.from, lte: window.to } },
       orderBy: { sentAt: 'desc' },
@@ -180,7 +180,7 @@ export class InvestigationDataService {
     const truck = await this.prisma.truck.findUnique({
       where: { id: truckId },
     });
-    if (!truck) throw new NotFoundException('Camion introuvable');
+    if (!truck) throw new NotFoundException('Truck not found');
     const readings = await this.readings(truckId, window);
     if (readings.length === 0) throw this.noData();
     const refuels = await this.refuels(truckId, window);
@@ -193,8 +193,8 @@ export class InvestigationDataService {
   }
 
   /**
-   * Chutes ≥ 25 L en ≤ 20 min à l'arrêt sur les `lookbackDays` jours précédant
-   * le dernier relevé du camion (horloge simulée, pas l'horloge réelle).
+   * Drops ≥ 25 L in ≤ 20 min while stopped over the `lookbackDays` days before
+   * the truck's latest reading (simulated clock, not the real clock).
    */
   async similarEvents(
     truckId: string,
@@ -260,11 +260,11 @@ export class InvestigationDataService {
       where: { id: truckId },
       select: { id: true },
     });
-    if (!truck) throw new NotFoundException('Camion introuvable');
+    if (!truck) throw new NotFoundException('Truck not found');
   }
 
   private noData() {
-    return new NotFoundException('Aucun relevé sur cette période');
+    return new NotFoundException('No readings over this period');
   }
 
   private async readings(truckId: string, window: Window): Promise<Reading[]> {

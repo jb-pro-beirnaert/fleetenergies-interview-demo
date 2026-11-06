@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import type { FuelBalance } from '@fleet/contracts';
 import { fmtLiters, fmtNumber } from '../../core/format';
+import { t } from '../../core/i18n/i18n';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord } from './tool-window';
 
@@ -11,26 +12,27 @@ import { isRecord } from './tool-window';
       <div class="figures">
         <div>
           <span class="v">{{ fmtLiters(b.expectedConsumptionL) }}</span>
-          <span class="k">Consommation attendue</span>
+          <span class="k">{{ t('tools.balance.expected') }}</span>
           <span class="d"
-            >{{ fmtNumber(b.distanceKm) }} km · ralenti {{ fmtLiters(b.idleConsumptionL) }}</span
+            >{{ fmtNumber(b.distanceKm) }} km ·
+            {{ t('tools.balance.idle', { liters: fmtLiters(b.idleConsumptionL) }) }}</span
           >
         </div>
         <div>
           <span class="v">{{ fmtLiters(b.refueledL) }}</span>
-          <span class="k">Pleins</span>
+          <span class="k">{{ t('tools.balance.refuels') }}</span>
         </div>
         <div>
           <span class="v">{{ fmtLiters(b.observedLevelChangeL) }}</span>
-          <span class="k">Variation observée</span>
+          <span class="k">{{ t('tools.balance.observed') }}</span>
         </div>
         <div class="unexplained" [class.zero]="b.unexplainedLossL < 5">
           <span class="v">{{ fmtLiters(b.unexplainedLossL) }}</span>
-          <span class="k">Inexpliqué</span>
+          <span class="k">{{ t('tools.balance.unexplained') }}</span>
         </div>
       </div>
     } @else {
-      <p class="empty">Résultat illisible</p>
+      <p class="empty">{{ t('common.unreadable') }}</p>
     }
   `,
   styles: [
@@ -83,4 +85,5 @@ export class FuelBalanceView {
   });
   protected readonly fmtLiters = fmtLiters;
   protected readonly fmtNumber = fmtNumber;
+  protected readonly t = t;
 }

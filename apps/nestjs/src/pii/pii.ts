@@ -1,4 +1,4 @@
-// Pseudonymisation et masquage des textes libres (spec 03, module `pii`). Fonctions pures.
+// Pseudonymisation and masking of free text (spec 03, `pii` module). Pure functions.
 
 export interface KnownDriver {
   fullName: string;
@@ -7,10 +7,10 @@ export interface KnownDriver {
 
 export type Masker = (text: string) => string;
 
-export const PHONE_MASK = '[téléphone masqué]';
-export const EMAIL_MASK = '[e-mail masqué]';
-// Prénom ou nom porté par plusieurs conducteurs : on ne peut pas choisir un pseudonyme
-export const AMBIGUOUS_DRIVER = '[conducteur]';
+export const PHONE_MASK = '[phone masked]';
+export const EMAIL_MASK = '[email masked]';
+// First or last name shared by several drivers: no single pseudonym can be chosen
+export const AMBIGUOUS_DRIVER = '[driver]';
 
 const PHONE = /(?<![\w+])(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}(?!\w)/g;
 const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
@@ -32,7 +32,7 @@ export function stripAccents(value: string): string {
   return value.normalize('NFD').replace(/\p{M}/gu, '');
 }
 
-// Motif insensible aux accents : « Hélène » reconnaît « helene », « HELENE », « Hélene »…
+// Accent-insensitive pattern: "Hélène" matches "helene", "HELENE", "Hélene"…
 function accentInsensitivePattern(name: string): string {
   return stripAccents(name)
     .toLowerCase()
@@ -76,7 +76,7 @@ export function createMasker(drivers: KnownDriver[]): Masker {
     );
   }
 
-  // Les noms complets d'abord (plus longs), puis prénoms et noms seuls
+  // Full names first (longer), then first and last names alone
   const rules = [...replacements.entries()]
     .sort(([a], [b]) => b.length - a.length)
     .map(([name, pseudonym]) => ({ regex: wordRegex(name), pseudonym }));
@@ -90,7 +90,7 @@ export function createMasker(drivers: KnownDriver[]): Masker {
   };
 }
 
-// Applique le masquage à toutes les chaînes d'une réponse JSON
+// Applies masking to every string of a JSON response
 export function maskDeep<T>(value: T, mask: Masker): T {
   if (typeof value === 'string') return mask(value) as T;
   if (Array.isArray(value))

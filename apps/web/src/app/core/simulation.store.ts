@@ -4,18 +4,19 @@ import type { SimulationCommand, SimulationSpeed, SimulationView } from '@fleet/
 import { type Observable, firstValueFrom } from 'rxjs';
 import { poll } from './polling';
 
-/** Pilotage du simulateur (`/simulation*`, proxifié vers le service `simulator`). */
+/** Simulator control (`/simulation*`, proxied to the `simulator` service). */
 @Injectable({ providedIn: 'root' })
 export class SimulationStore {
   private readonly http = inject(HttpClient);
 
   private readonly lastView = signal<SimulationView | null>(null);
   readonly view = this.lastView.asReadonly();
-  /** `undefined` tant qu'aucune réponse n'est arrivée */
+  /** `undefined` until a first response has arrived */
   readonly reachable = signal<boolean | undefined>(undefined);
-  /** Commande en cours : les boutons sont grisés */
+  /** Command in flight: the buttons are disabled */
   readonly busy = signal(false);
-  readonly commandError = signal<string | null>(null);
+  /** Last command failure; `message` is the simulator's own message, if it sent one */
+  readonly commandError = signal<{ message: string | null } | null>(null);
 
   constructor() {
     poll(() => this.http.get<SimulationView>('/simulation')).subscribe((r) => {
@@ -32,7 +33,7 @@ export class SimulationStore {
     return this.send(this.http.put<SimulationView>('/simulation/speed', { speed }));
   }
 
-  /** La vue renvoyée remplace l'état affiché sans attendre le polling. */
+  /** The returned view replaces the displayed state without waiting for polling. */
   private async send(request: Observable<SimulationView>) {
     this.busy.set(true);
     this.commandError.set(null);
@@ -40,7 +41,7 @@ export class SimulationStore {
       this.lastView.set(await firstValueFrom(request));
     } catch (err) {
       const message = err instanceof HttpErrorResponse ? err.error?.message : null;
-      this.commandError.set(message ?? 'Le simulateur n’a pas pu exécuter la commande.');
+      this.commandError.set({ message: typeof message === 'string' ? message : null });
     } finally {
       this.busy.set(false);
     }

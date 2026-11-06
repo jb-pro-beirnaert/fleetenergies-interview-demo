@@ -15,7 +15,7 @@ const reading = (recordedAt: string) => ({
   truckId: TRUCK, recordedAt, lat: 44, lon: 4.8, speedKmh: 0, ignition: false, fuelLevelL: 300, odometerKm: 1000,
 });
 
-/** Jeu de données minimal : journée rejouée de 02:00 à 02:45 (10 pas), une alerte au pas de 02:20. */
+/** Minimal dataset: day replayed from 02:00 to 02:45 (10 steps), one alert at the 02:20 step. */
 const tinyDataset = (seed: number, today: string): SimDataset => ({
   seed,
   demoDate: today,
@@ -32,7 +32,7 @@ const tinyDataset = (seed: number, today: string): SimDataset => ({
   },
 });
 
-/** Faux backend : enregistre les appels ; `gate` permet de suspendre un envoi. */
+/** Fake backend: records the calls; `gate` makes it possible to suspend a send. */
 class FakeBackend implements Backend {
   calls: string[] = [];
   sentClocks: number[] = [];
@@ -68,7 +68,7 @@ class FakeBackend implements Backend {
 const until = async (predicate: () => boolean, timeoutMs = 3_000) => {
   const start = Date.now();
   while (!predicate()) {
-    if (Date.now() - start > timeoutMs) throw new Error('Délai dépassé');
+    if (Date.now() - start > timeoutMs) throw new Error('Timed out');
     await new Promise((resolve) => setTimeout(resolve, 2));
   }
 };
@@ -95,7 +95,7 @@ describe('Simulation', () => {
     });
   const statusOf = (simulation: Simulation): SimulationStatus => simulation.view().status;
 
-  // Un dossier par test, supprimés à la fin : une simulation peut encore finir d'écrire son état
+  // One folder per test, deleted at the end: a simulation may still be finishing writing its state
   let root: string;
   let count = 0;
   beforeAll(async () => {
@@ -108,14 +108,14 @@ describe('Simulation', () => {
     backend = new FakeBackend();
   });
 
-  it('start : vide la base, charge l’historique, rejoue toute la journée puis termine', async () => {
+  it('start: wipes the database, loads the history, replays the whole day then finishes', async () => {
     const simulation = create({ speed: 120 });
     const view = await simulation.command('start');
     expect(view.status).toBe('preparing');
     await until(() => statusOf(simulation) === 'finished');
 
     expect(backend.calls[0]).toBe('wipe');
-    expect(backend.loaded).toHaveLength(4); // référentiel + 3 lots de relevés
+    expect(backend.loaded).toHaveLength(4); // reference data + 3 reading batches
     expect(backend.sentClocks).toHaveLength(10);
     expect(backend.sentClocks).toEqual([...backend.sentClocks].sort((a, b) => a - b));
     const final = simulation.view();
@@ -123,7 +123,7 @@ describe('Simulation', () => {
     expect(await store.readState()).toMatchObject({ status: 'finished', alertsCreated: 1, clock: iso('02:45') });
   });
 
-  it('refuse (409) les commandes hors des états acceptés', async () => {
+  it('rejects (409) commands outside the accepted states', async () => {
     const simulation = create();
     await expect(simulation.command('pause')).rejects.toBeInstanceOf(CommandRejected);
     await expect(simulation.command('resume')).rejects.toBeInstanceOf(CommandRejected);
@@ -133,7 +133,7 @@ describe('Simulation', () => {
     await simulation.command('reset');
   });
 
-  it('pause puis reprise : aucun pas perdu ni envoyé deux fois', async () => {
+  it('pause then resume: no step lost or sent twice', async () => {
     const simulation = create();
     await simulation.command('start');
     await until(() => backend.sentClocks.length >= 3);
@@ -149,7 +149,7 @@ describe('Simulation', () => {
     expect(backend.sentClocks).toHaveLength(10);
   });
 
-  it('stop : termine sans envoyer la suite ; reset : vide la base et revient à idle', async () => {
+  it('stop: finishes without sending the rest; reset: wipes the database and goes back to idle', async () => {
     const simulation = create();
     await simulation.command('start');
     await until(() => backend.sentClocks.length >= 2);
@@ -164,7 +164,7 @@ describe('Simulation', () => {
     expect(await store.readDataset()).toBeNull();
   });
 
-  it('un reset pendant la préparation annule le chargement', async () => {
+  it('a reset during the preparation cancels the loading', async () => {
     let release!: () => void;
     backend.loadGate = new Promise((resolve) => (release = resolve));
     const simulation = create();
@@ -176,8 +176,8 @@ describe('Simulation', () => {
     expect(backend.sentClocks).toHaveLength(0);
   });
 
-  it('un changement de vitesse s’applique sans attendre la fin du pas', async () => {
-    const simulation = create({ speed: 30 }); // 10 s par pas
+  it('a speed change applies without waiting for the end of the step', async () => {
+    const simulation = create({ speed: 30 }); // 10 s per step
     await simulation.command('start');
     await until(() => backend.sentClocks.length === 1);
     await simulation.setSpeed(600);
@@ -185,7 +185,7 @@ describe('Simulation', () => {
     expect(simulation.view().speed).toBe(600);
   });
 
-  it('une erreur d’envoi met en pause avec le message ; resume relance au même pas', async () => {
+  it('a send error pauses with the message; resume restarts at the same step', async () => {
     const simulation = create();
     await simulation.command('start');
     await until(() => backend.sentClocks.length >= 2);
@@ -199,11 +199,11 @@ describe('Simulation', () => {
     expect(new Set(backend.sentClocks).size).toBe(10);
   });
 
-  it('reprise après redémarrage : en pause à la même heure, puis fin de journée sans doublon', async () => {
+  it('resume after a restart: paused at the same time, then end of day without duplicates', async () => {
     const first = create();
     await first.command('start');
     await until(() => backend.sentClocks.length >= 4);
-    await first.command('pause'); // l'état est sur le volume, comme après un arrêt du conteneur
+    await first.command('pause'); // the state is on the volume, as after a container stop
     const clock = first.view().clock;
     const sent = [...backend.sentClocks];
 
@@ -218,8 +218,8 @@ describe('Simulation', () => {
     expect(second.view().alertsCreated).toBe(1);
   });
 
-  it('reprise d’un chargement interrompu : recharge l’historique puis se met en pause au début', async () => {
-    // état laissé sur le volume par un processus arrêté en plein chargement
+  it('resume of an interrupted loading: reloads the history then pauses at the start', async () => {
+    // state left on the volume by a process stopped in the middle of loading
     await store.writeDataset(tinyDataset(42, DEMO_DAY));
     await store.writeState({ status: 'preparing', seed: 42, demoDate: DEMO_DAY, clock: null, speed: 60, alertsCreated: 0 });
 
@@ -231,7 +231,7 @@ describe('Simulation', () => {
     expect(simulation.view()).toMatchObject({ clock: null, progress: { done: 0, total: 10 } });
   });
 
-  it('garde-fou : base vidée entre-temps → retour à idle et fichiers supprimés', async () => {
+  it('safeguard: database wiped in the meantime → back to idle and files deleted', async () => {
     const first = create();
     await first.command('start');
     await until(() => backend.sentClocks.length >= 2);

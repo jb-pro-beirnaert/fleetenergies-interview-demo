@@ -1,5 +1,5 @@
-// Schéma PostgreSQL de Fleet Copilot (spec 01). Tables et colonnes en snake_case,
-// modèles Prisma en camelCase via @map / @@map.
+// Fleet Copilot PostgreSQL schema (spec 01). Tables and columns in snake_case,
+// Prisma models in camelCase via @map / @@map.
 
 generator client {
   provider            = "prisma-client"
@@ -12,7 +12,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// ---------- Énumérations ----------
+// ---------- Enums ----------
 
 enum PlaceType {
   fuel_station
@@ -123,7 +123,7 @@ enum TaskStatus {
   @@map("task_status")
 }
 
-// ---------- Référentiel ----------
+// ---------- Reference data ----------
 
 model Carrier {
   id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -176,9 +176,9 @@ model Truck {
 model Driver {
   id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   carrierId   String             @map("carrier_id") @db.Uuid
-  /// Donnée personnelle : ne jamais exposer sur /agent/*
+  /// Personal data: never expose on /agent/*
   fullName    String             @map("full_name")
-  /// Donnée personnelle : ne jamais exposer sur /agent/*
+  /// Personal data: never expose on /agent/*
   phone       String
   pseudonym   String             @unique
   carrier     Carrier            @relation(fields: [carrierId], references: [id])
@@ -200,7 +200,7 @@ model DriverAssignment {
   @@map("driver_assignments")
 }
 
-// ---------- Données d'activité ----------
+// ---------- Activity data ----------
 
 model TelemetryReading {
   id         BigInt        @id @default(autoincrement())
@@ -252,7 +252,7 @@ model DriverMessage {
   @@map("driver_messages")
 }
 
-// ---------- Alertes et enquêtes ----------
+// ---------- Alerts and investigations ----------
 
 model Alert {
   id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -321,7 +321,7 @@ model HumanReview {
   @@map("human_reviews")
 }
 
-// ---------- File de tâches ----------
+// ---------- Task queue ----------
 
 model Task {
   id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -337,7 +337,7 @@ model Task {
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  // Index partiel `(type, created_at) WHERE status IN ('pending','in_progress')` :
-  // ajouté à la main dans la migration SQL (non exprimable en PSL).
+  // Partial index `(type, created_at) WHERE status IN ('pending','in_progress')`:
+  // added by hand in the SQL migration (not expressible in PSL).
   @@map("tasks")
 }

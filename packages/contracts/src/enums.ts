@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Valeurs identiques aux enums SQL (spec 01)
+// Values identical to the SQL enums (spec 01)
 
 export const VerdictCategory = z.enum([
   'theft_suspected',

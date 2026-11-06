@@ -26,9 +26,9 @@ services:
     ports:
       - "${NESTJS_PORT}:3000"
     volumes:
-      # Seul src/ est monté : `nest start --watch` recompile à chaque modification.
-      # Les node_modules (binaires Linux) restent ceux de l'image, sans volume à créer.
-      # Changement de dépendance ou de config (package.json, tsconfig…) : relancer avec --build
+      # Only src/ is mounted: `nest start --watch` recompiles on every change.
+      # node_modules (Linux binaries) stay those of the image, no volume to create.
+      # Dependency or config change (package.json, tsconfig…): restart with --build
       - ./apps/nestjs/src:/app/apps/nestjs/src
       - ./apps/nestjs/prisma:/app/apps/nestjs/prisma
       - ./packages/contracts/src:/app/packages/contracts/src
@@ -47,7 +47,7 @@ services:
     ports:
       - "${MCP_PORT:-3100}:3100"
     volumes:
-      # Seul src/ est monté : `tsx watch` relance à chaque modification
+      # Only src/ is mounted: `tsx watch` restarts on every change
       - ./apps/mcp-server/src:/app/apps/mcp-server/src
       - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
@@ -60,7 +60,7 @@ services:
       target: dev
     command: ["npm", "run", "dev:investigator"]
     env_file: .env
-    # Ollama tourne sur l'hôte (GPU Metal) ; nécessaire sous Linux, implicite sur Docker Desktop
+    # Ollama runs on the host (Metal GPU); required on Linux, implicit on Docker Desktop
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -84,7 +84,7 @@ services:
     ports:
       - "${SIM_PORT:-3200}:3200"
     volumes:
-      # `node --watch` relance à chaque modification ; l'état de la simulation est repris depuis simdata
+      # `node --watch` restarts on every change; the simulation state is resumed from simdata
       - ./apps/simulator/src:/app/apps/simulator/src
       - ./packages/contracts/src:/app/packages/contracts/src
       - simdata:/data
@@ -97,7 +97,7 @@ services:
       dockerfile: apps/web/Dockerfile
       target: dev
     environment:
-      # Cibles des proxys de `ng serve` (voir apps/web/proxy.conf.mjs)
+      # Targets of the `ng serve` proxies (see apps/web/proxy.conf.mjs)
       API_PROXY_TARGET: http://nestjs:3000
       SIMULATION_PROXY_TARGET: http://simulator:3200
     ports:

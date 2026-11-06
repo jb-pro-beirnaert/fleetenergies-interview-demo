@@ -8,8 +8,8 @@ const isIso = (value: unknown): value is string =>
   typeof value === 'string' && !Number.isNaN(Date.parse(value));
 
 /**
- * Période à afficher pour un outil : celle demandée par l'agent si elle est valide,
- * sinon la fenêtre de l'alerte ± 2 h. Égalité par valeur pour ne pas recharger à chaque polling.
+ * Period to display for a tool: the one requested by the agent if it is valid,
+ * otherwise the alert window ± 2 h. Equality by value so as not to reload on every poll.
  */
 export function toolWindow(
   alert: Signal<AlertDetail>,

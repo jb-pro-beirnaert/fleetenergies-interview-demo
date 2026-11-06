@@ -12,24 +12,24 @@ const mask = createMasker([
   { fullName: 'Marc Durand', pseudonym: 'C-03' },
 ]);
 
-describe('masquage des données personnelles', () => {
-  it('remplace un nom complet par le pseudonyme, sans tenir compte de la casse ni des accents', () => {
-    expect(mask('Message de Hélène Durand')).toBe('Message de C-01');
-    expect(mask('HELENE DURAND au dépôt')).toBe('C-01 au dépôt');
+describe('personal data masking', () => {
+  it('replaces a full name with the pseudonym, ignoring case and accents', () => {
+    expect(mask('Message from Hélène Durand')).toBe('Message from C-01');
+    expect(mask('HELENE DURAND at the depot')).toBe('C-01 at the depot');
     expect(mask('jean-marc lefevre')).toBe('C-02');
   });
 
-  it('remplace un prénom ou un nom seul quand il est univoque', () => {
-    expect(mask('Vu avec Hélène ce matin')).toBe('Vu avec C-01 ce matin');
-    expect(mask('Lefèvre est en pause')).toBe('C-02 est en pause');
+  it('replaces a first or last name alone when it is unambiguous', () => {
+    expect(mask('Saw Hélène this morning')).toBe('Saw C-01 this morning');
+    expect(mask('Lefèvre is on a break')).toBe('C-02 is on a break');
   });
 
-  it('ne choisit pas de pseudonyme pour un nom partagé', () => {
-    expect(mask('Durand a appelé')).toBe(`${AMBIGUOUS_DRIVER} a appelé`);
+  it('does not pick a pseudonym for a shared name', () => {
+    expect(mask('Durand called')).toBe(`${AMBIGUOUS_DRIVER} called`);
   });
 
-  it('ne touche pas un mot qui contient un nom', () => {
-    expect(mask('Marché de Marcy')).toBe('Marché de Marcy');
+  it('leaves alone a word that contains a name', () => {
+    expect(mask('Marcy market, Marchmont Street')).toBe('Marcy market, Marchmont Street');
   });
 
   it.each([
@@ -38,25 +38,25 @@ describe('masquage des données personnelles', () => {
     '+33 6 12 34 56 78',
     '06.12.34.56.78',
     '04-75-12-34-56',
-  ])('masque le téléphone %s', (phone) => {
-    expect(mask(`Appeler le mécanicien au ${phone} demain`)).toBe(
-      `Appeler le mécanicien au ${PHONE_MASK} demain`,
+  ])('masks the phone number %s', (phone) => {
+    expect(mask(`Call the mechanic on ${phone} tomorrow`)).toBe(
+      `Call the mechanic on ${PHONE_MASK} tomorrow`,
     );
   });
 
-  it('masque les e-mails', () => {
-    expect(mask('écrire à garage.sud@exemple.fr')).toBe(
-      `écrire à ${EMAIL_MASK}`,
+  it('masks email addresses', () => {
+    expect(mask('write to garage.sud@exemple.fr')).toBe(
+      `write to ${EMAIL_MASK}`,
     );
   });
 
-  it('laisse intacts identifiants, dates et immatriculations', () => {
+  it('leaves ids, dates and number plates intact', () => {
     const text =
       '2026-10-14T02:35:00.000Z 0f6c1d2e-0612-4345-8678-061234567890 AB-123-CD';
     expect(mask(text)).toBe(text);
   });
 
-  it('maskDeep parcourt objets et tableaux', () => {
+  it('maskDeep walks objects and arrays', () => {
     expect(
       maskDeep(
         { a: ['Hélène', 3, null], b: { c: '0612345678', d: true } },

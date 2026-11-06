@@ -1,9 +1,9 @@
-# Contexte de build : racine du monorepo (pour accéder au lockfile et aux packages partagés)
-# Pas d'étape de compilation : Node 24 exécute le TypeScript directement (type stripping)
+# Build context: monorepo root (to reach the lockfile and the shared packages)
+# No compilation step: Node 24 runs the TypeScript directly (type stripping)
 FROM node:24-alpine AS dev
 WORKDIR /app
 
-# Manifestes uniquement, pour profiter du cache Docker sur `npm ci`
+# Manifests only, to benefit from the Docker cache on `npm ci`
 COPY package.json package-lock.json ./
 COPY packages/contracts/package.json packages/contracts/
 COPY apps/simulator/package.json apps/simulator/
@@ -14,10 +14,10 @@ COPY apps/simulator apps/simulator
 
 WORKDIR /app/apps/simulator
 EXPOSE 3200
-# `node --watch` relance le service à chaque modification ; l'état est repris depuis /data
+# `node --watch` restarts the service on every change; the state is resumed from /data
 CMD ["npm", "run", "dev"]
 
-# Image finale : dépendances de production + sources
+# Final image: production dependencies + sources
 FROM node:24-alpine AS prod
 WORKDIR /app
 ENV NODE_ENV=production
@@ -30,7 +30,7 @@ RUN npm ci --omit=dev -w apps/simulator && npm cache clean --force
 COPY packages/contracts/src packages/contracts/src
 COPY apps/simulator/src apps/simulator/src
 
-# Volume de l'état de la simulation (state.json, dataset.json), inscriptible par l'utilisateur node
+# Simulation state volume (state.json, dataset.json), writable by the node user
 RUN mkdir -p /data && chown node:node /data
 VOLUME /data
 

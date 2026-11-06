@@ -1,6 +1,7 @@
 import { Component, computed, input, signal } from '@angular/core';
 import type { AlertDetail } from '@fleet/contracts';
 import { fmtDateTime } from '../core/format';
+import { t } from '../core/i18n/i18n';
 import { toolPhrase } from '../core/labels';
 import type { TraceItem } from '../core/trace';
 import { ActivityView } from './tools/activity-view';
@@ -59,7 +60,7 @@ const isIso = (value: unknown): value is string =>
                           [args]="tool.args"
                         />
                       } @placeholder (minimum 0ms) {
-                        <div class="lazy">Chargement du graphique…</div>
+                        <div class="lazy">{{ t('trace.loadingChart') }}</div>
                       }
                     }
                     @case ('get_vehicle_activity') {
@@ -70,7 +71,7 @@ const isIso = (value: unknown): value is string =>
                           [args]="tool.args"
                         />
                       } @placeholder (minimum 0ms) {
-                        <div class="lazy">Chargement de la carte…</div>
+                        <div class="lazy">{{ t('trace.loadingMap') }}</div>
                       }
                     }
                     @case ('find_fuel_transactions') {
@@ -91,7 +92,7 @@ const isIso = (value: unknown): value is string =>
                   }
                 </div>
               } @else {
-                <div class="tool-error">L’outil a renvoyé une erreur : {{ result.error }}</div>
+                <div class="tool-error">{{ t('trace.toolError', { error: result.error }) }}</div>
               }
             }
           </div>
@@ -106,7 +107,7 @@ const isIso = (value: unknown): value is string =>
               (click)="open.set(!open())"
               [attr.aria-expanded]="open()"
             >
-              {{ open() ? '▾' : '▸' }} Réflexion du modèle
+              {{ open() ? '▾' : '▸' }} {{ t('trace.reasoning') }}
             </button>
             @if (open()) {
               <p>{{ r.text }}</p>
@@ -115,13 +116,13 @@ const isIso = (value: unknown): value is string =>
         }
       }
       @case ('retry') {
-        <div class="step retry">↻ Relance : {{ message() }}</div>
+        <div class="step retry">{{ t('trace.retry', { message: message() }) }}</div>
       }
       @case ('error') {
-        <div class="step error">✕ Erreur : {{ message() }}</div>
+        <div class="step error">{{ t('trace.error', { message: message() }) }}</div>
       }
       @case ('verdict') {
-        <div class="step verdict-line">✓ Verdict soumis</div>
+        <div class="step verdict-line">{{ t('trace.verdict') }}</div>
       }
     }
   `,
@@ -133,6 +134,7 @@ export class TraceStep {
   readonly anchor = input<string | null>(null);
 
   protected readonly open = signal(false);
+  protected readonly t = t;
 
   protected readonly tool = computed(() => {
     const item = this.item();
@@ -154,7 +156,7 @@ export class TraceStep {
     if (isIso(args['from']) && isIso(args['to'])) {
       return `${fmtDateTime(args['from'])} → ${fmtDateTime(args['to'])}`;
     }
-    if (typeof args['lookbackDays'] === 'number') return `${args['lookbackDays']} derniers jours`;
+    if (typeof args['lookbackDays'] === 'number') return t('trace.lastDays', { n: args['lookbackDays'] });
     return null;
   });
 

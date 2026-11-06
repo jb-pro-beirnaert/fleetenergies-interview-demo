@@ -1,4 +1,4 @@
-// Règle FUEL_DROP (spec 03, « Détecteur »). Volontairement naïve : l'agent fait le tri.
+// FUEL_DROP rule (spec 03, "Detector"). Deliberately naive: the agent sorts things out.
 
 export const DETECTION_WINDOW_MS = 20 * 60_000;
 export const DEDUP_WINDOW_MS = 30 * 60_000;
@@ -29,9 +29,9 @@ export interface FuelDropDetails {
 }
 
 /**
- * `window` : relevés du camion sur [R − 20 min, R], triés par date, R en dernier.
- * Anomalie si le niveau max de la fenêtre dépasse celui de R d'au moins `minDropL`
- * et que la vitesse est restée < 3 km/h entre ce max et R.
+ * `window`: the truck's readings over [R − 20 min, R], sorted by date, R last.
+ * Anomaly if the window's max level exceeds R's by at least `minDropL`
+ * and the speed stayed < 3 km/h between that max and R.
  */
 export function evaluateFuelDrop(
   window: RuleReading[],
@@ -40,7 +40,7 @@ export function evaluateFuelDrop(
   const current = window.at(-1);
   if (!current) return null;
 
-  // Niveau max ; à égalité, le plus récent (intervalle le plus court)
+  // Max level; on a tie, the most recent (shortest interval)
   let maxIndex = 0;
   window.forEach((reading, index) => {
     if (reading.fuelLevelL >= window[maxIndex].fuelLevelL) maxIndex = index;
@@ -57,7 +57,7 @@ export function evaluateFuelDrop(
   return { startAt: max.recordedAt, endAt: current.recordedAt, dropL };
 }
 
-/** `episode` : relevés de [début de l'alerte, R], triés par date. */
+/** `episode`: readings over [alert start, R], sorted by date. */
 export function buildDropDetails(episode: RuleReading[]): FuelDropDetails {
   const first = episode[0];
   const last = episode.at(-1) ?? first;

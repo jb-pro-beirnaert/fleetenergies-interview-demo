@@ -6,13 +6,13 @@ import {
 } from '@nestjs/swagger';
 import { TOKEN_ROLE, TokenGuard, type TokenRole } from './token.guard.js';
 
-// Protège un contrôleur ou une route par un jeton de rôle et le documente dans OpenAPI
+// Protects a controller or a route with a role token and documents it in OpenAPI
 export function RequireToken(role: TokenRole) {
   return applyDecorators(
     SetMetadata(TOKEN_ROLE, role),
     UseGuards(TokenGuard),
     ApiBearerAuth(role),
-    ApiUnauthorizedResponse({ description: 'Jeton manquant ou invalide' }),
-    ApiForbiddenResponse({ description: "Jeton d'un autre rôle" }),
+    ApiUnauthorizedResponse({ description: 'Missing or invalid token' }),
+    ApiForbiddenResponse({ description: 'Token of another role' }),
   );
 }

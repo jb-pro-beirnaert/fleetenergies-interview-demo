@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ControlRoom } from './control-room';
 
 export const routes: Routes = [
-  { path: '', component: ControlRoom, title: 'Fleet Copilot · Alertes' },
+  // No route `title`: the tab title follows the language (`syncDocument` in core/i18n/i18n.ts)
+  { path: '', component: ControlRoom },
   { path: '**', redirectTo: '' },
 ];

@@ -22,7 +22,7 @@ export type ToolDefinition<I extends z.ZodObject = z.ZodObject> = {
   route: (args: z.infer<I>) => Route;
 };
 
-// Le générique vérifie `route` contre le schéma d'entrée, puis on l'efface pour la liste
+// The generic checks `route` against the input schema, then it is erased for the list
 const tool = <I extends z.ZodObject>(def: ToolDefinition<I>) =>
   def as unknown as ToolDefinition;
 
@@ -36,12 +36,12 @@ const windowRoute =
     query: { from, to },
   });
 
-// Un outil = une route `/agent/trucks/:truckId/*` (spec 05) ; descriptions lues par le modèle
+// One tool = one `/agent/trucks/:truckId/*` route (spec 05); descriptions are read by the model
 export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'get_truck_profile',
     description:
-      "Fiche du camion : capacité du réservoir, énergie, présence d'un groupe frigo, consommation habituelle, notes connues sur la sonde. À appeler en premier pour connaître le contexte.",
+      'Truck profile: tank capacity, energy, whether it has a reefer unit, usual consumption, known notes about the fuel sensor. Call it first to get the context.',
     input: TruckInput,
     output: TruckProfile,
     route: ({ truckId }) => ({ path: truckPath(truckId, 'profile') }),
@@ -49,7 +49,7 @@ export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'get_tank_curve',
     description:
-      'Niveau du réservoir sur une période, résumé : niveaux de début et de fin, plus forte chute (moteur coupé ou non), remontées sans plein qui peuvent trahir un artefact de sonde.',
+      'Tank level over a period, summarised: start and end levels, biggest drop (engine off or not), rises without a refuel that may betray a sensor artefact.',
     input: TruckWindowInput,
     output: TankCurve,
     route: windowRoute('tank-curve'),
@@ -57,7 +57,7 @@ export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'get_vehicle_activity',
     description:
-      "Arrêts du camion avec leur durée, l'état du moteur et le type de lieu (station, dépôt, atelier, aire d'autoroute, client). Permet de savoir où et dans quelles conditions la baisse a eu lieu.",
+      'Truck stops with their duration, engine state and place type (fuel station, depot, workshop, motorway rest area, customer). Shows where and under which conditions the decrease happened.',
     input: TruckWindowInput,
     output: VehicleActivity,
     route: windowRoute('activity'),
@@ -65,7 +65,7 @@ export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'find_fuel_transactions',
     description:
-      'Pleins enregistrés (cartes carburant et factures) sur une période. Une chute expliquée par un plein mal enregistré ou une facture incohérente se voit ici.',
+      'Recorded refuels (fuel cards and invoices) over a period. A drop explained by a badly recorded refuel or an inconsistent invoice shows up here.',
     input: TruckWindowInput,
     output: FuelTransactions,
     route: windowRoute('fuel-transactions'),
@@ -73,7 +73,7 @@ export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'read_driver_messages',
     description:
-      "Messages libres envoyés par le conducteur sur une période (pseudonymisés). Peut contenir une explication : intervention d'atelier, problème de jauge, transfert vers le groupe frigo.",
+      'Free-text messages sent by the driver over a period (pseudonymised). May contain an explanation: workshop job, gauge problem, transfer to the reefer unit.',
     input: TruckWindowInput,
     output: DriverMessages,
     route: windowRoute('driver-messages'),
@@ -81,7 +81,7 @@ export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'compute_fuel_balance',
     description:
-      'Calcul exact du bilan carburant : consommation attendue selon les kilomètres et le ralenti, pleins, baisse observée et litres inexpliqués. Utiliser ce calcul plutôt que d’estimer soi-même.',
+      'Exact fuel balance calculation: expected consumption from kilometres and idling, refuels, observed decrease and unexplained liters. Use this calculation rather than estimating yourself.',
     input: TruckWindowInput,
     output: FuelBalance,
     route: windowRoute('fuel-balance'),
@@ -89,7 +89,7 @@ export const TOOLS: ToolDefinition[] = [
   tool({
     name: 'find_similar_events',
     description:
-      'Chutes de niveau comparables du même camion sur les jours précédents, avec l’heure, le lieu et le verdict passé s’il existe. Un motif répété renforce un soupçon.',
+      'Comparable level drops of the same truck over the previous days, with the time, the place and the past verdict if any. A repeated pattern strengthens a suspicion.',
     input: SimilarEventsInput,
     output: SimilarEvents,
     route: ({ truckId, lookbackDays }) => ({

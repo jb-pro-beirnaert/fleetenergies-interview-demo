@@ -1,10 +1,10 @@
-// Calendrier simulé, en heure de Paris : du jour J − 1 mois au jour J (date d'exécution).
-// Le dernier jour (J) est la journée de démo (`live`), les précédents forment l'historique.
-// Le temps interne est un nombre de minutes depuis minuit (heure de Paris) du premier jour.
-// Les changements d'heure sont gérés : un jour peut durer 23 h ou 25 h.
+// Simulated calendar, in Paris time: from day D − 1 month to day D (run date).
+// The last day (D) is the demo day (`live`); the previous ones form the history.
+// Internal time is a number of minutes since midnight (Paris time) of the first day.
+// Daylight saving changes are handled: a day can last 23 h or 25 h.
 
 export const TIME_ZONE = 'Europe/Paris';
-/** Un relevé télématique toutes les 5 minutes. */
+/** One telematics reading every 5 minutes. */
 export const STEP_MIN = 5;
 export const STEP_MS = STEP_MIN * 60_000;
 
@@ -29,7 +29,7 @@ function wallClock(utcMs: number) {
   };
 }
 
-/** Décalage de Paris par rapport à UTC à un instant donné, en minutes (+60 ou +120). */
+/** Paris offset from UTC at a given instant, in minutes (+60 or +120). */
 export function tzOffsetMin(utcMs: number): number {
   const wall = wallClock(utcMs);
   const [y, m, d] = wall.date.split('-').map(Number);
@@ -41,14 +41,14 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function assertDate(date: string): string {
   if (!DATE_RE.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) {
-    throw new Error(`Date invalide « ${date} » (attendu AAAA-MM-JJ)`);
+    throw new Error(`Invalid date "${date}" (expected YYYY-MM-DD)`);
   }
   return date;
 }
 
 const dateParts = (date: string) => assertDate(date).split('-').map(Number);
 
-/** Instant UTC (ms) d'une heure locale de Paris (`minutesOfDay` depuis minuit). */
+/** UTC instant (ms) of a Paris local time (`minutesOfDay` since midnight). */
 export function localToUtcMs(date: string, minutesOfDay: number): number {
   const [y, m, d] = dateParts(date);
   const naive = Date.UTC(y, m - 1, d) + minutesOfDay * 60_000;
@@ -63,7 +63,7 @@ export function localHHMM(utcMs: number): string {
   return `${String(wall.hour).padStart(2, '0')}:${String(wall.minute).padStart(2, '0')}`;
 }
 
-/** Date du jour à Paris. */
+/** Today's date in Paris. */
 export const todayInParis = (now = Date.now()): string => localDateOf(now);
 
 export function addDays(date: string, days: number): string {
@@ -71,7 +71,7 @@ export function addDays(date: string, days: number): string {
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
-/** Même jour du mois précédent (borné au dernier jour du mois : 31/03 → 28/02). */
+/** Same day of the previous month (capped to the month's last day: 31/03 → 28/02). */
 export function minusOneMonth(date: string): string {
   const [y, m, d] = dateParts(date);
   const lastDay = new Date(Date.UTC(y, m - 1, 0)).getUTCDate();
@@ -80,29 +80,29 @@ export function minusOneMonth(date: string): string {
 
 export function parseHHMM(value: string): number {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value);
-  if (!match) throw new Error(`Heure invalide « ${value} » (attendu HH:MM)`);
+  if (!match) throw new Error(`Invalid time "${value}" (expected HH:MM)`);
   const hours = Number(match[1]);
   const minutes = Number(match[2]);
-  if (hours > 23 || minutes > 59) throw new Error(`Heure invalide « ${value} »`);
+  if (hours > 23 || minutes > 59) throw new Error(`Invalid time "${value}"`);
   return hours * 60 + minutes;
 }
 
 export interface Calendar {
-  /** Premier jour simulé (J − 1 mois). */
+  /** First simulated day (D − 1 month). */
   startDate: string;
-  /** Journée de démo (J). */
+  /** Demo day (D). */
   demoDate: string;
   days: number;
-  /** Index de la journée de démo (le dernier jour). */
+  /** Index of the demo day (the last day). */
   liveDay: number;
-  /** Minute de début de la journée de démo. */
+  /** Start minute of the demo day. */
   liveStartMin: number;
-  /** Fin de la période (minuit à la fin de J). */
+  /** End of the period (midnight at the end of D). */
   endMin: number;
-  /** Minute de minuit (heure de Paris) d'un jour ; `dayStart(days)` = fin de période. */
+  /** Minute of midnight (Paris time) of a day; `dayStart(days)` = end of the period. */
   dayStart(day: number): number;
   dayOf(minute: number): number;
-  /** Minute d'une heure locale `HH:MM` d'un jour donné. */
+  /** Minute of a local time `HH:MM` on a given day. */
   at(day: number, hhmm: string): number;
   date(day: number): string;
   /** 0 = dimanche … 6 = samedi. */

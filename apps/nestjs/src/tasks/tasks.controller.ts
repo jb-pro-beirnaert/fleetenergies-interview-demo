@@ -26,7 +26,7 @@ import {
 import { RequireToken } from '../auth/require-token.decorator.js';
 import { TasksService } from './tasks.service.js';
 
-@ApiTags('agent · tâches')
+@ApiTags('agent · tasks')
 @RequireToken('agent')
 @Controller('agent/tasks')
 export class TasksController {
@@ -35,12 +35,12 @@ export class TasksController {
   @Post('claim')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Réserver une tâche',
+    summary: 'Claim a task',
     description:
-      'FOR UPDATE SKIP LOCKED, verrou de 5 min. Pour `investigate_alert` : alerte → `investigating`, enquête ouverte ou rouverte.',
+      'FOR UPDATE SKIP LOCKED, 5-min lock. For `investigate_alert`: alert → `investigating`, investigation opened or reopened.',
   })
   @ApiOkResponse({ standardSchema: ClaimedTask })
-  @ApiNoContentResponse({ description: 'Aucune tâche disponible' })
+  @ApiNoContentResponse({ description: 'No task available' })
   async claim(
     @Body({ schema: ClaimRequest }) request: ClaimRequest,
     @Res({ passthrough: true }) response: Response,
@@ -52,11 +52,11 @@ export class TasksController {
 
   @Post(':id/complete')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Terminer une tâche' })
-  @ApiNoContentResponse({ description: 'Tâche terminée' })
-  @ApiNotFoundResponse({ description: 'Tâche introuvable' })
+  @ApiOperation({ summary: 'Complete a task' })
+  @ApiNoContentResponse({ description: 'Task completed' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiConflictResponse({
-    description: "Le worker n'est pas titulaire du verrou",
+    description: 'The worker does not hold the lock',
   })
   async complete(
     @Param('id', ParseUUIDPipe) id: string,
@@ -68,14 +68,14 @@ export class TasksController {
   @Post(':id/fail')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Signaler un échec',
+    summary: 'Report a failure',
     description:
-      'Relançable et tentatives restantes : retour en `pending` (délai 10 s × tentatives). Sinon échec définitif : enquête `failed`, alerte `escalated`.',
+      'Retryable with attempts left: back to `pending` (delay 10 s × attempts). Otherwise permanent failure: investigation `failed`, alert `escalated`.',
   })
-  @ApiNoContentResponse({ description: 'Échec enregistré' })
-  @ApiNotFoundResponse({ description: 'Tâche introuvable' })
+  @ApiNoContentResponse({ description: 'Failure recorded' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiConflictResponse({
-    description: "Le worker n'est pas titulaire du verrou",
+    description: 'The worker does not hold the lock',
   })
   async fail(
     @Param('id', ParseUUIDPipe) id: string,

@@ -1,50 +1,51 @@
 import { Component, computed, inject } from '@angular/core';
 import { ControlRoomStore } from '../core/control-room.store';
 import { fmtDuration, fmtNumber, fmtPercent } from '../core/format';
-import { CATEGORIES, CATEGORY_LABELS } from '../core/labels';
+import { t } from '../core/i18n/i18n';
+import { CATEGORIES, categoryLabel } from '../core/labels';
 
 @Component({
   selector: 'app-value-panel',
   template: `
-    <h2>Valeur</h2>
+    <h2>{{ t('value.title') }}</h2>
     @if (store.stats(); as s) {
       <section class="block without">
-        <span class="label">Sans agents</span>
+        <span class="label">{{ t('value.without') }}</span>
         <span class="hero">{{ s.ruleOnly.toReviewManually }}</span>
-        <span>alertes à analyser à la main</span>
+        <span>{{ t('value.manual') }}</span>
       </section>
 
       <section class="block with">
-        <span class="label">Avec agents</span>
+        <span class="label">{{ t('value.with') }}</span>
         <div class="grid">
           <div class="green">
             <span class="hero">{{ s.withAgents.autoClosed }}</span>
-            <span>classées auto</span>
+            <span>{{ t('value.autoClosed') }}</span>
           </div>
           <div class="orange">
             <span class="hero">{{ s.withAgents.escalated }}</span>
-            <span>escaladées</span>
+            <span>{{ t('value.escalated') }}</span>
           </div>
         </div>
-        <span class="muted">{{ s.withAgents.pending }} en attente ou en cours</span>
+        <span class="muted">{{ t('value.pending', { n: s.withAgents.pending }) }}</span>
       </section>
 
       <section class="block">
         <dl>
           <div>
-            <dt>Temps moyen d’enquête</dt>
+            <dt>{{ t('value.avgDuration') }}</dt>
             <dd>{{ fmtDuration(s.investigations.avgDurationSeconds) }}</dd>
           </div>
           <div>
-            <dt>Appels d’outils moyens</dt>
+            <dt>{{ t('value.avgToolCalls') }}</dt>
             <dd>{{ fmtNumber(s.investigations.avgToolCalls, true) }}</dd>
           </div>
           <div>
-            <dt>Enquêtes en échec</dt>
+            <dt>{{ t('value.failed') }}</dt>
             <dd [class.bad]="s.investigations.failed > 0">{{ s.investigations.failed }}</dd>
           </div>
           <div>
-            <dt>Accord avec les humains</dt>
+            <dt>{{ t('value.agreement') }}</dt>
             <dd>
               @if (s.humanAgreement.reviewed) {
                 {{ fmtPercent(s.humanAgreement.agreed / s.humanAgreement.reviewed) }}
@@ -60,7 +61,7 @@ import { CATEGORIES, CATEGORY_LABELS } from '../core/labels';
       </section>
 
       <section class="block">
-        <span class="label">Verdicts par catégorie</span>
+        <span class="label">{{ t('value.byCategory') }}</span>
         <ul class="histogram">
           @for (c of histogram(); track c.category) {
             <li [attr.data-category]="c.category">
@@ -72,7 +73,7 @@ import { CATEGORIES, CATEGORY_LABELS } from '../core/labels';
         </ul>
       </section>
     } @else {
-      <p class="muted">Chargement…</p>
+      <p class="muted">{{ t('common.loading') }}</p>
     }
   `,
   styleUrl: './value-panel.css',
@@ -82,8 +83,9 @@ export class ValuePanel {
   protected readonly fmtDuration = fmtDuration;
   protected readonly fmtNumber = fmtNumber;
   protected readonly fmtPercent = fmtPercent;
+  protected readonly t = t;
 
-  // `/api/stats` ne détaille pas les catégories : calculé à partir de la liste des alertes
+  // `/api/stats` does not break down categories: computed from the alert list
   protected readonly histogram = computed(() => {
     const counts = new Map<string, number>();
     for (const alert of this.store.alerts() ?? []) {
@@ -93,7 +95,7 @@ export class ValuePanel {
     return CATEGORIES.filter((c) => c !== 'billing_discrepancy' || counts.has(c)).map(
       (category) => ({
         category,
-        label: CATEGORY_LABELS[category],
+        label: categoryLabel(category),
         count: counts.get(category) ?? 0,
         ratio: (counts.get(category) ?? 0) / max,
       }),

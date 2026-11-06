@@ -1,23 +1,23 @@
-// Scénarios injectés dans les courbes (spec 04, « Scénarios de la journée de démo »).
+// Scenarios injected into the curves (spec 04, "Demo day scenarios").
 
 import type { PlaceType, VerdictCategory } from '@fleet/contracts';
 import { firstName, type DriverDef } from './world.ts';
 
 export type ScenarioKind =
-  /** Carburant réellement retiré du réservoir (vol, transfert, vidange). */
+  /** Fuel actually taken out of the tank (theft, transfer, draining). */
   | 'drain'
-  /** Artefact de sonde : seules les valeurs mesurées chutent, puis remontent. */
+  /** Sensor artefact: only the measured values drop, then rise again. */
   | 'sensor_artifact';
 
 export interface ScenarioDef {
   id: string;
   truck: string;
-  /** Jour de l'épisode relatif à la journée de démo (0 = journée de démo, −5 = cinq jours avant). */
+  /** Day of the episode relative to the demo day (0 = demo day, −5 = five days before). */
   dayOffset: number;
   time: string;
   kind: ScenarioKind;
   amountL: number;
-  /** Durée du retrait, ou de l'artefact (relevés faussés sur cet intervalle). */
+  /** Duration of the withdrawal, or of the artefact (readings skewed over that interval). */
   durationMin: number;
   placeType: PlaceType;
   situation: string;
@@ -37,11 +37,11 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 180,
     durationMin: 12,
     placeType: 'rest_area',
-    situation: "Aire d'autoroute, nuit, moteur coupé, −180 L en 12 min",
+    situation: 'Motorway rest area, night, engine off, −180 L in 12 min',
     clues: [
-      'aucun plein',
-      'aucun message',
-      'historique : deux chutes nocturnes de −55 L (J − 11) et −60 L (J − 5) sur des aires',
+      'no refuel',
+      'no message',
+      'history: two night-time drops of −55 L (D − 11) and −60 L (D − 5) at rest areas',
     ],
     expectedCategory: 'theft_suspected',
     acceptableCategories: ['theft_suspected'],
@@ -55,14 +55,14 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 90,
     durationMin: 10,
     placeType: 'customer',
-    situation: 'Chez un client, −90 L en un relevé puis remontée dix minutes après',
-    clues: ['sensor_notes renseigné', 'message du conducteur : la jauge affiche n’importe quoi'],
+    situation: 'At a customer, −90 L in one reading then back up ten minutes later',
+    clues: ['sensor_notes filled in', 'driver message: the gauge is showing nonsense'],
     expectedCategory: 'sensor_fault',
     acceptableCategories: ['sensor_fault'],
     message: {
       time: '07:22',
       body: () =>
-        "La jauge carburant affiche n'importe quoi depuis ce matin : elle a chuté d'un coup puis elle est remontée. Je n'ai rien touché, je suis à quai chez le client.",
+        'The fuel gauge has been showing nonsense since this morning: it dropped all of a sudden and then went back up. I did not touch anything, I am at the loading bay at the customer.',
     },
   },
   {
@@ -74,14 +74,14 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 50,
     durationMin: 10,
     placeType: 'customer',
-    situation: 'Site client, frigorifique, −50 L en 10 min',
-    clues: ['has_reefer', 'message : plein du groupe froid fait depuis le réservoir principal'],
+    situation: 'Customer site, refrigerated truck, −50 L in 10 min',
+    clues: ['has_reefer', 'message: reefer unit filled up from the main tank'],
     expectedCategory: 'equipment_transfer',
     acceptableCategories: ['equipment_transfer'],
     message: {
       time: '11:18',
       body: () =>
-        'Plein du réservoir du groupe froid fait depuis le réservoir principal avant la tournée de cet après-midi.',
+        'Filled up the reefer unit tank from the main tank before this afternoon’s round.',
     },
   },
   {
@@ -93,14 +93,14 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 120,
     durationMin: 20,
     placeType: 'workshop',
-    situation: 'Atelier poids lourds, −120 L',
-    clues: ['message avec nom et téléphone du mécanicien (masquage)', 'réservoir vidangé pour réparer une fuite'],
+    situation: 'Truck workshop, −120 L',
+    clues: ['message with the mechanic’s name and phone number (masking)', 'tank drained to fix a leak'],
     expectedCategory: 'legitimate_operation',
     acceptableCategories: ['legitimate_operation'],
     message: {
       time: '14:26',
       body: (driver) =>
-        `Bonjour, c'est ${firstName(driver)}. Je suis à l'atelier, ils vidangent le réservoir pour réparer une fuite sur le circuit gasoil. Contact du mécanicien : Marc Lefèvre, 06 39 98 77 05.`,
+        `Hello, it's ${firstName(driver)}. I'm at the workshop, they are draining the tank to fix a leak in the diesel line. Mechanic's contact: Marc Lefèvre, 06 39 98 77 05.`,
     },
   },
   {
@@ -112,8 +112,8 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 70,
     durationMin: 15,
     placeType: 'fuel_station',
-    situation: 'Station-service, nuit, moteur coupé, −70 L',
-    clues: ['aucun plein', 'aucun message', 'aucun antécédent'],
+    situation: 'Fuel station, night, engine off, −70 L',
+    clues: ['no refuel', 'no message', 'no prior event'],
     expectedCategory: 'inconclusive',
     acceptableCategories: ['inconclusive', 'theft_suspected'],
   },
@@ -126,8 +126,8 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 55,
     durationMin: 10,
     placeType: 'depot',
-    situation: 'Dépôt, artefact −55 L / +52 L',
-    clues: ['remontée seulement'],
+    situation: 'Depot, artefact −55 L / +52 L',
+    clues: ['rise only'],
     expectedCategory: 'sensor_fault',
     acceptableCategories: ['sensor_fault'],
   },
@@ -140,8 +140,8 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 48,
     durationMin: 10,
     placeType: 'rest_area',
-    situation: 'Aire, artefact −48 L / +47 L',
-    clues: ['remontée seulement'],
+    situation: 'Rest area, artefact −48 L / +47 L',
+    clues: ['rise only'],
     expectedCategory: 'sensor_fault',
     acceptableCategories: ['sensor_fault'],
   },
@@ -154,14 +154,14 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     amountL: 45,
     durationMin: 10,
     placeType: 'customer',
-    situation: 'Client, frigorifique, −45 L',
-    clues: ['has_reefer', 'sans message'],
+    situation: 'Customer, refrigerated truck, −45 L',
+    clues: ['has_reefer', 'no message'],
     expectedCategory: 'equipment_transfer',
     acceptableCategories: ['equipment_transfer', 'inconclusive'],
   },
 ];
 
-/** Antécédents de S1 dans l'historique (aucune alerte : la détection ne porte que sur le `live`). */
+/** S1's prior events in the history (no alert: detection only covers `live` data). */
 export const HISTORY_EVENTS: readonly ScenarioDef[] = [
   {
     id: 'H1-theft',
@@ -172,7 +172,7 @@ export const HISTORY_EVENTS: readonly ScenarioDef[] = [
     amountL: 55,
     durationMin: 15,
     placeType: 'rest_area',
-    situation: "Chute nocturne sur une aire d'autoroute, moteur coupé",
+    situation: 'Night-time drop at a motorway rest area, engine off',
     clues: [],
     expectedCategory: 'theft_suspected',
     acceptableCategories: ['theft_suspected'],
@@ -186,14 +186,14 @@ export const HISTORY_EVENTS: readonly ScenarioDef[] = [
     amountL: 60,
     durationMin: 15,
     placeType: 'rest_area',
-    situation: "Chute nocturne sur une aire d'autoroute, moteur coupé",
+    situation: 'Night-time drop at a motorway rest area, engine off',
     clues: [],
     expectedCategory: 'theft_suspected',
     acceptableCategories: ['theft_suspected'],
   },
 ];
 
-/** Décision attendue de l'API (spec 03, « Décision après verdict »). */
+/** Expected API decision (spec 03, "Decision after the verdict"). */
 export const expectedDecision = (category: VerdictCategory) =>
   category === 'theft_suspected' ||
   category === 'billing_discrepancy' ||

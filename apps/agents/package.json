@@ -2,10 +2,11 @@
   "name": "@fleet/agents",
   "version": "1.0.0",
   "scripts": {
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "build": "tsc -p tsconfig.json",
     "dev:investigator": "tsx watch src/investigator.ts",
-    "start:investigator": "node dist/investigator.js"
+    "start:investigator": "node dist/investigator.js",
+    "smoke:tools": "tsx src/smoke-tools.ts"
   },
   "type": "module",
   "dependencies": {

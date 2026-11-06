@@ -1,4 +1,5 @@
 import type { SimulationView } from '@fleet/contracts';
+import { setLang } from './i18n/i18n';
 import { canRun, neighbourSpeed, simulationLabel } from './simulation';
 
 const view = (partial: Partial<SimulationView>): SimulationView => ({
@@ -13,7 +14,9 @@ const view = (partial: Partial<SimulationView>): SimulationView => ({
 });
 
 describe('simulation', () => {
-  it('n’autorise que les commandes acceptées dans l’état courant', () => {
+  afterEach(() => setLang('en'));
+
+  it('only allows the commands accepted in the current state', () => {
     expect(canRun(null, 'start')).toBe(false);
     expect(canRun(view({ status: 'idle' }), 'start')).toBe(true);
     expect(canRun(view({ status: 'idle' }), 'pause')).toBe(false);
@@ -24,14 +27,25 @@ describe('simulation', () => {
     expect(canRun(view({ status: 'preparing' }), 'reset')).toBe(true);
   });
 
-  it('passe au palier de vitesse voisin, sans dépasser les bornes', () => {
+  it('moves to the neighbouring speed step, without going past the bounds', () => {
     expect(neighbourSpeed(120, 1)).toBe(300);
     expect(neighbourSpeed(120, -1)).toBe(60);
     expect(neighbourSpeed(600, 1)).toBeNull();
     expect(neighbourSpeed(30, -1)).toBeNull();
   });
 
-  it('décrit l’état en français', () => {
+  it('describes the state in English by default', () => {
+    expect(simulationLabel(view({ status: 'preparing', progress: { done: 42, total: 216 } }))).toBe(
+      'Preparing… 42 / 216 batches',
+    );
+    expect(simulationLabel(view({ status: 'running', demoDate: '2026-11-06' }))).toBe(
+      'Running · day of 06/11',
+    );
+    expect(simulationLabel(view({ status: 'finished' }))).toBe('Finished');
+  });
+
+  it('describes the state in French', () => {
+    setLang('fr');
     expect(simulationLabel(view({ status: 'preparing', progress: { done: 42, total: 216 } }))).toBe(
       'Préparation… 42 / 216 lots',
     );

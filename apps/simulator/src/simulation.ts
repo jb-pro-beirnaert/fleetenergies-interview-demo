@@ -1,5 +1,5 @@
-// Simulation pilotée (spec 04, « Machine à états ») : préparation, rejeu cadencé, pause,
-// vitesse, arrêt, reset, et reprise après redémarrage à partir du volume du simulateur.
+// Driven simulation (spec 04, "State machine"): preparation, paced replay, pause,
+// speed, stop, reset, and resume after a restart from the simulator volume.
 
 import {
   SIMULATION_COMMANDS,
@@ -15,13 +15,13 @@ import { planSteps, type ReplayStep } from './replay.ts';
 import type { SimDataset, SimStore } from './store.ts';
 import { STEP_MS, localHHMM, localToUtcMs, todayInParis } from './time.ts';
 
-/** Accès à l'API (remplacé par un faux dans les tests). */
+/** API access (replaced by a fake in the tests). */
 export interface Backend {
   wipe(): Promise<void>;
   loadHistory(batch: HistoryLoadBatch): Promise<void>;
-  /** Envoie un pas ; renvoie le nombre d'alertes créées. */
+  /** Sends one step; returns the number of alerts created. */
   sendStep(step: ReplayStep): Promise<number>;
-  /** Faux si la base est vide (référentiel absent). */
+  /** False if the database is empty (no reference data). */
   hasReference(): Promise<boolean>;
   waitUntilReady(log: (line: string) => void): Promise<void>;
 }
@@ -32,12 +32,12 @@ export interface SimulationOptions {
   seed: number;
   /** Vitesse initiale. */
   speed: SimulationSpeed;
-  /** Début et fin du rejeu, en minutes depuis minuit (heure de Paris). */
+  /** Start and end of the replay, in minutes since midnight (Paris time). */
   fromMin: number;
   toMin: number;
   today?: () => string;
   generateDataset?: (seed: number, today: string) => SimDataset;
-  /** Durée réelle d'un pas de 5 min simulées. */
+  /** Real duration of a step of 5 simulated minutes. */
   stepDelayMs?: (speed: SimulationSpeed) => number;
   log?: (line: string) => void;
 }
@@ -55,7 +55,7 @@ export class Simulation {
   private status: SimulationStatus = 'idle';
   private speed: SimulationSpeed;
   private demoDate: string | null = null;
-  /** Heure simulée du dernier pas envoyé (ms UTC). */
+  /** Simulated time of the last step sent (UTC ms). */
   private clock: number | null = null;
   private alertsCreated = 0;
   private error: string | null = null;
@@ -64,12 +64,12 @@ export class Simulation {
   private dataset: SimDataset | null = null;
   private steps: ReplayStep[] | null = null;
 
-  /** Travail de fond en cours (préparation puis rejeu) et moyen de l'interrompre. */
+  /** Background work in progress (preparation then replay) and a way to interrupt it. */
   private task: Promise<void> | null = null;
   private abort = new AbortController();
-  /** Réveille l'attente entre deux pas (pause, arrêt, vitesse, reset). */
+  /** Wakes up the wait between two steps (pause, stop, speed, reset). */
   private wake: (() => void) | null = null;
-  /** File des commandes : une commande attend la fin de la précédente. */
+  /** Command queue: a command waits for the previous one to finish. */
   private queue: Promise<unknown> = Promise.resolve();
 
   private readonly options: Required<SimulationOptions>;
@@ -97,12 +97,12 @@ export class Simulation {
     };
   }
 
-  // --- Commandes (sérialisées) ----------------------------------------------------------------
+  // --- Commands (serialised) ------------------------------------------------------------------
 
   command(command: SimulationCommand): Promise<SimulationView> {
     return this.enqueue(async () => {
       if (!SIMULATION_COMMANDS[this.status].includes(command)) {
-        throw new CommandRejected(`Commande « ${command} » impossible dans l'état « ${this.status} »`);
+        throw new CommandRejected(`Command "${command}" not possible in state "${this.status}"`);
       }
       switch (command) {
         case 'start':
@@ -158,14 +158,14 @@ export class Simulation {
     this.background(this.run(this.abort.signal));
   }
 
-  /** Pause ou arrêt : la boucle s'arrête après le pas en cours. */
+  /** Pause or stop: the loop stops after the current step. */
   private async halt(status: 'paused' | 'finished') {
     this.status = status;
     this.wake?.();
     await this.task;
     this.task = null;
     await this.persist();
-    this.options.log(status === 'paused' ? 'Simulation en pause' : 'Simulation terminée');
+    this.options.log(status === 'paused' ? 'Simulation paused' : 'Simulation finished');
   }
 
   private async reset() {
@@ -180,19 +180,19 @@ export class Simulation {
     this.loadProgress = null;
     this.dataset = null;
     this.steps = null;
-    this.options.log('Simulation remise à zéro');
+    this.options.log('Simulation reset');
   }
 
-  /** Lance le travail de fond ; une erreur inattendue (écriture sur le volume…) met en pause au lieu de faire planter le service. */
+  /** Starts the background work; an unexpected error (writing to the volume…) pauses instead of crashing the service. */
   private background(work: Promise<void>) {
     this.task = work.catch((error: unknown) => {
       this.status = this.steps ? 'paused' : 'idle';
-      this.error = `Erreur inattendue : ${errorMessage(error)}`;
+      this.error = `Unexpected error: ${errorMessage(error)}`;
       this.options.log(this.error);
     });
   }
 
-  /** Interrompt le travail de fond (préparation ou rejeu) et attend qu'il soit fini. */
+  /** Interrupts the background work (preparation or replay) and waits for it to finish. */
   private async stopTask() {
     this.abort.abort();
     this.wake?.();
@@ -200,12 +200,12 @@ export class Simulation {
     this.task = null;
   }
 
-  // --- Préparation ----------------------------------------------------------------------------
+  // --- Preparation ----------------------------------------------------------------------------
 
   /**
-   * `fresh` : vide la base et génère un nouveau jeu de données (start) ;
-   * sinon relit `dataset.json` et relance le chargement (reprise d'un `preparing` interrompu).
-   * Renvoie vrai si la préparation est allée au bout.
+   * `fresh`: wipes the database and generates a new dataset (start);
+   * otherwise re-reads `dataset.json` and restarts the loading (resuming an interrupted `preparing`).
+   * Returns true if the preparation went all the way.
    */
   private async prepare(signal: AbortSignal, { fresh }: { fresh: boolean }): Promise<boolean> {
     const { backend, store, log } = this.options;
@@ -213,14 +213,14 @@ export class Simulation {
       if (fresh) {
         await backend.wipe();
         const today = this.options.today();
-        log(`Préparation de la journée du ${today} (graine ${this.options.seed})…`);
+        log(`Preparing the day of ${today} (seed ${this.options.seed})…`);
         this.dataset = this.options.generateDataset(this.options.seed, today);
         await store.writeDataset(this.dataset);
         this.demoDate = this.dataset.demoDate;
         await this.persist();
       }
       const dataset = this.dataset;
-      if (!dataset) throw new Error('Jeu de données absent');
+      if (!dataset) throw new Error('Dataset missing');
       const batches = historyBatches(dataset.reference, dataset.history);
       this.loadProgress = { done: 0, total: batches.length };
       for (const batch of batches) {
@@ -232,12 +232,12 @@ export class Simulation {
       this.steps = this.planDay(dataset);
       this.status = fresh ? 'running' : 'paused';
       await this.persist();
-      log(`Historique chargé (${batches.length} lots) ; ${this.steps.length} pas à rejouer`);
+      log(`History loaded (${batches.length} batches); ${this.steps.length} steps to replay`);
       return fresh;
     } catch (error) {
       if (signal.aborted) return false;
       this.status = 'idle';
-      this.error = `Préparation impossible : ${errorMessage(error)}`;
+      this.error = `Preparation failed: ${errorMessage(error)}`;
       this.loadProgress = null;
       await this.persist();
       log(this.error);
@@ -253,7 +253,7 @@ export class Simulation {
 
   // --- Rejeu ----------------------------------------------------------------------------------
 
-  /** Envoie les pas restants au rythme de la vitesse courante, tant que l'état est `running`. */
+  /** Sends the remaining steps at the current speed, as long as the state is `running`. */
   private async run(signal: AbortSignal) {
     const steps = this.steps!;
     const { backend, log } = this.options;
@@ -267,7 +267,7 @@ export class Simulation {
       } catch (error) {
         if (signal.aborted) return;
         this.status = 'paused';
-        this.error = `Envoi du pas de ${localHHMM(step.clock)} impossible : ${errorMessage(error)}`;
+        this.error = `Could not send the ${localHHMM(step.clock)} step: ${errorMessage(error)}`;
         await this.persist();
         log(this.error);
         return;
@@ -277,19 +277,19 @@ export class Simulation {
       this.alertsCreated += alerts;
       await this.persist();
       log(
-        `${localHHMM(step.clock)} │ relevés ${String(step.telemetry.length).padStart(3)} · pleins ${step.refuels.length} · messages ${step.messages.length} │ ` +
-          (alerts > 0 ? `alertes +${alerts} (total ${this.alertsCreated}) 🚨` : `alertes ${this.alertsCreated}`),
+        `${localHHMM(step.clock)} │ readings ${String(step.telemetry.length).padStart(3)} · refuels ${step.refuels.length} · messages ${step.messages.length} │ ` +
+          (alerts > 0 ? `alerts +${alerts} (total ${this.alertsCreated}) 🚨` : `alerts ${this.alertsCreated}`),
       );
       if (index < steps.length - 1) await this.waitNextStep(startedAt);
     }
     if (this.status === 'running' && !signal.aborted) {
       this.status = 'finished';
       await this.persist();
-      log(`Journée terminée : ${this.alertsCreated} alerte(s) créée(s)`);
+      log(`Day finished: ${this.alertsCreated} alert(s) created`);
     }
   }
 
-  /** Attend la fin du pas ; un changement de vitesse recalcule l'échéance aussitôt. */
+  /** Waits for the end of the step; a speed change recomputes the deadline right away. */
   private async waitNextStep(startedAt: number) {
     while (this.status === 'running' && !this.abort.signal.aborted) {
       const remaining = startedAt + this.options.stepDelayMs(this.speed) - performance.now();
@@ -318,7 +318,7 @@ export class Simulation {
     return { done: this.nextStepIndex(), total: this.steps.length };
   }
 
-  // --- Persistance et reprise -----------------------------------------------------------------
+  // --- Persistence and resume -----------------------------------------------------------------
 
   private persist() {
     return this.options.store.writeState({
@@ -331,7 +331,7 @@ export class Simulation {
     });
   }
 
-  /** Au démarrage du service : reprend l'état laissé sur le volume (spec 04, « Persistance et reprise »). */
+  /** At service startup: resumes the state left on the volume (spec 04, "Persistence and resume"). */
   async recover(): Promise<SimulationView> {
     const { backend, store, log } = this.options;
     await backend.waitUntilReady(log);
@@ -347,7 +347,7 @@ export class Simulation {
       const dataset = await store.readDataset();
       const emptied = state.status !== 'preparing' && !(await backend.hasReference());
       if (!dataset || dataset.seed !== state.seed || emptied) {
-        log('État de simulation sans données correspondantes : retour à « idle »');
+        log('Simulation state without matching data: back to "idle"');
         await store.clear();
         this.status = 'idle';
         this.demoDate = null;
@@ -357,7 +357,7 @@ export class Simulation {
       }
       this.dataset = dataset;
       if (state.status === 'preparing') {
-        log('Reprise du chargement de l’historique interrompu');
+        log('Resuming the interrupted history loading');
         this.status = 'preparing';
         this.abort = new AbortController();
         this.background(this.prepare(this.abort.signal, { fresh: false }).then(() => undefined));
@@ -367,7 +367,7 @@ export class Simulation {
       this.status = state.status === 'finished' ? 'finished' : 'paused';
       await this.persist();
       if (this.status === 'paused') {
-        log(`Simulation reprise en pause à ${this.clock === null ? 'son début' : localHHMM(this.clock)}`);
+        log(`Simulation resumed, paused at ${this.clock === null ? 'its start' : localHHMM(this.clock)}`);
       }
     });
   }

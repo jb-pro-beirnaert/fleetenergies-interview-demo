@@ -1,82 +1,82 @@
-# 03 — API NestJS (`apps/nestjs`)
+# 03 — NestJS API (`apps/nestjs`)
 
-Centre de contrôle. **Seul service connecté à PostgreSQL.** NestJS 10+, TypeScript strict, validation des entrées par les schémas de `packages/contracts` (pipe Zod), documentation OpenAPI générée (`/docs`).
+Control centre. **The only service connected to PostgreSQL.** NestJS 10+, strict TypeScript, input validation through the `packages/contracts` schemas (Zod pipe), generated OpenAPI documentation (`/docs`).
 
 ## Modules
-| Module | Responsabilité |
+| Module | Responsibility |
 |---|---|
-| `config` | Variables d'environnement validées au démarrage |
-| `database` | Connexion, migrations, transactions |
-| `auth` | Guards par jeton : `device`, `agent`, `admin` |
-| `fleet` | Camions, conducteurs, lieux (lecture) |
-| `telemetry` | Ingestion des relevés |
-| `detector` | Règles d'alerte appliquées à l'ingestion |
-| `tasks` | File de tâches (création, réservation, fin, échec, balayage) |
-| `investigations` | Contexte d'alerte, étapes, verdict, décision |
-| `investigation-data` | Calculs des 7 outils (résumés) — appelé par les routes agents |
-| `pii` | Pseudonymisation et masquage |
-| `screen` | Routes de lecture pour la salle de contrôle, revue humaine, statistiques |
-| `admin` | Remise à zéro complète, chargement de l'historique |
-| `invoices` | (V2) Réception, texte, extraction, rapprochement |
+| `config` | Environment variables validated at startup |
+| `database` | Connection, migrations, transactions |
+| `auth` | Token guards: `device`, `agent`, `admin` |
+| `fleet` | Trucks, drivers, places (read) |
+| `telemetry` | Readings ingestion |
+| `detector` | Alert rules applied at ingestion |
+| `tasks` | Task queue (creation, claim, completion, failure, sweep) |
+| `investigations` | Alert context, steps, verdict, decision |
+| `investigation-data` | Calculations of the 7 tools (summaries) — called by the agent routes |
+| `pii` | Pseudonymisation and masking |
+| `screen` | Read routes for the control room, human review, statistics |
+| `admin` | Full reset, history loading |
+| `invoices` | (V2) Reception, text, extraction, reconciliation |
 
-## Authentification
-Jetons statiques en V1/V2, passés en `Authorization: Bearer …` :
-- `DEVICE_TOKEN` : routes d'ingestion (`/api/telemetry`, V2 `/api/invoices`) — utilisé par le simulateur ;
-- `AGENT_API_TOKEN` : toutes les routes `/agent/*` — utilisé par les workers et le serveur MCP ;
-- `ADMIN_TOKEN` : routes `/admin/*`.
+## Authentication
+Static tokens in V1/V2, passed as `Authorization: Bearer …`:
+- `DEVICE_TOKEN`: ingestion routes (`/api/telemetry`, V2 `/api/invoices`) — used by the simulator;
+- `AGENT_API_TOKEN`: all `/agent/*` routes — used by the workers and the MCP server;
+- `ADMIN_TOKEN`: `/admin/*` routes.
 
-Les routes écran (`/api/*` en lecture et la revue) sont ouvertes en local. Une route qui reçoit un mauvais jeton répond 401 ; une route d'un autre rôle, 403.
+The screen routes (`/api/*` reads and the review) are open locally. A route receiving a wrong token answers 401; a route of another role, 403.
 
-## Ingestion — `POST /api/telemetry` (jeton device)
-- Corps : `TelemetryBatch`.
-- Insertion en lot avec `ON CONFLICT (truck_id, recorded_at) DO NOTHING` (idempotent).
-- Si `source = 'live'`, appel du détecteur pour chaque camion concerné, dans l'ordre chronologique. Si `source = 'history'`, pas de détection.
-- Réponse `202` : `{ inserted, alertsCreated }`.
+## Ingestion — `POST /api/telemetry` (device token)
+- Body: `TelemetryBatch`.
+- Batch insert with `ON CONFLICT (truck_id, recorded_at) DO NOTHING` (idempotent).
+- If `source = 'live'`, the detector is called for each truck concerned, in chronological order. If `source = 'history'`, no detection.
+- Response `202`: `{ inserted, alertsCreated }`.
 
-## Autres ingestions (jeton device)
-- `POST /api/fuel-card-transactions` — `{ transactions: { truckId, occurredAt, placeId?, liters, unitPriceEur, totalEur }[], source }` → `refuels` avec `source = fuel_card`. Idempotent sur `(truck_id, occurred_at)`.
-- `POST /api/driver-messages` — `{ messages: { driverId, truckId, sentAt, body }[], source }`. Idempotent sur `(driver_id, sent_at)`.
+## Other ingestions (device token)
+- `POST /api/fuel-card-transactions` — `{ transactions: { truckId, occurredAt, placeId?, liters, unitPriceEur, totalEur }[], source }` → `refuels` with `source = fuel_card`. Idempotent on `(truck_id, occurred_at)`.
+- `POST /api/driver-messages` — `{ messages: { driverId, truckId, sentAt, body }[], source }`. Idempotent on `(driver_id, sent_at)`.
 
-Les schémas correspondants sont à ajouter dans `contracts/telemetry.ts`.
+The matching schemas are to be added to `contracts/telemetry.ts`.
 
-## Détecteur (module, appelé par l'ingestion)
-Volontairement **naïf** : il doit produire des faux positifs, c'est l'agent qui fait le tri.
+## Detector (module, called by the ingestion)
+Deliberately **naive**: it must produce false positives; the agent does the sorting.
 
-Règle `FUEL_DROP`, évaluée pour chaque nouveau relevé `R` d'un camion :
-1. Charger les relevés du camion sur `[R.recordedAt − 20 min, R.recordedAt]`.
-2. Prendre le niveau maximal `Lmax` de cette fenêtre et son horodatage.
-3. Si `Lmax − R.fuelLevelL ≥ FUEL_DROP_MIN_L` (défaut 40) **et** que la vitesse est restée `< 3 km/h` sur tous les relevés entre les deux → anomalie.
-4. **Anti-doublon** : s'il existe pour ce camion une alerte `fuel_drop` dont `window_end ≥ R.recordedAt − 30 min` :
-   - si elle est encore `detected` : la prolonger (`window_end`, `drop_l`, `details`) ;
-   - sinon : ne rien faire (l'enquête en cours verra la courbe complète).
-5. Sinon, créer l'alerte (`detected`) et une tâche `investigate_alert` avec `available_at = now() + DETECTOR_DEBOUNCE_SECONDS` (défaut 15 s, pour laisser l'épisode se terminer pendant le rejeu accéléré).
+`FUEL_DROP` rule, evaluated for each new reading `R` of a truck:
+1. Load the truck's readings over `[R.recordedAt − 20 min, R.recordedAt]`.
+2. Take the maximum level `Lmax` of that window and its timestamp.
+3. If `Lmax − R.fuelLevelL ≥ FUEL_DROP_MIN_L` (default 40) **and** the speed stayed `< 3 km/h` on all readings in between → anomaly.
+4. **Anti-duplicate**: if there is a `fuel_drop` alert for this truck with `window_end ≥ R.recordedAt − 30 min`:
+   - if it is still `detected`: extend it (`window_end`, `drop_l`, `details`);
+   - otherwise: do nothing (the ongoing investigation will see the full curve).
+5. Otherwise, create the alert (`detected`) and an `investigate_alert` task with `available_at = now() + DETECTOR_DEBOUNCE_SECONDS` (default 15 s, to let the episode finish during the accelerated replay).
 
-`details` contient : `levelBeforeL`, `levelAfterL`, `maxSpeedKmh`, `ignitionOffShare` (part des relevés moteur coupé), `lat`, `lon`.
+`details` contains: `levelBeforeL`, `levelAfterL`, `maxSpeedKmh`, `ignitionOffShare` (share of readings with the engine off), `lat`, `lon`.
 
-## File de tâches — routes agents (jeton agent)
-- `POST /agent/tasks/claim` — corps `ClaimRequest`. Réserve avec la requête de `01-data-model.md`. Réponse `200 ClaimedTask` ou `204` si rien. Effet de bord pour `investigate_alert` : alerte → `investigating`, création ou réouverture de l'`investigation` (`running`).
-- `POST /agent/tasks/:id/complete` — tâche → `done`.
-- `POST /agent/tasks/:id/fail` — corps `FailRequest`. Si `retryable` et `attempts < max_attempts` : retour en `pending` avec `available_at = now() + 10 s × attempts` ; sinon `failed`, l'investigation passe en `failed` et l'alerte en `escalated` avec `details.failure`. (V2) Pour une tâche `extract_invoice` en échec définitif, la facture passe en `needs_review`.
-- **Balayage** toutes les 30 s : tâches `in_progress` à verrou expiré et `attempts >= max_attempts` → traitées comme un échec définitif.
+## Task queue — agent routes (agent token)
+- `POST /agent/tasks/claim` — body `ClaimRequest`. Claims with the query from `01-data-model.md`. Response `200 ClaimedTask` or `204` if nothing. Side effect for `investigate_alert`: alert → `investigating`, creation or reopening of the `investigation` (`running`).
+- `POST /agent/tasks/:id/complete` — task → `done`.
+- `POST /agent/tasks/:id/fail` — body `FailRequest`. If `retryable` and `attempts < max_attempts`: back to `pending` with `available_at = now() + 10 s × attempts`; otherwise `failed`, the investigation moves to `failed` and the alert to `escalated` with `details.failure`. (V2) For an `extract_invoice` task that failed permanently, the invoice moves to `needs_review`.
+- **Sweep** every 30 s: `in_progress` tasks with an expired lock and `attempts >= max_attempts` → handled as a permanent failure.
 
-Seul le worker titulaire (`locked_by`) peut terminer ou faire échouer une tâche (sinon 409).
+Only the worker holding the lock (`locked_by`) can complete or fail a task (409 otherwise).
 
-## Enquêtes — routes agents (jeton agent)
-- `GET /agent/alerts/:id` → contexte : `{ alertId, type, truckId, plate, windowStart, windowEnd, dropL, details, detectedAt }`. Aucune donnée personnelle.
-- `POST /agent/investigations/:alertId/steps` — corps `StepInput`. Idempotent sur `(investigation, attempt, seq)`.
-- `POST /agent/investigations/:alertId/verdict` — corps `{ verdict: Verdict, model, promptVersion, toolCallsCount }`.
-  - Vérifie que chaque `evidence.toolCallId` existe parmi les étapes `tool_call` de la tentative en cours (sinon 422 avec la liste des identifiants inconnus).
-  - **Idempotent** : si l'investigation est déjà `completed`, renvoie 200 sans rien modifier.
-  - Enregistre le verdict, puis applique la décision.
+## Investigations — agent routes (agent token)
+- `GET /agent/alerts/:id` → context: `{ alertId, type, truckId, plate, windowStart, windowEnd, dropL, details, detectedAt }`. No personal data.
+- `POST /agent/investigations/:alertId/steps` — body `StepInput`. Idempotent on `(investigation, attempt, seq)`.
+- `POST /agent/investigations/:alertId/verdict` — body `{ verdict: Verdict, model, promptVersion, toolCallsCount }`.
+  - Checks that each `evidence.toolCallId` exists among the `tool_call` steps of the current attempt (otherwise 422 with the list of unknown ids).
+  - **Idempotent**: if the investigation is already `completed`, returns 200 without changing anything.
+  - Stores the verdict, then applies the decision.
 
-### Décision après verdict (code, pas IA)
-- `theft_suspected`, `billing_discrepancy`, `inconclusive` → **toujours** `escalated` ;
-- autres catégories : `confidence ≥ AUTO_CLOSE_MIN_CONFIDENCE` (défaut 0,75) → `closed`, sinon `escalated`.
+### Decision after the verdict (code, not AI)
+- `theft_suspected`, `billing_discrepancy`, `inconclusive` → **always** `escalated`;
+- other categories: `confidence ≥ AUTO_CLOSE_MIN_CONFIDENCE` (default 0.75) → `closed`, otherwise `escalated`.
 
-## Données des outils — routes agents (jeton agent)
-Adaptées 1 pour 1 par le serveur MCP. Paramètres `from`, `to` en query (ISO), validés par les schémas de `contracts/tools.ts`. Les calculs et résumés sont faits ici.
+## Tool data — agent routes (agent token)
+Adapted 1:1 by the MCP server. `from`, `to` parameters in the query (ISO), validated by the `contracts/tools.ts` schemas. Calculations and summaries are done here.
 
-| Route | Outil |
+| Route | Tool |
 |---|---|
 | `GET /agent/trucks/:truckId/profile` | `get_truck_profile` |
 | `GET /agent/trucks/:truckId/tank-curve` | `get_tank_curve` |
@@ -86,80 +86,80 @@ Adaptées 1 pour 1 par le serveur MCP. Paramètres `from`, `to` en query (ISO), 
 | `GET /agent/trucks/:truckId/fuel-balance` | `compute_fuel_balance` |
 | `GET /agent/trucks/:truckId/similar-events?lookbackDays=` | `find_similar_events` |
 
-Détails de calcul :
-- **Arrêts** (`activity`) : suite de relevés à vitesse < 3 km/h pendant ≥ 5 min ; rattachés au lieu le plus proche si distance ≤ `radius_m`.
-- **Distance** : différence d'odomètre.
-- **`biggestDrop`** : plus forte baisse entre deux relevés distants de ≤ 20 min, véhicule à l'arrêt.
-- **`recoveries`** : hausses ≥ 25 L sans plein enregistré dans les 30 min (signe d'artefact de sonde).
-- **Sous-échantillonnage** des courbes : 30 points max, en conservant les extremums.
+Calculation details:
+- **Stops** (`activity`): run of readings at speed < 3 km/h for ≥ 5 min; linked to the nearest place if the distance is ≤ `radius_m`.
+- **Distance**: odometer difference.
+- **`biggestDrop`**: largest decrease between two readings ≤ 20 min apart, vehicle stopped.
+- **`recoveries`**: rises ≥ 25 L with no refuel recorded within 30 min (sign of a sensor artefact).
+- **Downsampling** of the curves: 30 points max, keeping the extremes.
 
-## Pseudonymisation (module `pii`)
-Appliquée à toute réponse des routes `/agent/*` :
-- un conducteur est désigné par son `pseudonym` ;
-- dans les textes libres (messages, V2 texte de facture), on remplace :
-  - noms complets, prénoms et noms des conducteurs connus (insensible à la casse et aux accents) → pseudonyme ;
-  - numéros de téléphone français (`(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}`) → `[téléphone masqué]` ;
-  - adresses e-mail → `[e-mail masqué]`.
+## Pseudonymisation (`pii` module)
+Applied to every response of the `/agent/*` routes:
+- a driver is referred to by their `pseudonym`;
+- in free text (messages, V2 invoice text), the following are replaced:
+  - full names, first names and last names of known drivers (case- and accent-insensitive) → pseudonym;
+  - French phone numbers (`(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}`) → `[phone masked]`;
+  - email addresses → `[email masked]`.
 
-Les routes écran renvoient les vrais noms (humain authentifié — hors périmètre V1).
+The screen routes return the real names (authenticated human — out of V1 scope).
 
-## Routes écran (`/api`, lecture)
-- `GET /api/alerts?status=&limit=50` → liste triée par `detected_at desc` : `{ id, type, status, decision, plate, carrier, detectedAt, windowStart, windowEnd, dropL, category, confidence, toolCallsCount }`.
-- `GET /api/alerts/:id` → alerte + camion + investigation (verdict, durée, modèle) + étapes (toutes tentatives) + revue humaine.
-- `GET /api/trucks/:id/tank-curve?from&to` → points complets `{ at, levelL, speedKmh, ignition }[]` pour le graphique.
-- `GET /api/trucks/:id/positions?from&to` → `{ at, lat, lon, speedKmh, ignition }[]` pour la mini-carte.
-- `GET /api/places` → lieux (pour la carte).
-- `POST /api/alerts/:id/review` — `{ decision: 'confirm' | 'dismiss', comment? }`, uniquement si l'alerte est `escalated` ou `closed` ; met l'alerte en `confirmed` / `dismissed`.
+## Screen routes (`/api`, read)
+- `GET /api/alerts?status=&limit=50` → list sorted by `detected_at desc`: `{ id, type, status, decision, plate, carrier, detectedAt, windowStart, windowEnd, dropL, category, confidence, toolCallsCount }`.
+- `GET /api/alerts/:id` → alert + truck + investigation (verdict, duration, model) + steps (all attempts) + human review.
+- `GET /api/trucks/:id/tank-curve?from&to` → full points `{ at, levelL, speedKmh, ignition }[]` for the chart.
+- `GET /api/trucks/:id/positions?from&to` → `{ at, lat, lon, speedKmh, ignition }[]` for the mini-map.
+- `GET /api/places` → places (for the map).
+- `POST /api/alerts/:id/review` — `{ decision: 'confirm' | 'dismiss', comment? }`, only if the alert is `escalated` or `closed`; sets the alert to `confirmed` / `dismissed`.
 - `GET /api/stats` →
   ```
   { alerts: { total, byStatus }, ruleOnly: { toReviewManually: total },
     withAgents: { autoClosed, escalated, pending },
     investigations: { avgDurationSeconds, avgToolCalls, failed },
-    humanAgreement: { reviewed, agreed },   // agreed = nombre de revues `confirm`
-    model, simulatedNow }                    // simulatedNow = dernier recordedAt live reçu
+    humanAgreement: { reviewed, agreed },   // agreed = number of `confirm` reviews
+    model, simulatedNow }                    // simulatedNow = latest live recordedAt received
   ```
 - `GET /api/health`.
 
-## Administration (jeton admin)
-- `POST /admin/history/load` — reçoit le référentiel et l'historique générés par le simulateur (voir `04-simulator.md`), en lots. Idempotent.
-- `POST /admin/wipe` — vide toutes les tables (voir `01-data-model.md`). Répond 204. Appelé par le simulateur à chaque « Démarrer » et « Reset ».
+## Administration (admin token)
+- `POST /admin/history/load` — receives the reference data and history generated by the simulator (see `04-simulator.md`), in batches. Idempotent.
+- `POST /admin/wipe` — empties all tables (see `01-data-model.md`). Answers 204. Called by the simulator on every "Start" and "Reset".
 
-## V2 — Factures
-- `POST /api/invoices` (jeton device, multipart `file` + `receivedAt`) :
-  1. stocke le PDF dans `INVOICE_STORAGE_DIR` (volume Docker) ;
-  2. extrait le texte en code (bibliothèque PDF à proposer) ; si aucun texte → `failed` ;
-  3. **détection d'injection en code** sur le texte brut (motifs : « ignore … consignes/instructions », « instruction(s) système », « system prompt », « tu es un assistant », « you are », « assistant : ») → `suspicious = true` + extrait ;
-  4. crée une tâche `extract_invoice`. Statut `received`.
-- `GET /agent/invoices/:id/text` (agent) → `{ invoiceId, text, receivedAt }`, texte masqué par le module `pii`.
-- `POST /agent/invoices/:id/extraction` (agent) — corps `InvoiceExtraction`. Vérifie les règles de cohérence de `02-contracts.md` (sinon 422, le worker relancera). Fusionne `suspicious` (code OU modèle). Statut `extracted`, puis rapprochement.
-- `GET /api/invoices`, `GET /api/invoices/:id` (avec extraction, rapprochement, alerte liée), `GET /api/invoices/:id/file` (PDF).
+## V2 — Invoices
+- `POST /api/invoices` (device token, multipart `file` + `receivedAt`):
+  1. stores the PDF in `INVOICE_STORAGE_DIR` (Docker volume);
+  2. extracts the text in code (PDF library to be proposed); if there is no text → `failed`;
+  3. **injection detection in code** on the raw text (patterns: "ignore … instructions", "system instruction(s)", "system prompt", "you are an assistant", "you are", "assistant:") → `suspicious = true` + excerpt;
+  4. creates an `extract_invoice` task. Status `received`.
+- `GET /agent/invoices/:id/text` (agent) → `{ invoiceId, text, receivedAt }`, text masked by the `pii` module.
+- `POST /agent/invoices/:id/extraction` (agent) — body `InvoiceExtraction`. Checks the consistency rules of `02-contracts.md` (otherwise 422, the worker will retry). Merges `suspicious` (code OR model). Status `extracted`, then reconciliation.
+- `GET /api/invoices`, `GET /api/invoices/:id` (with extraction, reconciliation, linked alert), `GET /api/invoices/:id/file` (PDF).
 
-### Rapprochement (code, V2)
-1. Camion par immatriculation normalisée. Introuvable ou absente → `needs_review`.
-2. Instant du plein : `refuelAt`, sinon `needs_review`.
-3. Hausse constatée du réservoir : `max(niveau sur [t, t+60 min]) − min(niveau sur [t−30 min, t])`.
-4. Présence en station : un arrêt du camion à un lieu `fuel_station` dans `[t−30 min, t+30 min]`.
-5. Plein : s'il existe un `refuel` `fuel_card` du camion à ±30 min, on lui rattache la facture ; sinon on crée un `refuel` `source = invoice`.
-6. Écart = litres facturés − hausse constatée. Si `écart > max(20 L, 8 % des litres facturés)` **ou** pas de présence en station → `mismatch` : alerte `billing_mismatch` (`details` : `invoiceId`, `billedL`, `observedRiseL`, `gapL`, `stationMatched`, `stationName`) + tâche `investigate_alert`. Sinon `matched`.
+### Reconciliation (code, V2)
+1. Truck by normalised plate. Not found or missing → `needs_review`.
+2. Refuel instant: `refuelAt`, otherwise `needs_review`.
+3. Observed tank rise: `max(level over [t, t+60 min]) − min(level over [t−30 min, t])`.
+4. Presence at a fuel station: a stop of the truck at a `fuel_station` place within `[t−30 min, t+30 min]`.
+5. Refuel: if there is a `fuel_card` `refuel` of the truck within ±30 min, the invoice is attached to it; otherwise a `refuel` with `source = invoice` is created.
+6. Gap = billed liters − observed rise. If `gap > max(20 L, 8% of billed liters)` **or** no presence at a fuel station → `mismatch`: `billing_mismatch` alert (`details`: `invoiceId`, `billedL`, `observedRiseL`, `gapL`, `stationMatched`, `stationName`) + `investigate_alert` task. Otherwise `matched`.
 
-Pour une alerte `billing_mismatch`, l'outil `find_fuel_transactions` renvoie bien le plein facturé, et le contexte de l'alerte inclut les `details` ci-dessus.
+For a `billing_mismatch` alert, the `find_fuel_transactions` tool does return the billed refuel, and the alert context includes the `details` above.
 
-## Critères d'acceptation
+## Acceptance criteria
 **V1**
-1. Un lot de relevés `history` ne crée aucune alerte ; un lot `live` contenant une chute de 60 L à l'arrêt en 12 min crée exactement une alerte et une tâche.
-2. Rejouer deux fois le même lot n'insère rien la seconde fois.
-3. Une chute en plusieurs relevés successifs ne crée qu'une alerte, prolongée tant qu'elle est `detected`.
-4. Deux réservations simultanées (test d'intégration avec deux requêtes parallèles) obtiennent deux tâches différentes ; une tâche dont `available_at` est dans le futur n'est pas réservable.
-5. Une tâche réservée dont le verrou expire est re-réservable ; après 3 tentatives, elle passe en `failed` et l'alerte en `escalated`.
-6. Un verdict citant un `toolCallId` inexistant est refusé (422) ; un second envoi du même verdict est sans effet (200).
-7. Les règles de décision sont respectées (tests unitaires sur chaque catégorie et seuil).
-8. Aucune réponse `/agent/*` ne contient un `full_name` ou un `phone` de conducteur (test qui parcourt toutes les routes agents sur les données de test).
-9. `compute_fuel_balance` donne le résultat attendu sur un jeu de relevés construit à la main.
-10. `/admin/wipe` vide toutes les tables, référentiel et historique compris.
-11. `/docs` expose la documentation OpenAPI.
+1. A batch of `history` readings creates no alert; a `live` batch containing a 60 L drop while stopped in 12 min creates exactly one alert and one task.
+2. Replaying the same batch twice inserts nothing the second time.
+3. A drop over several successive readings creates a single alert, extended while it is `detected`.
+4. Two simultaneous claims (integration test with two parallel requests) get two different tasks; a task whose `available_at` is in the future cannot be claimed.
+5. A claimed task whose lock expires can be claimed again; after 3 attempts, it moves to `failed` and the alert to `escalated`.
+6. A verdict citing a non-existent `toolCallId` is rejected (422); a second submission of the same verdict has no effect (200).
+7. The decision rules are respected (unit tests on each category and threshold).
+8. No `/agent/*` response contains a driver's `full_name` or `phone` (test that walks all agent routes on the test data).
+9. `compute_fuel_balance` gives the expected result on a hand-built set of readings.
+10. `/admin/wipe` empties all tables, reference data and history included.
+11. `/docs` serves the OpenAPI documentation.
 
 **V2**
-12. Une facture PDF déposée crée une tâche `extract_invoice` ; un PDF sans texte passe en `failed`.
-13. Le texte de la facture piégée est marqué `suspicious` par le code, même si le modèle ne le signale pas.
-14. Une extraction incohérente (litres × prix ≠ total) est refusée (422).
-15. Une facture conforme est `matched` et rattachée au bon plein ; une facture surfacturée crée une alerte `billing_mismatch` et une tâche d'enquête.
+12. An uploaded PDF invoice creates an `extract_invoice` task; a PDF without text moves to `failed`.
+13. The text of the trapped invoice is flagged `suspicious` by the code, even if the model does not report it.
+14. An inconsistent extraction (liters × price ≠ total) is rejected (422).
+15. A compliant invoice is `matched` and attached to the right refuel; an overbilled invoice creates a `billing_mismatch` alert and an investigation task.

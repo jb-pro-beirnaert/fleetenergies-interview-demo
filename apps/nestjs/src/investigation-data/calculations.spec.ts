@@ -37,9 +37,9 @@ function reading(
   };
 }
 
-describe('computeFuelBalance (relevés construits à la main)', () => {
-  // 0-60 min : 80 km/h, 80 km parcourus ; 60-120 min : arrêt moteur tournant ;
-  // 120-130 min : chute de 100 L moteur coupé.
+describe('computeFuelBalance (hand-built readings)', () => {
+  // 0-60 min: 80 km/h, 80 km driven; 60-120 min: stopped, engine running;
+  // 120-130 min: 100 L drop, engine off.
   const readings: Reading[] = [
     reading(0, 500, { speedKmh: 80, odometerKm: 1000 }),
     reading(30, 488, { speedKmh: 80, odometerKm: 1040 }),
@@ -49,14 +49,14 @@ describe('computeFuelBalance (relevés construits à la main)', () => {
     reading(130, 373, { odometerKm: 1080, ignition: false }),
   ];
 
-  it('calcule attendu, observé et inexpliqué', () => {
+  it('computes expected, observed and unexplained', () => {
     const balance = computeFuelBalance({
       readings,
       refueledL: 0,
       baselineLPer100km: 30,
       idleLPerHour: 3,
     });
-    // Ralenti : 60→90 et 90→120 (arrêt, contact mis) = 1 h ; 120→130 ne compte pas (contact coupé à 130)
+    // Idle: 60→90 and 90→120 (stopped, ignition on) = 1 h; 120→130 does not count (ignition off at 130)
     expect(balance).toEqual({
       distanceKm: 80,
       movingConsumptionL: 24,
@@ -68,7 +68,7 @@ describe('computeFuelBalance (relevés construits à la main)', () => {
     });
   });
 
-  it('ajoute les pleins à la baisse observée', () => {
+  it('adds the refuels to the observed decrease', () => {
     const balance = computeFuelBalance({
       readings,
       refueledL: 250.04,
@@ -79,13 +79,13 @@ describe('computeFuelBalance (relevés construits à la main)', () => {
     expect(balance.unexplainedLossL).toBe(350);
   });
 
-  it('idleHours ne compte que l’arrêt moteur tournant', () => {
+  it('idleHours only counts stops with the engine running', () => {
     expect(idleHours(readings)).toBe(1);
   });
 });
 
 describe('findLevelChanges', () => {
-  it('trouve la plus forte chute à l’arrêt en ≤ 20 min', () => {
+  it('finds the biggest drop while stopped in ≤ 20 min', () => {
     const readings = [
       reading(0, 400),
       reading(5, 395),
@@ -99,7 +99,7 @@ describe('findLevelChanges', () => {
     expect(drop.to.at).toEqual(at(15));
   });
 
-  it('ignore une chute qui traverse un trajet', () => {
+  it('ignores a drop that spans a trip', () => {
     const readings = [
       reading(0, 400),
       reading(5, 380, { speedKmh: 70 }),
@@ -108,7 +108,7 @@ describe('findLevelChanges', () => {
     expect(findLevelChanges(readings, 'drop', 25)).toEqual([]);
   });
 
-  it('ne compte pas deux fois des chutes qui se chevauchent', () => {
+  it('does not count overlapping drops twice', () => {
     const readings = [
       reading(0, 400),
       reading(5, 370),
@@ -125,24 +125,24 @@ describe('findLevelChanges', () => {
 describe('findRecoveries', () => {
   const readings = [reading(0, 400), reading(5, 310), reading(15, 398)];
 
-  it('signale une remontée sans plein (artefact de sonde)', () => {
+  it('flags a rise without a refuel (sensor artefact)', () => {
     expect(findRecoveries(readings, [])).toEqual([
       { at: at(15).toISOString(), liters: 88 },
     ]);
   });
 
-  it('ignore une remontée expliquée par un plein à ± 30 min', () => {
+  it('ignores a rise explained by a refuel within ± 30 min', () => {
     expect(findRecoveries(readings, [at(40)])).toEqual([]);
   });
 });
 
 describe('downsample', () => {
-  it('renvoie la série telle quelle sous 30 points', () => {
+  it('returns the series as is under 30 points', () => {
     const points = [1, 2, 3];
     expect(downsample(points, (p) => p)).toBe(points);
   });
 
-  it('garde au plus 30 points dont premier, dernier, min et max', () => {
+  it('keeps at most 30 points including first, last, min and max', () => {
     const points = Array.from({ length: 288 }, (_, i) => ({
       i,
       v: Math.sin(i / 10) * 100 + i,
@@ -161,7 +161,7 @@ describe('downsample', () => {
   });
 });
 
-describe('arrêts et activité', () => {
+describe('stops and activity', () => {
   const readings = [
     reading(0, 400, { speedKmh: 80, odometerKm: 100 }),
     reading(5, 398, { speedKmh: 0, odometerKm: 106, ignition: false }),
@@ -172,18 +172,18 @@ describe('arrêts et activité', () => {
     reading(30, 394, { speedKmh: 70, odometerKm: 119 }),
   ];
 
-  it('un arrêt dure au moins 5 min ; moteur coupé à la majorité des relevés', () => {
+  it('a stop lasts at least 5 min; engine off by majority of readings', () => {
     const stops = findStops(readings);
     expect(stops).toHaveLength(1);
     expect(stops[0]).toMatchObject({ durationMin: 10, ignitionOff: true });
     expect(stops[0].from.at).toEqual(at(5));
   });
 
-  it('compte les minutes en mouvement', () => {
+  it('counts the minutes moving', () => {
     expect(movingMinutes(readings)).toBe(10);
   });
 
-  it('longestStops garde les plus longs dans l’ordre chronologique', () => {
+  it('longestStops keeps the longest ones in chronological order', () => {
     const stops = [
       { durationMin: 5, from: { at: at(0) } },
       { durationMin: 50, from: { at: at(10) } },
@@ -203,7 +203,7 @@ describe('nearestPlace', () => {
       radiusM: 150,
     },
     {
-      name: 'Dépôt Avignon',
+      name: 'Avignon depot',
       type: 'depot',
       lat: 43.95,
       lon: 4.8,
@@ -211,19 +211,19 @@ describe('nearestPlace', () => {
     },
   ];
 
-  it('rattache une position au lieu dont le rayon la contient', () => {
+  it('links a position to the place whose radius contains it', () => {
     expect(nearestPlace({ lat: 44.9005, lon: 4.9 }, places)?.name).toBe(
       'AS24 Valence Sud',
     );
   });
 
-  it('renvoie null hors de tout rayon', () => {
+  it('returns null outside every radius', () => {
     expect(nearestPlace({ lat: 44.91, lon: 4.9 }, places)).toBeNull();
   });
 });
 
 describe('hourOfDayParis', () => {
-  it('donne l’heure française (UTC+2 en octobre)', () => {
+  it('gives the French hour (UTC+2 in October)', () => {
     expect(hourOfDayParis(new Date('2026-10-14T00:35:00Z'))).toBe(2);
   });
 });

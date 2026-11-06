@@ -23,6 +23,7 @@ import {
 } from 'chart.js';
 import { ApiService } from '../../core/api.service';
 import { fmtDateTime, fmtLiters, fmtMinutes, fmtTime } from '../../core/format';
+import { currentLang, t } from '../../core/i18n/i18n';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord, toolWindow } from './tool-window';
 
@@ -40,7 +41,7 @@ declare module 'chart.js' {
   }
 }
 
-/** Plages colorées verticales derrière la courbe (alerte, moteur coupé) */
+/** Vertical coloured bands behind the curve (alert, engine off) */
 const bandsPlugin: Plugin<'line', { bands?: Band[] }> = {
   id: 'bands',
   beforeDatasetsDraw(chart, _args, options) {
@@ -66,37 +67,37 @@ const cssVar = (name: string) =>
   selector: 'app-tank-curve-view',
   template: `
     <div class="chart">
-      <canvas #canvas aria-label="Niveau du réservoir"></canvas>
+      <canvas #canvas [attr.aria-label]="t('tools.tank.aria')"></canvas>
       @if (points.isLoading() && !points.hasValue()) {
-        <span class="overlay">Chargement de la courbe…</span>
+        <span class="overlay">{{ t('tools.tank.loading') }}</span>
       } @else if (points.error()) {
-        <span class="overlay">Courbe indisponible</span>
+        <span class="overlay">{{ t('tools.tank.unavailable') }}</span>
       }
     </div>
     <div class="legend">
-      <span><i class="sw alert"></i>Période de l’alerte</span>
-      <span><i class="sw off"></i>Moteur coupé</span>
+      <span><i class="sw alert"></i>{{ t('tools.tank.legendAlert') }}</span>
+      <span><i class="sw off"></i>{{ t('tools.tank.legendOff') }}</span>
     </div>
     @if (summary(); as s) {
       <div class="summary">
         <span
-          >Début <strong>{{ fmtLiters(s.startLevelL) }}</strong></span
+          >{{ t('tools.tank.start') }} <strong>{{ fmtLiters(s.startLevelL) }}</strong></span
         >
         <span
-          >Fin <strong>{{ fmtLiters(s.endLevelL) }}</strong></span
+          >{{ t('tools.tank.end') }} <strong>{{ fmtLiters(s.endLevelL) }}</strong></span
         >
         @if (s.biggestDrop; as d) {
           <span>
-            Plus forte chute <strong class="drop">−{{ fmtLiters(d.liters) }}</strong>
+            {{ t('tools.tank.biggestDrop') }} <strong class="drop">−{{ fmtLiters(d.liters) }}</strong>
             {{ fmtTime(d.from) }}–{{ fmtTime(d.to) }} ({{ fmtMinutes(d.durationMin)
-            }}{{ d.ignitionOff ? ', moteur coupé' : '' }})
+            }}{{ d.ignitionOff ? ', ' + t('common.engineOff') : '' }})
           </span>
         }
         @if (s.recoveries.length) {
           <span>
-            Remontées sans plein :
+            {{ t('tools.tank.recoveries') }}
             @for (r of s.recoveries; track $index) {
-              <strong>+{{ fmtLiters(r.liters) }}</strong> à {{ fmtTime(r.at)
+              <strong>+{{ fmtLiters(r.liters) }}</strong> {{ t('tools.tank.at') }} {{ fmtTime(r.at)
               }}{{ $last ? '' : ', ' }}
             }
           </span>
@@ -180,12 +181,14 @@ export class TankCurveView {
   protected readonly fmtLiters = fmtLiters;
   protected readonly fmtTime = fmtTime;
   protected readonly fmtMinutes = fmtMinutes;
+  protected readonly t = t;
 
   private chart: Chart<'line', { x: number; y: number }[]> | null = null;
 
   constructor() {
     effect(() => {
       const points = this.points.hasValue() ? this.points.value() : null;
+      currentLang(); // the axis and tooltip formats follow the language
       if (points) this.render(points);
     });
     inject(DestroyRef).onDestroy(() => this.chart?.destroy());
@@ -253,7 +256,7 @@ export class TankCurveView {
   }
 }
 
-/** Plages contiguës où le contact est coupé */
+/** Contiguous ranges where the ignition is off */
 function* ignitionOffRanges(points: TankCurvePoints, color: string): Generator<Band> {
   let start: number | null = null;
   let previous: number | null = null;

@@ -1,10 +1,10 @@
-// `simulator generate --out` : écriture du jeu de données en fichiers (débogage, générateur V2).
+// `simulator generate --out`: writes the dataset to files (debugging, V2 generator).
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/** `data/generated/` à la racine du monorepo (ignoré par Git). */
+/** `data/generated/` at the monorepo root (ignored by Git). */
 export const DEFAULT_DATA_DIR = fileURLToPath(new URL('../../../data/generated/', import.meta.url));
 
 export async function writeFiles(dir: string, files: Record<string, string>): Promise<void> {

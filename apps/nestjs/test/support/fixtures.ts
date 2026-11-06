@@ -1,7 +1,7 @@
 import type { TelemetryReading } from '@fleet/contracts';
 import type { PrismaService } from '../../src/database/prisma.service.js';
 
-// Identifiants stables, comme ceux du simulateur
+// Stable ids, like the simulator's
 export const IDS = {
   carrier: '00000000-0000-4000-8000-000000000001',
   depot: '00000000-0000-4000-8000-000000000101',
@@ -44,14 +44,14 @@ export const REFERENCE = {
   places: [
     {
       id: IDS.depot,
-      name: 'Dépôt Avignon',
+      name: 'Avignon depot',
       type: 'depot' as const,
       ...PLACES.depot,
       radiusM: 300,
     },
     {
       id: IDS.restArea,
-      name: "Aire de Saint-Rambert-d'Albon",
+      name: "Saint-Rambert-d'Albon rest area",
       type: 'rest_area' as const,
       ...PLACES.restArea,
     },
@@ -96,7 +96,7 @@ export const REFERENCE = {
       baselineLPer100km: 32,
       idleLPerHour: 3.5,
       homeDepotId: IDS.depot,
-      sensorNotes: 'Sonde remplacée le 02/09, valeurs erratiques signalées',
+      sensorNotes: 'Sensor replaced on 02/09, erratic values reported',
     },
   ],
   drivers: DRIVERS,
@@ -121,7 +121,7 @@ export interface ReadingSpec {
   lon?: number;
 }
 
-/** Relevés d'un camion, en minutes depuis `start`. Par défaut : à l'arrêt, moteur coupé, sur l'aire. */
+/** Readings of a truck, in minutes since `start`. By default: stopped, engine off, at the rest area. */
 export function readings(
   specs: ReadingSpec[],
   {
@@ -144,7 +144,7 @@ export function readings(
 export const minutesAfter = (minute: number, start = DEMO_DAY) =>
   new Date(start + minute * 60_000);
 
-/** Alerte `detected` + tâche d'enquête disponible, sans passer par le détecteur. */
+/** `detected` alert + available investigation task, without going through the detector. */
 export async function createAlertWithTask(
   prisma: PrismaService,
   {

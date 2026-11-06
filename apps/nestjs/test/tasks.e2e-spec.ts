@@ -7,7 +7,7 @@ import {
 } from './support/app.js';
 import { createAlertWithTask, seedReference } from './support/fixtures.js';
 
-describe('File de tâches', () => {
+describe('Task queue', () => {
   let t: TestApp;
 
   beforeAll(async () => {
@@ -32,7 +32,7 @@ describe('File de tâches', () => {
       data: { lockedUntil: new Date(Date.now() - 1000) },
     });
 
-  it('réserve une tâche : alerte en `investigating`, enquête `running`', async () => {
+  it('claims a task: alert `investigating`, investigation `running`', async () => {
     const { alert, task } = await createAlertWithTask(t.prisma);
     const response = await claim('worker-a').expect(200);
     expect(response.body).toEqual({
@@ -65,11 +65,11 @@ describe('File de tâches', () => {
     });
   });
 
-  it('204 quand il n’y a rien à faire', async () => {
+  it('204 when there is nothing to do', async () => {
     await claim('worker-a').expect(204);
   });
 
-  it('deux réservations simultanées obtiennent deux tâches différentes', async () => {
+  it('two simultaneous claims get two different tasks', async () => {
     await createAlertWithTask(t.prisma);
     await createAlertWithTask(t.prisma);
     const [a, b] = await Promise.all([claim('worker-a'), claim('worker-b')]);
@@ -78,14 +78,14 @@ describe('File de tâches', () => {
     expect(a.body.id).not.toBe(b.body.id);
   });
 
-  it('une tâche dont `available_at` est dans le futur n’est pas réservable', async () => {
+  it('a task whose `available_at` is in the future cannot be claimed', async () => {
     await createAlertWithTask(t.prisma, {
       availableAt: new Date(Date.now() + 60_000),
     });
     await claim('worker-a').expect(204);
   });
 
-  it('verrou expiré : re-réservable ; après 3 tentatives, `failed` et alerte `escalated`', async () => {
+  it('expired lock: claimable again; after 3 attempts, `failed` and alert `escalated`', async () => {
     const { alert, task } = await createAlertWithTask(t.prisma);
 
     for (const attempt of [1, 2, 3]) {
@@ -93,7 +93,7 @@ describe('File de tâches', () => {
       expect(response.body).toMatchObject({ id: task.id, attempts: attempt });
       await expireLock(task.id);
     }
-    // Tentatives épuisées : plus réservable, en attente du balayage
+    // Attempts used up: no longer claimable, waiting for the sweep
     await claim('worker-4').expect(204);
 
     expect(await t.app.get(TasksService).sweep()).toBe(1);
@@ -111,7 +111,7 @@ describe('File de tâches', () => {
       decision: 'escalated',
     });
     expect(escalated.details).toMatchObject({
-      failure: { attempts: 3, error: expect.stringContaining('Verrou expiré') },
+      failure: { attempts: 3, error: expect.stringContaining('Lock expired') },
     });
     expect(
       await t.prisma.investigation.findUnique({ where: { alertId: alert.id } }),
@@ -120,7 +120,7 @@ describe('File de tâches', () => {
     });
   });
 
-  it('le balayage ignore les verrous encore valides et les tâches qui ont des tentatives', async () => {
+  it('the sweep ignores locks still valid and tasks with attempts left', async () => {
     const { task } = await createAlertWithTask(t.prisma);
     await claim('worker-a').expect(200);
     expect(await t.app.get(TasksService).sweep()).toBe(0);
@@ -128,7 +128,7 @@ describe('File de tâches', () => {
     expect(await t.app.get(TasksService).sweep()).toBe(0);
   });
 
-  it('complete : seul le titulaire du verrou peut terminer', async () => {
+  it('complete: only the lock holder can complete', async () => {
     const { task } = await createAlertWithTask(t.prisma);
     await claim('worker-a').expect(200);
     await t
@@ -150,7 +150,7 @@ describe('File de tâches', () => {
     });
   });
 
-  it('fail relançable : retour en `pending` avec délai croissant', async () => {
+  it('retryable fail: back to `pending` with an increasing delay', async () => {
     const { alert, task } = await createAlertWithTask(t.prisma);
     await claim('worker-a').expect(200);
     const before = Date.now();
@@ -182,7 +182,7 @@ describe('File de tâches', () => {
     });
   });
 
-  it('fail non relançable : échec définitif, enquête `failed`, alerte `escalated`', async () => {
+  it('non-retryable fail: permanent failure, investigation `failed`, alert `escalated`', async () => {
     const { alert, task } = await createAlertWithTask(t.prisma);
     await claim('worker-a').expect(200);
     await t
@@ -191,7 +191,7 @@ describe('File de tâches', () => {
       .set(auth('agent'))
       .send({
         workerId: 'worker-a',
-        error: 'Verdict impossible à obtenir',
+        error: 'Could not obtain a verdict',
         retryable: false,
       })
       .expect(204);
@@ -207,11 +207,11 @@ describe('File de tâches', () => {
     expect(escalated.status).toBe('escalated');
     expect(escalated.details).toMatchObject({
       levelBeforeL: 520,
-      failure: { error: 'Verdict impossible à obtenir' },
+      failure: { error: 'Could not obtain a verdict' },
     });
   });
 
-  it('404 pour une tâche inconnue, 409 pour un autre worker', async () => {
+  it('404 for an unknown task, 409 for another worker', async () => {
     const { task } = await createAlertWithTask(t.prisma);
     await t
       .http()

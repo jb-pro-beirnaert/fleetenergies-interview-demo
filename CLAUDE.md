@@ -2,79 +2,82 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Projet
+## Project
 
-**Fleet Copilot** — démo d'entretien : un détecteur naïf (code) lève des alertes de chute de carburant, un agent IA enquête via des outils MCP et rend un verdict prouvé, l'API décide (auto-clôture ou escalade), un humain revoit. Principe directeur : **le code détecte et calcule, l'IA enquête et explique, l'humain décide.**
+**Fleet Copilot** — interview demo: a naive detector (code) raises fuel drop alerts, an AI agent investigates through MCP tools and returns an evidence-backed verdict, the API decides (auto-close or escalation), a human reviews. Guiding principle: **code detects and computes, AI investigates and explains, the human decides.**
 
-Les specs dans `specs/` font foi (en français) et portent la mémoire du projet. Commencer par `specs/00-overview.md` (services, flux, décisions structurantes, glossaire), puis la spec du service concerné. Le plan par jalons (M0–M10) est dans `specs/09-implementation-plan.md` : travailler jalon par jalon, ne pas ajouter de dépendances ni de fonctionnalités hors jalon (les noter comme « idées »). Si l'implémentation s'écarte d'une spec, proposer la mise à jour de la spec.
+The specs in `specs/` are authoritative and carry the project memory. Start with `specs/00-overview.md` (services, flows, structural decisions, glossary), then the spec of the relevant service. The milestone plan (M0–M10) is in `specs/09-implementation-plan.md`: work milestone by milestone, do not add dependencies or features outside the milestone (note them as "ideas"). If the implementation departs from a spec, propose the spec update.
 
-État actuel : API V1 (M2 + M3) implémentée dans `apps/nestjs` avec ses contrats dans `packages/contracts` ; simulateur piloté (M6b) dans `apps/simulator` : service Compose permanent, machine à états (`idle` → `preparing` → `running` ⇄ `paused` → `finished`), jeu de données généré en mémoire à chaque « Démarrer », état repris depuis le volume `simdata` ; serveur MCP V1 (M4, 7 outils, Express + Streamable HTTP sans état) dans `apps/mcp-server` ; salle de contrôle (M6) dans `apps/web`, avec la barre de simulation ; `investigator` est un stub.
+Language: everything in the repository (code, comments, tests, specs, docs, log and error messages, LLM prompts and tool descriptions) is written in **English**. Only the web UI is bilingual: English (default) and French, through the dictionaries in `apps/web/src/app/core/i18n/` (see `specs/07-web.md`, "Languages").
 
-## Commandes
+Current state: API V1 (M2 + M3) implemented in `apps/nestjs` with its contracts in `packages/contracts`; driven simulator (M6b) in `apps/simulator`: permanent Compose service, state machine (`idle` → `preparing` → `running` ⇄ `paused` → `finished`), dataset generated in memory on every "Start", state resumed from the `simdata` volume; MCP server V1 (M4, 7 tools, Express + stateless Streamable HTTP) in `apps/mcp-server`; control room (M6) in `apps/web`, with the simulation bar and the EN/FR switch; `investigator` is a stub.
 
-Monorepo npm workspaces (`apps/*`, `packages/*`), Node 24, TypeScript strict, ESM (`"type": "module"` → imports relatifs avec suffixe `.js`).
+## Commands
+
+npm workspaces monorepo (`apps/*`, `packages/*`), Node 24, strict TypeScript, ESM (`"type": "module"` → relative imports with a `.js` suffix).
 
 ```bash
-cp .env.example .env                 # une fois
-npm run dev                          # Compose dev (watch, src/ montés en volume)
+cp .env.example .env                 # once
+npm run dev                          # dev Compose (watch, src/ mounted as volumes)
 npm run dev:up / dev:down / dev:logs
-npm run dev:rebuild                  # après changement de package.json / tsconfig (node_modules vivent dans l'image)
-npm run dev:db:reset                 # supprime les volumes pgdata et simdata
-npm run prod:up / prod:down          # projet Compose séparé `fleetenergies-prod`
+npm run dev:rebuild                  # after a package.json / tsconfig change (node_modules live in the image)
+npm run dev:db:reset                 # deletes the pgdata and simdata volumes
+npm run prod:up / prod:down          # separate Compose project `fleetenergies-prod`
 
-npm test                             # tests de tous les workspaces
-npm run build | npm run lint         # idem, --if-present
+npm test                             # tests of all workspaces
+npm run build | npm run lint         # same, --if-present
 
-# Un workspace / un test (Vitest partout)
+# One workspace / one test (Vitest everywhere)
 npm test -w apps/nestjs
 npx -w apps/nestjs vitest run src/app.controller.spec.ts
-npx -w apps/nestjs vitest run -t "nom du test"
-npm run test:db:up                   # Postgres de test (docker-compose.test.yaml, port 5433, tmpfs)
-npm run test:e2e                     # intégration API (vitest.config.e2e.ts) : migrate deploy puis tests
-npm run prisma:migrate:dev -w apps/nestjs -- --name <nom>   # nouvelle migration (DATABASE_URL requis)
-npm run lint -w apps/nestjs          # oxlint --type-aware (pas ESLint)
+npx -w apps/nestjs vitest run -t "test name"
+npm run test:db:up                   # test Postgres (docker-compose.test.yaml, port 5433, tmpfs)
+npm run test:e2e                     # API integration (vitest.config.e2e.ts): migrate deploy then tests
+npm run prisma:migrate:dev -w apps/nestjs -- --name <name>   # new migration (DATABASE_URL required)
+npm run lint -w apps/nestjs          # oxlint --type-aware (not ESLint)
 ```
 
-Ollama tourne **sur l'hôte**, hors Docker (GPU Metal) ; les conteneurs y accèdent via `host.docker.internal:11434` :
+Ollama runs **on the host**, outside Docker (Metal GPU); the containers reach it through `host.docker.internal:11434`:
 ```bash
 ollama pull qwen2.5:7b-instruct && ollama create fleet-qwen -f infra/ollama/Modelfile
 ```
 
-Simulation : se pilote depuis la salle de contrôle (`http://localhost:4200`, barre « Simulation » : Démarrer, Pause / Reprendre, Terminer, vitesse ×30 → ×600, Reset). « Démarrer » appelle `POST /admin/wipe`, génère le jeu de données (graine `SIM_SEED`, J = aujourd'hui à Paris), charge l'historique puis rejoue la journée à partir de `SIM_FROM`. API de contrôle sans authentification sur le port 3200 (`GET /simulation`, `POST /simulation/{start,pause,resume,stop,reset}`, `PUT /simulation/speed`), proxifiée sous `/simulation` par `ng serve` / nginx.
+Simulation: driven from the control room (`http://localhost:4200`, "Simulation" bar: Start, Pause / Resume, Finish, speed ×30 → ×600, Reset). "Start" calls `POST /admin/wipe`, generates the dataset (seed `SIM_SEED`, D = today in Paris), loads the history then replays the day from `SIM_FROM`. Control API without authentication on port 3200 (`GET /simulation`, `POST /simulation/{start,pause,resume,stop,reset}`, `PUT /simulation/speed`), proxied under `/simulation` by `ng serve` / nginx.
 ```bash
-curl -X POST localhost:3200/simulation/start             # équivalent du bouton « Démarrer »
-npm run sim -- generate                                  # débogage : écrit le jeu de données dans data/generated/ (ignoré par Git)
+curl -X POST localhost:3200/simulation/start             # same as the "Start" button
+npm run sim -- generate                                  # debugging: writes the dataset to data/generated/ (ignored by Git)
 ```
-`apps/simulator` est exécuté directement par Node 24 (type stripping, imports relatifs en `.ts`, pas de build ; `node --watch` en dev). Le test `generate.spec.ts` applique la règle du détecteur de l'API (`apps/nestjs/src/detector/fuel-drop.rule.ts`) aux données générées : toute modification de la règle ou de la physique doit le garder vert. `simulation.spec.ts` couvre la machine à états avec un faux backend.
+`apps/simulator` is run directly by Node 24 (type stripping, relative imports in `.ts`, no build; `node --watch` in dev). The `generate.spec.ts` test applies the API detector rule (`apps/nestjs/src/detector/fuel-drop.rule.ts`) to the generated data: any change to the rule or to the physics must keep it green. `simulation.spec.ts` covers the state machine with a fake backend.
 
-Script prévu par les specs mais pas encore créé : `npm run smoke:tools -w apps/agents`.
+Script planned by the specs but not created yet: `npm run smoke:tools -w apps/agents`.
 
 ## Architecture
 
-| Service (Compose) | Dossier | Rôle |
+| Service (Compose) | Folder | Role |
 |---|---|---|
-| `postgres` | — | données métier **et** file de tâches |
-| `nestjs` (« api » dans les specs) | `apps/nestjs` | seul service connecté à Postgres (Prisma 7 + `@prisma/adapter-pg`, migrations SQL dans `prisma/migrations`, appliquées au démarrage) ; Swagger sur `/docs` |
-| `mcp-server` | `apps/mcp-server` | 7 outils d'enquête en lecture seule, adaptateur fin sur `/agent/trucks/*` — aucune logique métier, aucun SQL |
-| `investigator` (V2 : `extractor`) | `apps/agents` | workers sans serveur HTTP ; une image, plusieurs commandes |
-| `web` | `apps/web` | Angular 22 (standalone, signals), polling 2 s ; `ng serve` proxifie `/api` et `/simulation` (`proxy.conf.mjs`, `API_PROXY_TARGET`, `SIMULATION_PROXY_TARGET`) |
-| `simulator` | `apps/simulator` | service permanent (`node:http`, port 3200) : simule boîtiers et fournisseurs, ne parle qu'à l'API ; état dans `/data` (volume `simdata` : `state.json`, `dataset.json`), jamais dans Postgres |
-| — | `packages/contracts` | **uniquement** schémas Zod + types inférés + constantes, seule dépendance `zod` ; consommé en TypeScript source (`exports` → `src/index.ts`, imports internes en `.ts`, type stripping de Node 24 : pas de build) |
+| `postgres` | — | business data **and** task queue |
+| `nestjs` ("api" in the specs) | `apps/nestjs` | the only service connected to Postgres (Prisma 7 + `@prisma/adapter-pg`, SQL migrations in `prisma/migrations`, applied at startup); Swagger on `/docs` |
+| `mcp-server` | `apps/mcp-server` | 7 read-only investigation tools, thin adapter over `/agent/trucks/*` — no business logic, no SQL |
+| `investigator` (V2: `extractor`) | `apps/agents` | workers without an HTTP server; one image, several commands |
+| `web` | `apps/web` | Angular 22 (standalone, signals), 2 s polling, EN/FR UI (English by default); `ng serve` proxies `/api` and `/simulation` (`proxy.conf.mjs`, `API_PROXY_TARGET`, `SIMULATION_PROXY_TARGET`) |
+| `simulator` | `apps/simulator` | long-running service (`node:http`, port 3200): simulates the telematics boxes and the suppliers, only talks to the API; state in `/data` (`simdata` volume: `state.json`, `dataset.json`), never in Postgres |
+| — | `packages/contracts` | **only** Zod schemas + inferred types + constants, sole dependency `zod`; consumed as TypeScript source (`exports` → `src/index.ts`, internal imports in `.ts`, Node 24 type stripping: no build) |
 
-Décisions structurantes (ne pas remettre en cause sans discussion) :
-- **File de tâches dans Postgres** (table `tasks`, réservation `FOR UPDATE SKIP LOCKED`, verrou 5 min, balayage 30 s) ; workers en polling. Pas de Redis/BullMQ, pas de SSE/WebSocket.
-- **Agent = trois connexions** : API directe pour le pilotage (claim, steps, verdict), serveur MCP pour les outils vus par le modèle, Ollama (SDK `openai`) pour le raisonnement. **Boucle agent écrite à la main**, sans framework.
-- `submit_verdict` est un outil **local** au worker, pas sur le serveur MCP. Les résultats d'outils sont enveloppés `{ ref: "E1", result }` ; le verdict cite ces refs, que l'API revérifie contre les étapes `tool_call` (422 sinon).
-- **L'API décide** après verdict (règles en code) : `theft_suspected` / `billing_discrepancy` / `inconclusive` → toujours escaladé ; sinon `confidence ≥ AUTO_CLOSE_MIN_CONFIDENCE` → clos.
-- Les calculs (bilan carburant, arrêts, sous-échantillonnage) sont faits en code dans l'API, jamais par le LLM. Sorties d'outils résumées (≤ 30 points / 20 éléments, fenêtre ≤ 72 h).
-- PII : toute réponse `/agent/*` passe par le module `pii` (pseudonymes `C-xx`, téléphones/e-mails masqués). Aucun `full_name`/`phone` ne doit atteindre un agent.
-- Ingestion idempotente (`ON CONFLICT DO NOTHING` sur clés naturelles) ; données `history` vs `live`. Détection uniquement sur les lots `live`.
-- Auth par jetons statiques Bearer : `DEVICE_TOKEN` (ingestion), `AGENT_API_TOKEN` (`/agent/*`), `ADMIN_TOKEN` (`/admin/*`), `MCP_CLIENT_TOKEN` (entrant MCP).
-- **Contrats d'abord** : tout schéma qui traverse un service est écrit dans `packages/contracts` avant le code qui l'utilise. Le paquet est `"sideEffects": false` ; les constantes importées à l'exécution par le web vivent dans des modules sans zod (ex. `simulation-constants.ts`), sinon zod entre dans le bundle Angular.
-- **Simulation pilotée depuis l'écran** : chaque « Démarrer » et « Reset » vide toute la base (`/admin/wipe`, qui remplace l'ancien `/admin/reset`) ; le simulateur garde son état sur son volume et reprend en `paused` après un redémarrage.
+Structural decisions (not to be challenged without discussion):
+- **Task queue in Postgres** (`tasks` table, `FOR UPDATE SKIP LOCKED` claim, 5-min lock, 30 s sweep); polling workers. No Redis/BullMQ, no SSE/WebSocket.
+- **Agent = three connections**: the API directly for control (claim, steps, verdict), the MCP server for the tools seen by the model, Ollama (`openai` SDK) for reasoning. **Hand-written agent loop**, no framework.
+- `submit_verdict` is a tool **local** to the worker, not on the MCP server. Tool results are wrapped as `{ ref: "E1", result }`; the verdict cites these refs, which the API re-checks against the `tool_call` steps (422 otherwise).
+- **The API decides** after the verdict (rules in code): `theft_suspected` / `billing_discrepancy` / `inconclusive` → always escalated; otherwise `confidence ≥ AUTO_CLOSE_MIN_CONFIDENCE` → closed.
+- Calculations (fuel balance, stops, downsampling) are done in code in the API, never by the LLM. Tool outputs are summarised (≤ 30 points / 20 items, window ≤ 72 h).
+- PII: every `/agent/*` response goes through the `pii` module (`C-xx` pseudonyms, phone numbers/emails masked as `[phone masked]` / `[email masked]`). No `full_name`/`phone` may reach an agent.
+- Idempotent ingestion (`ON CONFLICT DO NOTHING` on natural keys); `history` vs `live` data. Detection only on `live` batches.
+- Static Bearer token auth: `DEVICE_TOKEN` (ingestion), `AGENT_API_TOKEN` (`/agent/*`), `ADMIN_TOKEN` (`/admin/*`), `MCP_CLIENT_TOKEN` (incoming MCP).
+- **Contracts first**: any schema that crosses a service is written in `packages/contracts` before the code that uses it. The package is `"sideEffects": false`; constants imported at runtime by the web app live in modules without zod (e.g. `simulation-constants.ts`), otherwise zod ends up in the Angular bundle.
+- **Simulation driven from the screen**: every "Start" and "Reset" wipes the whole database (`/admin/wipe`, which replaces the former `/admin/reset`); the simulator keeps its state on its volume and comes back `paused` after a restart.
+- **Web i18n without a dependency**: `t(key, params?)` reads the language from a global signal (`apps/web/src/app/core/i18n/i18n.ts`); `en.ts` defines the keys, `fr.ts` must provide them all (enforced by its type). Formatters (`core/format.ts`) follow the language. Any new UI text goes into both dictionaries.
 
-NestJS 12 : validation et documentation par les schémas Zod eux-mêmes (Standard Schema) — `@Body({ schema })`, `@Query({ schema })`, `@ApiOkResponse({ standardSchema })`, `StandardSchemaValidationPipe` global (`src/setup-app.ts`) ; pas de DTO de classe ni de `class-validator`. Le client Prisma est généré dans `src/generated/prisma` (ignoré par Git ; `prisma generate` est lancé par `build`, `start:dev` et `test:e2e`). Le tsconfig de l'API utilise `preserveSymlinks` pour que `tsc` ne recompile pas `@fleet/contracts`.
+NestJS 12: validation and documentation through the Zod schemas themselves (Standard Schema) — `@Body({ schema })`, `@Query({ schema })`, `@ApiOkResponse({ standardSchema })`, global `StandardSchemaValidationPipe` (`src/setup-app.ts`); no class DTOs and no `class-validator`. The Prisma client is generated in `src/generated/prisma` (ignored by Git; `prisma generate` is run by `build`, `start:dev` and `test:e2e`). The API tsconfig uses `preserveSymlinks` so that `tsc` does not recompile `@fleet/contracts`.
 
-Docker : Dockerfiles multi-étapes (`dev` / `build` / `prod`) construits depuis la **racine du monorepo** (contexte `.`) pour inclure `packages/contracts` ; installation par `npm ci -w <app>`. En dev, seuls `src/` de l'app et `packages/contracts/src` sont montés.
+Docker: multi-stage Dockerfiles (`dev` / `build` / `prod`) built from the **monorepo root** (context `.`) to include `packages/contracts`; installed with `npm ci -w <app>`. In dev, only the app's `src/` and `packages/contracts/src` are mounted.
 
-Tests des workers : faux modèle scripté, jamais d'appel réel au LLM en CI.
+Worker tests: scripted fake model, never a real LLM call in CI.

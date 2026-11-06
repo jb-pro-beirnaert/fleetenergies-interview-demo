@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PlaceType, VerdictCategory } from './enums.ts';
 
-// Limites communes aux 7 outils d'enquête (spec 02)
+// Limits shared by the 7 investigation tools (spec 02)
 export const MAX_WINDOW_HOURS = 72;
 export const MAX_SAMPLES = 30;
 export const MAX_LIST_ITEMS = 20;
@@ -17,18 +17,18 @@ const checkWindow = (value: Window, ctx: z.core.$RefinementCtx<Window>) => {
     ctx.addIssue({
       code: 'custom',
       path: ['to'],
-      message: '`to` doit être postérieur à `from`',
+      message: '`to` must be after `from`',
     });
   } else if (to - from > MAX_WINDOW_HOURS * 3_600_000) {
     ctx.addIssue({
       code: 'custom',
       path: ['to'],
-      message: `fenêtre maximale ${MAX_WINDOW_HOURS} h`,
+      message: `maximum window ${MAX_WINDOW_HOURS} h`,
     });
   }
 };
 
-// Paramètres de query des routes `/agent/trucks/:truckId/*`
+// Query parameters of the `/agent/trucks/:truckId/*` routes
 export const TimeWindowQuery = z
   .object({ from: isoDatetime, to: isoDatetime })
   .superRefine(checkWindow);
@@ -39,8 +39,8 @@ export const SimilarEventsQuery = z.object({
 });
 export type SimilarEventsQuery = z.infer<typeof SimilarEventsQuery>;
 
-// Entrées des outils MCP (truckId inclus) ; les descriptions sont lues par le modèle
-const truckId = z.uuid().describe("Identifiant du camion (fourni par l'alerte)");
+// MCP tool inputs (truckId included); the descriptions are read by the model
+const truckId = z.uuid().describe('Truck id (provided by the alert)');
 
 export const TruckInput = z.object({ truckId });
 export type TruckInput = z.infer<typeof TruckInput>;
@@ -48,9 +48,9 @@ export type TruckInput = z.infer<typeof TruckInput>;
 export const TruckWindowInput = z
   .object({
     truckId,
-    from: isoDatetime.describe('Début de la période, ISO 8601 avec fuseau'),
+    from: isoDatetime.describe('Start of the period, ISO 8601 with time zone'),
     to: isoDatetime.describe(
-      `Fin de la période, ISO 8601 avec fuseau ; au plus ${MAX_WINDOW_HOURS} h après \`from\``,
+      `End of the period, ISO 8601 with time zone; at most ${MAX_WINDOW_HOURS} h after \`from\``,
     ),
   })
   .superRefine(checkWindow);
@@ -62,7 +62,7 @@ export const SimilarEventsInput = z.object({
     .int()
     .min(1)
     .max(30)
-    .describe('Nombre de jours à remonter depuis le dernier relevé du camion (1 à 30)'),
+    .describe("Number of days to look back from the truck's latest reading (1 to 30)"),
 });
 export type SimilarEventsInput = z.infer<typeof SimilarEventsInput>;
 
@@ -153,7 +153,7 @@ export const DriverMessages = z
         z.object({
           sentAt: isoDatetime,
           driver: z.string(), // pseudonyme
-          body: z.string(), // masqué
+          body: z.string(), // masked
         }),
       )
       .max(MAX_LIST_ITEMS),

@@ -16,7 +16,7 @@ export class TelemetryService {
     private readonly detector: DetectorService,
   ) {}
 
-  // Idempotent : ON CONFLICT (truck_id, recorded_at) DO NOTHING ; détection sur les lots `live` uniquement
+  // Idempotent: ON CONFLICT (truck_id, recorded_at) DO NOTHING; detection on `live` batches only
   async ingestTelemetry(batch: TelemetryBatch): Promise<TelemetryIngestResult> {
     const inserted = await this.prisma.telemetryReading.createManyAndReturn({
       data: batch.readings.map((reading) => ({
@@ -47,7 +47,7 @@ export class TelemetryService {
     return { inserted: inserted.length, alertsCreated };
   }
 
-  // Idempotent sur (truck_id, occurred_at)
+  // Idempotent on (truck_id, occurred_at)
   async ingestFuelCards(batch: FuelCardBatch): Promise<IngestResult> {
     const { count } = await this.prisma.refuel.createMany({
       data: batch.transactions.map((transaction) => ({
@@ -65,7 +65,7 @@ export class TelemetryService {
     return { inserted: count };
   }
 
-  // Idempotent sur (driver_id, sent_at)
+  // Idempotent on (driver_id, sent_at)
   async ingestDriverMessages(batch: DriverMessageBatch): Promise<IngestResult> {
     const { count } = await this.prisma.driverMessage.createMany({
       data: batch.messages.map((message) => ({

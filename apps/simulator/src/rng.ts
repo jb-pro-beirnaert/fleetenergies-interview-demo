@@ -1,16 +1,16 @@
-// Générateur pseudo-aléatoire déterministe (mulberry32), une graine par flux.
+// Deterministic pseudo-random generator (mulberry32), one seed per stream.
 
 export interface Rng {
-  /** Réel dans [0, 1[. */
+  /** Real number in [0, 1[. */
   next(): number;
   float(min: number, max: number): number;
-  /** Entier dans [min, max] (bornes incluses). */
+  /** Integer in [min, max] (bounds included). */
   int(min: number, max: number): number;
   pick<T>(items: readonly T[]): T;
   shuffle<T>(items: readonly T[]): T[];
 }
 
-/** Hachage FNV-1a 32 bits d'une clé composite. */
+/** 32-bit FNV-1a hash of a composite key. */
 function hash(keys: readonly (string | number)[]): number {
   let h = 0x811c9dc5;
   for (const char of keys.join('\u0000')) {
@@ -20,7 +20,7 @@ function hash(keys: readonly (string | number)[]): number {
   return h >>> 0;
 }
 
-/** Flux indépendant et reproductible pour une clé (graine, camion, usage…). */
+/** Independent, reproducible stream for a key (seed, truck, purpose…). */
 export function createRng(...keys: (string | number)[]): Rng {
   let state = hash(keys);
   const next = (): number => {
@@ -35,7 +35,7 @@ export function createRng(...keys: (string | number)[]): Rng {
     float: (min, max) => min + (max - min) * next(),
     int: (min, max) => min + Math.floor(next() * (max - min + 1)),
     pick: (items) => {
-      if (items.length === 0) throw new Error('pick() sur une liste vide');
+      if (items.length === 0) throw new Error('pick() on an empty list');
       return items[Math.floor(next() * items.length)];
     },
     shuffle: (items) => {

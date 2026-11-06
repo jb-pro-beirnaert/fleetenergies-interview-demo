@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import type { AlertStatus } from '@fleet/contracts';
-import { STATUS_LABELS } from './labels';
+import { statusLabel } from './labels';
 
 @Component({
   selector: 'app-status-pill',
@@ -54,5 +54,5 @@ import { STATUS_LABELS } from './labels';
 })
 export class StatusPill {
   readonly status = input.required<AlertStatus>();
-  protected readonly label = computed(() => STATUS_LABELS[this.status()]);
+  protected readonly label = computed(() => statusLabel(this.status()));
 }

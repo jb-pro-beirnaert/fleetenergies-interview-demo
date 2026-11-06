@@ -1,37 +1,37 @@
-# 02 — Contrats partagés (`packages/contracts`)
+# 02 — Shared contracts (`packages/contracts`)
 
-Paquet TypeScript importé par `api`, `mcp-server`, `agents`, `web` et `simulator`. Il ne contient **que** des schémas Zod et les types qui en sont déduits (`z.infer`), plus des constantes. Aucune logique métier, aucune dépendance autre que `zod`.
+TypeScript package imported by `api`, `mcp-server`, `agents`, `web` and `simulator`. It contains **only** Zod schemas and the types inferred from them (`z.infer`), plus constants. No business logic, no dependency other than `zod`.
 
-Organisation :
+Layout:
 ```
 packages/contracts/src/
-  enums.ts          catégories, statuts, types de tâches
-  telemetry.ts      relevés entrants
-  tasks.ts          réservation, résultats, échecs
-  tools.ts          entrées/sorties des 7 outils d'enquête
-  verdict.ts        verdict de l'enquêteur
-  steps.ts          étapes d'enquête
-  screen.ts         réponses des routes écran
-  admin.ts          chargement de l'historique
-  simulation.ts     pilotage du simulateur (états, vue, commandes)
-  simulation-constants.ts  paliers de vitesse et commandes par état, sans zod (importés par l'écran)
-  invoice.ts        (V2) extraction de facture
+  enums.ts          categories, statuses, task types
+  telemetry.ts      incoming readings
+  tasks.ts          claim, results, failures
+  tools.ts          inputs/outputs of the 7 investigation tools
+  verdict.ts        investigator verdict
+  steps.ts          investigation steps
+  screen.ts         screen route responses
+  admin.ts          history loading
+  simulation.ts     simulator control (states, view, commands)
+  simulation-constants.ts  speed steps and commands per state, without zod (imported by the screen)
+  invoice.ts        (V2) invoice extraction
   index.ts
 ```
 
-## Énumérations
-- `VerdictCategory` :
-  - `theft_suspected` — vol probable (siphonnage) ;
-  - `sensor_fault` — défaillance ou artefact de sonde ;
-  - `equipment_transfer` — carburant consommé par un équipement (groupe frigo) ;
-  - `legitimate_operation` — opération déclarée ou d'atelier (vidange, réparation) ;
-  - `billing_discrepancy` — (V2) facture incohérente avec le carburant reçu ;
-  - `inconclusive` — indices insuffisants.
-- `TaskType` : `investigate_alert` ; V2 `extract_invoice`.
-- `AlertType` : `fuel_drop` ; V2 `billing_mismatch`.
-- `StepKind`, `AlertStatus`, `TaskStatus`, `InvoiceStatus` : identiques aux enums SQL de `01-data-model.md`.
+## Enums
+- `VerdictCategory`:
+  - `theft_suspected` — likely theft (siphoning);
+  - `sensor_fault` — sensor failure or artefact;
+  - `equipment_transfer` — fuel used by a piece of equipment (reefer unit);
+  - `legitimate_operation` — declared or workshop operation (draining, repair);
+  - `billing_discrepancy` — (V2) invoice inconsistent with the fuel received;
+  - `inconclusive` — insufficient clues.
+- `TaskType`: `investigate_alert`; V2 `extract_invoice`.
+- `AlertType`: `fuel_drop`; V2 `billing_mismatch`.
+- `StepKind`, `AlertStatus`, `TaskStatus`, `InvoiceStatus`: identical to the SQL enums of `01-data-model.md`.
 
-## Télémétrie entrante
+## Incoming telemetry
 ```ts
 TelemetryReading = {
   truckId: uuid,
@@ -45,71 +45,71 @@ TelemetryReading = {
 TelemetryBatch = { readings: TelemetryReading[1..500], source: 'history' | 'live' }
 ```
 
-## Simulation (API de contrôle du simulateur)
+## Simulation (simulator control API)
 ```ts
 SimulationStatus  = 'idle' | 'preparing' | 'running' | 'paused' | 'finished'
-SIMULATION_SPEEDS = [30, 60, 120, 300, 600]           // paliers ; SimulationSpeed = l'un d'eux
+SIMULATION_SPEEDS = [30, 60, 120, 300, 600]           // steps; SimulationSpeed = one of them
 SimulationCommand = 'start' | 'pause' | 'resume' | 'stop' | 'reset'
-SIMULATION_COMMANDS: Record<SimulationStatus, SimulationCommand[]>   // commandes acceptées par état
+SIMULATION_COMMANDS: Record<SimulationStatus, SimulationCommand[]>   // commands accepted per state
 SimulationView = {
   status: SimulationStatus,
-  demoDate: 'AAAA-MM-JJ' | null,
-  clock: ISO datetime | null,            // heure simulée du dernier pas envoyé
+  demoDate: 'YYYY-MM-DD' | null,
+  clock: ISO datetime | null,            // simulated time of the last step sent
   speed: SimulationSpeed,
-  progress: { done: int, total: int } | null,   // lots d'historique (preparing) ou pas de la journée
+  progress: { done: int, total: int } | null,   // history batches (preparing) or steps of the day
   alertsCreated: int,
   error: string | null,
 }
 SimulationSpeedRequest = { speed: SimulationSpeed }
 ```
-`SIMULATION_COMMANDS` est partagé : le simulateur s'en sert pour répondre 409, l'écran pour griser les boutons. Les constantes sont dans un module sans zod et le paquet est déclaré `"sideEffects": false` : l'écran les importe sans embarquer zod dans son bundle.
+`SIMULATION_COMMANDS` is shared: the simulator uses it to answer 409, the screen to disable the buttons. The constants live in a module without zod and the package is declared `"sideEffects": false`: the screen imports them without bundling zod.
 
-## Tâches (pilotage des workers)
+## Tasks (worker control)
 ```ts
 ClaimRequest  = { type: TaskType, workerId: string }
 ClaimedTask   = { id: uuid, type: TaskType, payload: { alertId: uuid } | { invoiceId: uuid }, attempts: number }
 FailRequest   = { error: string, retryable: boolean }
 ```
 
-## Outils d'enquête
-Règles communes :
-- tous les identifiants de camion sont des `uuid` ; les fenêtres de temps sont `from`/`to` en ISO ;
-- fenêtre maximale : 72 h (sinon erreur de validation) ;
-- **les sorties sont résumées** : jamais plus de 30 points ou 20 éléments par liste ;
-- les conducteurs n'apparaissent que sous leur pseudonyme.
+## Investigation tools
+Common rules:
+- all truck ids are `uuid`s; time windows are `from`/`to` in ISO;
+- maximum window: 72 h (otherwise a validation error);
+- **outputs are summarised**: never more than 30 points or 20 items per list;
+- drivers only appear under their pseudonym.
 
-| Outil | Entrée | Sortie (résumé) |
+| Tool | Input | Output (summary) |
 |---|---|---|
 | `get_truck_profile` | `{ truckId }` | `{ plate, make, model, energy, tankCapacityL, hasReefer, baselineLPer100km, idleLPerHour, homeDepot: string, sensorNotes: string \| null }` |
-| `get_tank_curve` | `{ truckId, from, to }` | `{ startLevelL, endLevelL, minLevelL, maxLevelL, biggestDrop: { from, to, liters, durationMin, ignitionOff: boolean, maxSpeedKmh } \| null, recoveries: { at, liters }[], samples: { at, levelL }[] }` — `samples` sous-échantillonné à 30 points max |
+| `get_tank_curve` | `{ truckId, from, to }` | `{ startLevelL, endLevelL, minLevelL, maxLevelL, biggestDrop: { from, to, liters, durationMin, ignitionOff: boolean, maxSpeedKmh } \| null, recoveries: { at, liters }[], samples: { at, levelL }[] }` — `samples` downsampled to 30 points max |
 | `get_vehicle_activity` | `{ truckId, from, to }` | `{ distanceKm, movingMinutes, stops: { from, to, durationMin, ignitionOff, place: { name, type } \| null, lat, lon }[] }` |
 | `find_fuel_transactions` | `{ truckId, from, to }` | `{ refuels: { at, place: string \| null, liters, totalEur \| null, source, invoiceId \| null }[] }` |
-| `read_driver_messages` | `{ truckId, from, to }` | `{ messages: { sentAt, driver: string /* pseudonyme */, body: string /* masqué */ }[] }` |
+| `read_driver_messages` | `{ truckId, from, to }` | `{ messages: { sentAt, driver: string /* pseudonym */, body: string /* masked */ }[] }` |
 | `compute_fuel_balance` | `{ truckId, from, to }` | `{ distanceKm, movingConsumptionL, idleConsumptionL, expectedConsumptionL, refueledL, observedLevelChangeL, unexplainedLossL }` |
 | `find_similar_events` | `{ truckId, lookbackDays: 1..30 }` | `{ events: { at, dropL, hourOfDay, placeType \| null, ignitionOff, alertId \| null, verdictCategory \| null }[] }` |
 
-Formule de `compute_fuel_balance` (en code, jamais par le LLM) :
-- `expectedConsumptionL = distanceKm × baseline / 100 + heures moteur tournant à l'arrêt × idleLPerHour` ;
-- `observedLevelChangeL = startLevel − endLevel` (positif = baisse) ;
-- `unexplainedLossL = observedLevelChangeL + refueledL − expectedConsumptionL`, arrondi à 0,1 L.
+`compute_fuel_balance` formula (in code, never by the LLM):
+- `expectedConsumptionL = distanceKm × baseline / 100 + engine-running hours while stopped × idleLPerHour`;
+- `observedLevelChangeL = startLevel − endLevel` (positive = decrease);
+- `unexplainedLossL = observedLevelChangeL + refueledL − expectedConsumptionL`, rounded to 0.1 L.
 
-Une « chute » pour `find_similar_events` : baisse ≥ 25 L en ≤ 20 min avec vitesse < 3 km/h.
+A "drop" for `find_similar_events`: decrease ≥ 25 L in ≤ 20 min with speed < 3 km/h.
 
-## Verdict (outil local `submit_verdict`)
+## Verdict (local `submit_verdict` tool)
 ```ts
 Verdict = {
   category: VerdictCategory,
   confidence: number (0..1),
-  summary: string (40..600 caractères, français),
+  summary: string (40..600 characters, English),
   evidence: {
-    toolCallId: string,   // référence "E1", "E2"… attribuée par le worker ; doit correspondre à un appel d'outil réellement effectué
-    finding: string,      // ce que cet appel a montré (≤ 200 caractères)
+    toolCallId: string,   // reference "E1", "E2"… assigned by the worker; must match a tool call actually made
+    finding: string,      // what that call showed (≤ 200 characters)
   }[1..6],
 }
 ```
-Le verdict ne contient **pas** de recommandation : l'API décide (voir `03-api.md`, « Décision après verdict »).
+The verdict does **not** contain a recommendation: the API decides (see `03-api.md`, "Decision after the verdict").
 
-## Étapes d'enquête
+## Investigation steps
 ```ts
 StepInput = {
   attempt: number, seq: number, kind: StepKind,
@@ -117,31 +117,31 @@ StepInput = {
   payload: unknown, durationMs?: number,
 }
 ```
-Forme de `payload` selon `kind` (lue par l'écran) ; la référence `E1`, `E2`… est dans `toolCallId`, identique sur `tool_call` et `tool_result` :
-- `reasoning` → `{ text }` ;
-- `tool_call` → `{ arguments }` ;
-- `tool_result` → `{ result }` ou `{ error }` si l'outil a échoué ;
-- `retry`, `error` → `{ message }` ;
-- `verdict` → le `Verdict`.
+Shape of `payload` by `kind` (read by the screen); the `E1`, `E2`… reference is in `toolCallId`, identical on `tool_call` and `tool_result`:
+- `reasoning` → `{ text }`;
+- `tool_call` → `{ arguments }`;
+- `tool_result` → `{ result }` or `{ error }` if the tool failed;
+- `retry`, `error` → `{ message }`;
+- `verdict` → the `Verdict`.
 
-## V2 — extraction de facture
+## V2 — invoice extraction
 ```ts
 InvoiceExtraction = {
-  supplier: string,                // ex. "AS24", "TotalEnergies", "Station Garcia"
+  supplier: string,                // e.g. "AS24", "TotalEnergies", "Station Garcia"
   invoiceNumber: string | null,
   issuedAt: ISO date | null,
-  refuelAt: ISO datetime | null,   // date et heure du plein si présentes
+  refuelAt: ISO datetime | null,   // date and time of the refuel if present
   stationName: string | null,
   stationCity: string | null,
-  plate: string | null,            // normalisée AB-123-CD si reconnue
+  plate: string | null,            // normalised AB-123-CD if recognised
   fuelType: 'diesel' | 'b100' | 'hvo' | 'adblue' | 'other' | null,
   liters: number | null,
   unitPriceEur: number | null,
   totalEur: number | null,
   currency: 'EUR' | 'other',
-  suspiciousContent: boolean,      // le document contient-il des instructions adressées à un système ?
+  suspiciousContent: boolean,      // does the document contain instructions addressed to a system?
   suspiciousExcerpt: string | null,
-  confidenceNotes: string | null,  // champs incertains, ≤ 200 caractères
+  confidenceNotes: string | null,  // uncertain fields, ≤ 200 characters
 }
 ```
-Règles de cohérence vérifiées en code après validation : `liters × unitPriceEur ≈ totalEur` (±2 %) quand les trois sont présents ; litres entre 1 et 1 200.
+Consistency rules checked in code after validation: `liters × unitPriceEur ≈ totalEur` (±2%) when all three are present; liters between 1 and 1,200.

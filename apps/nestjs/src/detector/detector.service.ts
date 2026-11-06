@@ -20,9 +20,9 @@ export class DetectorService {
   ) {}
 
   /**
-   * Applique la règle à chaque nouveau relevé `live` d'un camion, dans l'ordre chronologique.
-   * Un verrou consultatif par camion sérialise les lots concurrents (pas d'alerte en double).
-   * Retourne le nombre d'alertes créées.
+   * Applies the rule to every new `live` reading of a truck, in chronological order.
+   * One advisory lock per truck serialises concurrent batches (no duplicate alert).
+   * Returns the number of alerts created.
    */
   async processNewReadings(
     truckId: string,
@@ -59,7 +59,7 @@ export class DetectorService {
     });
 
     if (existing) {
-      // Déjà en enquête : l'agent verra la courbe complète
+      // Already under investigation: the agent will see the full curve
       if (existing.status !== 'detected') return false;
       const episode = await this.readings(
         tx,

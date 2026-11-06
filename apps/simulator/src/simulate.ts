@@ -1,6 +1,6 @@
-// Moteur physique d'un camion (spec 04, « Physique »). Résolution d'une minute,
-// un relevé émis toutes les 5 minutes. Les plans de journée pilotent le camion
-// par `stayUntil`, `driveTo`, `refuelIfBelow`.
+// Physics engine of a truck (spec 04, "Physics"). One-minute resolution,
+// one reading emitted every 5 minutes. The day plans drive the truck
+// through `stayUntil`, `driveTo`, `refuelIfBelow`.
 
 import { lerp, roadKm } from './geo.ts';
 import { round, type Rng } from './rng.ts';
@@ -14,7 +14,7 @@ const REFUEL_AT_OFFSET_MIN = 6;
 const IDLE_MIN = 3;
 const STOPPED_NOISE_L = 1.5;
 const MOVING_NOISE_L = 4;
-/** Vitesse moyenne utilisée pour estimer les temps de trajet lors de la planification. */
+/** Average speed used to estimate travel times when planning. */
 export const PLANNING_SPEED_KMH = 75;
 
 export interface SimReading {
@@ -23,9 +23,9 @@ export interface SimReading {
   lon: number;
   speedKmh: number;
   ignition: boolean;
-  /** Niveau réel (sans bruit ni artefact), pour les tests. */
+  /** Real level (without noise or artefact), for the tests. */
   trueLevelL: number;
-  /** Niveau mesuré par la sonde. */
+  /** Level measured by the sensor. */
   fuelLevelL: number;
   odometerKm: number;
 }
@@ -44,7 +44,7 @@ export interface SimStay {
   end: number;
 }
 
-/** Retrait réel de carburant (vol, transfert, vidange), réparti linéairement. */
+/** Actual fuel withdrawal (theft, transfer, draining), spread linearly. */
 export interface Drain {
   start: number;
   minutes: number;
@@ -82,7 +82,7 @@ export class TruckSim {
   lon: number;
   odometerKm: number;
   levelL: number;
-  /** Lieu où se trouve le camion, `null` en roulant. */
+  /** Place where the truck is, `null` while driving. */
   placeCode: string | null;
   readonly readings: SimReading[] = [];
   readonly refuels: SimRefuel[] = [];
@@ -110,7 +110,7 @@ export class TruckSim {
 
   private fail(message: string): never {
     throw new Error(
-      `${this.truck.code} le ${this.world.cal.date(this.world.cal.dayOf(this.t))} à ${this.world.cal.hhmm(this.t)} : ${message}`,
+      `${this.truck.code} on ${this.world.cal.date(this.world.cal.dayOf(this.t))} at ${this.world.cal.hhmm(this.t)}: ${message}`,
     );
   }
 
@@ -129,10 +129,10 @@ export class TruckSim {
     });
   }
 
-  /** Avance d'une minute. */
+  /** Advances by one minute. */
   private tick(move: Tick): void {
     const { cal } = this.world;
-    if (this.t >= cal.endMin) this.fail('dépassement de la période simulée');
+    if (this.t >= cal.endMin) this.fail('beyond the simulated period');
     const stats = this.dayStats[cal.dayOf(this.t)];
     this.odometerKm += move.km;
     stats.km += move.km;
@@ -143,12 +143,12 @@ export class TruckSim {
     }
     for (const drain of this.drains) {
       if (this.t >= drain.start && this.t < drain.start + drain.minutes) {
-        if (move.speedKmh > 0) this.fail(`retrait « ${drain.label} » pendant un trajet`);
+        if (move.speedKmh > 0) this.fail(`withdrawal "${drain.label}" during a trip`);
         this.levelL -= drain.liters / drain.minutes;
         stats.drainedL += drain.liters / drain.minutes;
       }
     }
-    if (this.levelL < 0) this.fail('niveau négatif');
+    if (this.levelL < 0) this.fail('negative level');
     this.lat = move.lat;
     this.lon = move.lon;
     this.t++;
@@ -157,7 +157,7 @@ export class TruckSim {
 
   private recordStay(start: number, end: number): void {
     const code = this.placeCode;
-    if (!code) this.fail('arrêt hors de tout lieu');
+    if (!code) this.fail('stop outside any place');
     const last = this.stays.at(-1);
     if (last && last.placeCode === code && last.end === start) last.end = end;
     else this.stays.push({ placeCode: code, start, end });
@@ -167,7 +167,7 @@ export class TruckSim {
     return { speedKmh: 0, ignition, km: 0, fuelL: 0, lat: this.lat, lon: this.lon };
   }
 
-  /** Reste sur place jusqu'à `until` ; moteur au ralenti quelques minutes au début et à la fin. */
+  /** Stays put until `until`; engine idling a few minutes at the start and at the end. */
   stayUntil(until: number, idle = { start: IDLE_MIN, end: IDLE_MIN }): void {
     const end = Math.min(until, this.world.cal.endMin);
     if (end <= this.t) return;
@@ -183,15 +183,15 @@ export class TruckSim {
     this.stayUntil(this.t + minutes);
   }
 
-  /** Durée estimée d'un trajet (planification). */
+  /** Estimated trip duration (planning). */
   driveMinutes(from: string, to: string): number {
     if (from === to) return 0;
     return (roadKm(this.world.place(from), this.world.place(to)) / PLANNING_SPEED_KMH) * 60;
   }
 
   /**
-   * Trajet vers un lieu. Si le niveau risque de passer sous 30 % de la capacité,
-   * arrêt à la station qui allonge le moins le trajet (plein à 95 %).
+   * Trip to a place. If the level risks falling below 30% of capacity,
+   * stop at the fuel station that lengthens the trip the least (refuel to 95%).
    */
   driveTo(code: string): void {
     if (code === this.placeCode) return;
@@ -218,7 +218,7 @@ export class TruckSim {
     if (low && destination.type === 'fuel_station') this.refuelHere();
   }
 
-  /** Trajet direct : interpolation linéaire, vitesse 70-85 km/h, consommation de référence ± 6 %. */
+  /** Direct trip: linear interpolation, speed 70-85 km/h, reference consumption ± 6%. */
   private driveLeg(destination: PlaceDef): void {
     const from = { lat: this.lat, lon: this.lon };
     const km = roadKm(from, destination);
@@ -237,16 +237,16 @@ export class TruckSim {
         lon: position.lon,
       });
     }
-    // Position d'arrêt légèrement décalée du centre du lieu (quelques mètres)
+    // Stop position slightly offset from the centre of the place (a few metres)
     this.lat = destination.lat + this.rng.float(-0.0001, 0.0001);
     this.lon = destination.lon + this.rng.float(-0.0001, 0.0001);
     this.placeCode = destination.code;
   }
 
-  /** Arrêt de 15 min en station, plein à 95 % de la capacité, transaction carte carburant. */
+  /** 15-min stop at a fuel station, refuel to 95% of capacity, fuel card transaction. */
   private refuelHere(): void {
     const station = this.place;
-    if (station?.type !== 'fuel_station') this.fail('plein hors station');
+    if (station?.type !== 'fuel_station') this.fail('refuel outside a fuel station');
     const start = this.t;
     this.recordStay(start, start + REFUEL_STOP_MIN);
     for (let offset = 0; offset < REFUEL_STOP_MIN; offset++) {
@@ -268,7 +268,7 @@ export class TruckSim {
     }
   }
 
-  /** Plein préventif à la station la plus proche si le niveau est sous `fraction`. */
+  /** Preventive refuel at the nearest fuel station if the level is below `fraction`. */
   refuelIfBelow(fraction: number): void {
     if (this.levelL >= fraction * this.truck.tankCapacityL) return;
     const here = { lat: this.lat, lon: this.lon };
@@ -279,7 +279,7 @@ export class TruckSim {
     this.refuelHere();
   }
 
-  /** Arrêt en cours à une minute donnée. */
+  /** Ongoing stop at a given minute. */
   stayAt(minute: number): SimStay | undefined {
     return this.stays.find((stay) => stay.start <= minute && minute < stay.end);
   }

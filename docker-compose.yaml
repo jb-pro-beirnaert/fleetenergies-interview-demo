@@ -1,4 +1,4 @@
-# Projet séparé du dev : conteneurs et volumes (pgdata, simdata) distincts
+# Project separate from dev: distinct containers and volumes (pgdata, simdata)
 name: fleetenergies-prod
 
 services:
@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    # Pas de port publié : la base n'est joignable que depuis le réseau Docker
+    # No published port: the database is only reachable from the Docker network
     volumes:
       - pgdata:/var/lib/postgresql
     healthcheck:
@@ -55,7 +55,7 @@ services:
     restart: unless-stopped
     command: ["node", "dist/investigator.js"]
     env_file: .env
-    # Ollama tourne sur l'hôte (GPU Metal) ; nécessaire sous Linux, implicite sur Docker Desktop
+    # Ollama runs on the host (Metal GPU); required on Linux, implicit on Docker Desktop
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -74,7 +74,7 @@ services:
     environment:
       SIM_PORT: 3200
       SIM_DATA_DIR: /data
-    # Pas de port publié : piloté depuis la salle de contrôle (nginx relaie /simulation)
+    # No published port: driven from the control room (nginx relays /simulation)
     volumes:
       - simdata:/data
     healthcheck:

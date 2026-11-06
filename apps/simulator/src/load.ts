@@ -1,4 +1,4 @@
-// Chargement du référentiel et de l'historique (état `preparing`) : lots de 500 pour `POST /admin/history/load`.
+// Loading of the reference data and history (`preparing` state): batches of 500 for `POST /admin/history/load`.
 
 import type { HistoryLoadBatch } from '@fleet/contracts';
 import { chunk } from './api.ts';
@@ -7,7 +7,7 @@ import type { Reference } from './world.ts';
 
 export const LOAD_BATCH_SIZE = 500;
 
-/** Référentiel d'abord (clés étrangères), puis l'activité par lots. */
+/** Reference data first (foreign keys), then the activity in batches. */
 export function historyBatches(reference: Reference, history: ActivityData): HistoryLoadBatch[] {
   return [
     reference,

@@ -29,13 +29,13 @@ function guardRequiring(role: TokenRole | undefined) {
 }
 
 describe('TokenGuard', () => {
-  it('laisse passer le bon jeton', () => {
+  it('lets the right token through', () => {
     expect(
       guardRequiring('agent').canActivate(contextWith('Bearer agent-secret')),
     ).toBe(true);
   });
 
-  it('401 sans jeton, avec un jeton inconnu ou sans « Bearer »', () => {
+  it('401 without a token, with an unknown token or without "Bearer"', () => {
     const guard = guardRequiring('agent');
     expect(() => guard.canActivate(contextWith())).toThrow(
       UnauthorizedException,
@@ -48,13 +48,13 @@ describe('TokenGuard', () => {
     );
   });
 
-  it('403 avec le jeton d’un autre rôle', () => {
+  it('403 with the token of another role', () => {
     expect(() =>
       guardRequiring('admin').canActivate(contextWith('Bearer device-secret')),
     ).toThrow(ForbiddenException);
   });
 
-  it('route sans rôle : ouverte', () => {
+  it('route without a role: open', () => {
     expect(guardRequiring(undefined).canActivate(contextWith())).toBe(true);
   });
 });

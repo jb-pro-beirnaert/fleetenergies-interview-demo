@@ -36,14 +36,14 @@ const toWindow = (query: ScreenWindowQuery) => ({
   to: new Date(query.to),
 });
 
-// Salle de contrôle : routes ouvertes en local (humain authentifié hors périmètre V1)
-@ApiTags('écran')
+// Control room: routes open locally (authenticated human out of V1 scope)
+@ApiTags('screen')
 @Controller('api')
 export class ScreenController {
   constructor(private readonly screen: ScreenService) {}
 
   @Get('alerts')
-  @ApiOperation({ summary: 'Alertes, les plus récentes en premier' })
+  @ApiOperation({ summary: 'Alerts, most recent first' })
   @ApiOkResponse({ standardSchema: AlertList })
   listAlerts(@Query({ schema: AlertListQuery }) query: AlertListQuery) {
     return this.screen.listAlerts(query);
@@ -51,21 +51,21 @@ export class ScreenController {
 
   @Get('alerts/:id')
   @ApiOperation({
-    summary: 'Alerte, camion, enquête (toutes tentatives) et revue',
+    summary: 'Alert, truck, investigation (all attempts) and review',
   })
   @ApiOkResponse({ standardSchema: AlertDetail })
-  @ApiNotFoundResponse({ description: 'Alerte introuvable' })
+  @ApiNotFoundResponse({ description: 'Alert not found' })
   alertDetail(@Param('id', ParseUUIDPipe) id: string) {
     return this.screen.alertDetail(id);
   }
 
   @Post('alerts/:id/review')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Revue humaine : confirmer ou rejeter le verdict' })
+  @ApiOperation({ summary: 'Human review: confirm or dismiss the verdict' })
   @ApiOkResponse({ standardSchema: ReviewResult })
-  @ApiNotFoundResponse({ description: 'Alerte introuvable' })
+  @ApiNotFoundResponse({ description: 'Alert not found' })
   @ApiConflictResponse({
-    description: 'Alerte ni escaladée ni close, ou déjà revue',
+    description: 'Alert neither escalated nor closed, or already reviewed',
   })
   review(
     @Param('id', ParseUUIDPipe) id: string,
@@ -75,9 +75,9 @@ export class ScreenController {
   }
 
   @Get('trucks/:id/tank-curve')
-  @ApiOperation({ summary: 'Courbe complète du réservoir (graphique)' })
+  @ApiOperation({ summary: 'Full tank curve (chart)' })
   @ApiOkResponse({ standardSchema: TankCurvePoints })
-  @ApiNotFoundResponse({ description: 'Camion introuvable' })
+  @ApiNotFoundResponse({ description: 'Truck not found' })
   tankCurve(
     @Param('id', ParseUUIDPipe) id: string,
     @Query({ schema: ScreenWindowQuery }) query: ScreenWindowQuery,
@@ -86,9 +86,9 @@ export class ScreenController {
   }
 
   @Get('trucks/:id/positions')
-  @ApiOperation({ summary: 'Positions (mini-carte)' })
+  @ApiOperation({ summary: 'Positions (mini-map)' })
   @ApiOkResponse({ standardSchema: Positions })
-  @ApiNotFoundResponse({ description: 'Camion introuvable' })
+  @ApiNotFoundResponse({ description: 'Truck not found' })
   positions(
     @Param('id', ParseUUIDPipe) id: string,
     @Query({ schema: ScreenWindowQuery }) query: ScreenWindowQuery,
@@ -97,21 +97,21 @@ export class ScreenController {
   }
 
   @Get('places')
-  @ApiOperation({ summary: 'Lieux (carte)' })
+  @ApiOperation({ summary: 'Places (map)' })
   @ApiOkResponse({ standardSchema: PlaceList })
   places() {
     return this.screen.places();
   }
 
   @Get('stats')
-  @ApiOperation({ summary: 'Statistiques et valeur apportée par les agents' })
+  @ApiOperation({ summary: 'Statistics and value delivered by the agents' })
   @ApiOkResponse({ standardSchema: Stats })
   stats() {
     return this.screen.stats();
   }
 
   @Get('health')
-  @ApiOperation({ summary: 'Santé du service et de la base' })
+  @ApiOperation({ summary: 'Service and database health' })
   @ApiOkResponse({ standardSchema: Health })
   health() {
     return this.screen.health();

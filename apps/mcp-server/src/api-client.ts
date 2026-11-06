@@ -1,5 +1,5 @@
 export const API_TIMEOUT_MS = 10_000;
-export const UNAVAILABLE_MESSAGE = 'service indisponible, réessaie plus tard';
+export const UNAVAILABLE_MESSAGE = 'service unavailable, try again later';
 
 export type ApiResult =
   | { ok: true; status: number; data: Record<string, unknown> }
@@ -16,15 +16,15 @@ type Options = {
   fetch?: typeof fetch;
 };
 
-// Message d'erreur NestJS : `message` est une chaîne ou une liste de chaînes
+// NestJS error message: `message` is a string or a list of strings
 function errorMessage(body: unknown, status: number): string {
   const message = (body as { message?: unknown } | null)?.message;
   if (typeof message === 'string') return message;
   if (Array.isArray(message)) return message.join(' ; ');
-  return `erreur ${status}`;
+  return `error ${status}`;
 }
 
-// Client des routes `/agent/*` : 4xx → message de l'API, 5xx ou timeout → indisponible
+// Client of the `/agent/*` routes: 4xx → API message, 5xx or timeout → unavailable
 export function createApiClient({
   baseUrl,
   token,

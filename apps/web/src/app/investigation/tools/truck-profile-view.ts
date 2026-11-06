@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import type { TruckProfile } from '@fleet/contracts';
 import { fmtLiters, fmtNumber } from '../../core/format';
+import { t } from '../../core/i18n/i18n';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord } from './tool-window';
 
@@ -15,28 +16,28 @@ import { isRecord } from './tool-window';
         </div>
         <dl>
           <div>
-            <dt>Réservoir</dt>
+            <dt>{{ t('tools.truck.tank') }}</dt>
             <dd>{{ fmtLiters(p.tankCapacityL) }}</dd>
           </div>
           <div>
-            <dt>Conso. habituelle</dt>
+            <dt>{{ t('tools.truck.usual') }}</dt>
             <dd>{{ fmtNumber(p.baselineLPer100km, true) }} L/100 km</dd>
           </div>
           <div>
-            <dt>Ralenti</dt>
+            <dt>{{ t('tools.truck.idle') }}</dt>
             <dd>{{ fmtNumber(p.idleLPerHour, true) }} L/h</dd>
           </div>
           <div>
-            <dt>Dépôt</dt>
+            <dt>{{ t('tools.truck.depot') }}</dt>
             <dd>{{ p.homeDepot }}</dd>
           </div>
         </dl>
         <div class="badges">
           @if (p.hasReefer) {
-            <span class="badge reefer">❄ Groupe frigo</span>
+            <span class="badge reefer">{{ t('tools.truck.reefer') }}</span>
           }
           @if (p.sensorNotes) {
-            <span class="badge notes">⚠ Notes sonde</span>
+            <span class="badge notes">{{ t('tools.truck.sensorNotes') }}</span>
           }
         </div>
         @if (p.sensorNotes) {
@@ -44,7 +45,7 @@ import { isRecord } from './tool-window';
         }
       </div>
     } @else {
-      <p class="empty">Résultat illisible</p>
+      <p class="empty">{{ t('common.unreadable') }}</p>
     }
   `,
   styles: [
@@ -111,4 +112,5 @@ export class TruckProfileView {
   });
   protected readonly fmtLiters = fmtLiters;
   protected readonly fmtNumber = fmtNumber;
+  protected readonly t = t;
 }

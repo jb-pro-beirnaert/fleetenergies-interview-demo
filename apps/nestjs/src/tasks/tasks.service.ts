@@ -28,7 +28,7 @@ interface ClaimedRow {
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Réservation (spec 01) ; `null` si aucune tâche disponible. */
+  /** Claim (spec 01); `null` if no task is available. */
   async claim({ type, workerId }: ClaimRequest): Promise<ClaimedTask | null> {
     return this.prisma.$transaction(async (tx) => {
       const [task] = await tx.$queryRaw<ClaimedRow[]>`
@@ -93,7 +93,7 @@ export class TasksService {
     });
   }
 
-  /** Balayage : tâches à verrou expiré ayant épuisé leurs tentatives → échec définitif. */
+  /** Sweep: tasks with an expired lock that used up their attempts → permanent failure. */
   async sweep(): Promise<number> {
     return this.prisma.$transaction(async (tx) => {
       const expired = await tx.$queryRaw<{ id: string }[]>`
@@ -106,7 +106,7 @@ export class TasksService {
         await this.failDefinitively(
           tx,
           task,
-          `Verrou expiré après ${task.attempts} tentative(s)`,
+          `Lock expired after ${task.attempts} attempt(s)`,
         );
       }
       return expired.length;
@@ -116,11 +116,11 @@ export class TasksService {
   private async lockOwned(tx: Tx, id: string, workerId: string): Promise<Task> {
     const [row] = await tx.$queryRaw<{ id: string }[]>`
       SELECT id FROM tasks WHERE id = ${id}::uuid FOR UPDATE`;
-    if (!row) throw new NotFoundException('Tâche introuvable');
+    if (!row) throw new NotFoundException('Task not found');
     const task = await tx.task.findUniqueOrThrow({ where: { id } });
     if (task.status !== 'in_progress' || task.lockedBy !== workerId) {
       throw new ConflictException(
-        'Tâche non réservée par ce worker (verrou expiré ou repris par un autre)',
+        'Task not claimed by this worker (lock expired or taken over by another one)',
       );
     }
     return task;
@@ -131,7 +131,7 @@ export class TasksService {
       where: { id: alertId },
       data: { status: 'investigating' },
     });
-    // Nouvelle tentative : on réutilise la ligne, les étapes précédentes sont conservées
+    // New attempt: the row is reused, the previous steps are kept
     await tx.investigation.upsert({
       where: { alertId },
       create: { alertId, status: 'running', startedAt: new Date() },

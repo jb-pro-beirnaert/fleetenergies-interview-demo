@@ -15,7 +15,7 @@ async function callTool(
   const result = await api.get(path, query);
 
   const text = result.ok ? JSON.stringify(result.data) : result.message;
-  // Une ligne par appel, jamais le contenu (spec 05)
+  // One line per call, never the content (spec 05)
   log({
     msg: 'tool_call',
     tool: tool.name,
@@ -32,7 +32,7 @@ async function callTool(
   };
 }
 
-// Arguments validés par le SDK avant l'appel : schéma invalide → résultat `isError`
+// Arguments validated by the SDK before the call: invalid schema → `isError` result
 export function createMcpServer(api: ApiClient): McpServer {
   const server = new McpServer({ name: 'fleet-copilot-tools', version: '1.0.0' });
 
@@ -42,8 +42,8 @@ export function createMcpServer(api: ApiClient): McpServer {
       {
         description: tool.description,
         inputSchema: tool.input,
-        // Sans le `.meta({ id })` des contrats, sinon la racine JSON Schema est un `$ref`
-        // et MCP exige `type: "object"`
+        // Without the contracts' `.meta({ id })`, otherwise the JSON Schema root is a `$ref`
+        // and MCP requires `type: "object"`
         outputSchema: z.object(tool.output.shape),
         annotations: { readOnlyHint: true, openWorldHint: false },
       },

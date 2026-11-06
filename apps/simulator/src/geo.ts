@@ -1,5 +1,5 @@
 const EARTH_RADIUS_KM = 6371;
-/** Distance routière = distance à vol d'oiseau × 1,25 (spec 04). */
+/** Road distance = straight-line distance × 1.25 (spec 04). */
 export const ROAD_FACTOR = 1.25;
 
 export interface Point {

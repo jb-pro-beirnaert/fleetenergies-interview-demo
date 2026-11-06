@@ -1,5 +1,5 @@
-// Rejeu de la journée de démo (spec 04, « Rejeu ») : découpage en pas et envoi d'un pas.
-// La cadence (vitesse, pause, arrêt) est pilotée par la simulation (`simulation.ts`).
+// Replay of the demo day (spec 04, "Replay"): splitting into steps and sending one step.
+// The pace (speed, pause, stop) is driven by the simulation (`simulation.ts`).
 
 import type {
   DriverMessageInput,
@@ -12,11 +12,11 @@ import { chunk, type ApiClient } from './api.ts';
 import type { ActivityData } from './generate.ts';
 import { STEP_MS } from './time.ts';
 
-/** Taille maximale des lots d'ingestion (contrats). */
+/** Maximum size of the ingestion batches (contracts). */
 const INGEST_BATCH_SIZE = 500;
 
 export interface ReplayStep {
-  /** Heure simulée du pas (instant UTC, ms). */
+  /** Simulated time of the step (UTC instant, ms). */
   clock: number;
   telemetry: TelemetryReading[];
   refuels: FuelCardTransaction[];
@@ -24,12 +24,12 @@ export interface ReplayStep {
 }
 
 /**
- * Découpe la journée en pas de 5 minutes simulées. Le pas d'horloge T porte tout ce qui
- * s'est produit dans ]T − 5 min, T]. Le premier pas (T = from) porte aussi tout ce qui
- * précède `from` : rattrapage idempotent, qui permet de reprendre un rejeu interrompu.
+ * Splits the day into steps of 5 simulated minutes. The clock step T carries everything that
+ * happened in ]T − 5 min, T]. The first step (T = from) also carries everything that
+ * precedes `from`: idempotent catch-up, which allows resuming an interrupted replay.
  */
 export function planSteps(live: ActivityData, from: number, to: number): ReplayStep[] {
-  if (to < from) throw new Error('--to doit être postérieur à --from');
+  if (to < from) throw new Error('--to must be after --from');
   const count = Math.floor((to - from) / STEP_MS) + 1;
   const steps: ReplayStep[] = Array.from({ length: count }, (_, i) => ({
     clock: from + i * STEP_MS,
@@ -47,7 +47,7 @@ export function planSteps(live: ActivityData, from: number, to: number): ReplayS
   return steps;
 }
 
-/** Ordre dans un pas : relevés, transactions carte, messages. */
+/** Order within a step: readings, card transactions, messages. */
 export async function sendStep(api: ApiClient, step: ReplayStep): Promise<number> {
   let alerts = 0;
   for (const readings of chunk(step.telemetry, INGEST_BATCH_SIZE)) {

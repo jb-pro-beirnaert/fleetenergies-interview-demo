@@ -1,7 +1,8 @@
 import { Component, computed, input } from '@angular/core';
 import type { SimilarEvents } from '@fleet/contracts';
 import { fmtDateTime, fmtLiters } from '../../core/format';
-import { CATEGORY_LABELS, PLACE_TYPE_LABELS } from '../../core/labels';
+import { t } from '../../core/i18n/i18n';
+import { categoryLabel, placeTypeLabel } from '../../core/labels';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord } from './tool-window';
 
@@ -10,7 +11,7 @@ import { isRecord } from './tool-window';
   template: `
     @let events = list();
     @if (events.length === 0) {
-      <p class="empty">Aucune chute comparable dans l’historique</p>
+      <p class="empty">{{ t('tools.similar.none') }}</p>
     } @else {
       <ol class="timeline">
         @for (e of events; track $index) {
@@ -19,11 +20,11 @@ import { isRecord } from './tool-window';
             <span class="when">{{ fmtDateTime(e.at) }}</span>
             <strong>{{ fmtLiters(e.dropL) }}</strong>
             <span class="muted">
-              {{ e.placeType ? placeLabels[e.placeType] : 'lieu inconnu'
-              }}{{ e.ignitionOff ? ' · moteur coupé' : '' }}
+              {{ e.placeType ? placeTypeLabel(e.placeType) : t('tools.similar.unknownPlace')
+              }}{{ e.ignitionOff ? ' · ' + t('common.engineOff') : '' }}
             </span>
             <span class="verdict">{{
-              e.verdictCategory ? categoryLabels[e.verdictCategory] : 'sans verdict'
+              e.verdictCategory ? categoryLabel(e.verdictCategory) : t('tools.similar.noVerdict')
             }}</span>
           </li>
         }
@@ -90,6 +91,7 @@ export class SimilarEventsView {
   });
   protected readonly fmtDateTime = fmtDateTime;
   protected readonly fmtLiters = fmtLiters;
-  protected readonly categoryLabels = CATEGORY_LABELS;
-  protected readonly placeLabels = PLACE_TYPE_LABELS;
+  protected readonly t = t;
+  protected readonly categoryLabel = categoryLabel;
+  protected readonly placeTypeLabel = placeTypeLabel;
 }

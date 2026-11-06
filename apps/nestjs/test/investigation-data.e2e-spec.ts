@@ -16,7 +16,7 @@ import {
 
 const DAY = 24 * 60;
 
-describe('Données des outils d’enquête (/agent/trucks/*)', () => {
+describe('Investigation tool data (/agent/trucks/*)', () => {
   let t: TestApp;
 
   beforeAll(async () => {
@@ -51,7 +51,7 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
     to: minutesAfter(toMinute).toISOString(),
   });
 
-  // 0-60 : trajet de 80 km ; 60-120 : arrêt moteur tournant à l'atelier ; 125-135 : −100 L moteur coupé
+  // 0-60: 80 km trip; 60-120: stopped at the workshop, engine running; 125-135: −100 L, engine off
   const handBuilt = readings([
     { minute: 0, level: 500, speed: 80, ignition: true, odometer: 1000 },
     { minute: 30, level: 488, speed: 80, ignition: true, odometer: 1040 },
@@ -80,7 +80,7 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
     { minute: 135, level: 373, odometer: 1080, ...PLACES.workshop },
   ]);
 
-  it('compute_fuel_balance : résultat attendu sur des relevés construits à la main', async () => {
+  it('compute_fuel_balance: expected result on hand-built readings', async () => {
     await insert(handBuilt);
     await t
       .http()
@@ -99,7 +99,7 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
       .expect(200);
 
     const response = await get('fuel-balance', window(0, 135)).expect(200);
-    // attendu = 80 × 30/100 + 1 h × 3 = 27 ; inexpliqué = 127 + 20 − 27
+    // expected = 80 × 30/100 + 1 h × 3 = 27; unexplained = 127 + 20 − 27
     expect(response.body).toEqual({
       distanceKm: 80,
       movingConsumptionL: 24,
@@ -111,10 +111,10 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
     });
   });
 
-  it('get_tank_curve : chute principale, remontées, échantillons', async () => {
+  it('get_tank_curve: main drop, rises, samples', async () => {
     await insert([
       ...handBuilt,
-      // Remontée de 90 L sans plein : artefact
+      // 90 L rise without a refuel: artefact
       ...readings([
         { minute: 145, level: 463, odometer: 1080, ...PLACES.workshop },
       ]),
@@ -138,7 +138,7 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
     expect(response.body.samples).toHaveLength(8);
   });
 
-  it('get_vehicle_activity : distance, minutes en mouvement, arrêts rattachés aux lieux', async () => {
+  it('get_vehicle_activity: distance, minutes moving, stops linked to places', async () => {
     await insert(handBuilt);
     const response = await get('activity', window(0, 135)).expect(200);
     expect(response.body).toEqual({
@@ -158,7 +158,7 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
     });
   });
 
-  it('find_fuel_transactions : pleins de la période avec le lieu', async () => {
+  it('find_fuel_transactions: refuels of the period with the place', async () => {
     await t
       .http()
       .post('/api/fuel-card-transactions')
@@ -197,9 +197,9 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
     });
   });
 
-  it('find_similar_events : chutes passées, heure locale, alerte et verdict liés', async () => {
+  it('find_similar_events: past drops, local hour, linked alert and verdict', async () => {
     const nightOf = (day: number) => DEMO_DAY - day * DAY * 60_000;
-    // Deux chutes nocturnes (02:30 heure de Paris = 00:30 UTC) sur l'aire, les 3/10 et 9/10
+    // Two night-time drops (02:30 Paris time = 00:30 UTC) at the rest area, on 3/10 and 9/10
     await insert([
       ...readings(
         [
@@ -255,7 +255,7 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
         verdictCategory: 'theft_suspected',
       },
     ]);
-    // Fenêtre de 7 jours : seule la seconde chute reste
+    // 7-day window: only the second drop remains
     const recent = await get('similar-events', { lookbackDays: 7 }).expect(200);
     expect(recent.body.events).toHaveLength(1);
   });
@@ -275,15 +275,15 @@ describe('Données des outils d’enquête (/agent/trucks/*)', () => {
       hasReefer: true,
       baselineLPer100km: 32,
       idleLPerHour: 3.5,
-      homeDepot: 'Dépôt Avignon',
-      sensorNotes: 'Sonde remplacée le 02/09, valeurs erratiques signalées',
+      homeDepot: 'Avignon depot',
+      sensorNotes: 'Sensor replaced on 02/09, erratic values reported',
     });
   });
 
-  it('valide la fenêtre (72 h max, `to` après `from`) et les paramètres', async () => {
+  it('validates the window (72 h max, `to` after `from`) and the parameters', async () => {
     await insert(handBuilt);
     const tooLong = await get('tank-curve', window(0, 73 * 60)).expect(400);
-    expect(tooLong.body.message).toEqual(['to: fenêtre maximale 72 h']);
+    expect(tooLong.body.message).toEqual(['to: maximum window 72 h']);
     await get('tank-curve', window(60, 0)).expect(400);
     await get('tank-curve', { from: 'hier', to: 'demain' }).expect(400);
     await get('similar-events', { lookbackDays: 31 }).expect(400);

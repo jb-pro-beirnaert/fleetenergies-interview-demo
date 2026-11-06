@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const APP_CONFIG = Symbol('APP_CONFIG');
 
-// Variables d'environnement validées au démarrage (spec 03, module `config`)
+// Environment variables validated at startup (spec 03, `config` module)
 export const ConfigSchema = z.object({
   DATABASE_URL: z.string().min(1),
   PORT: z.coerce.number().int().positive().default(3000),
@@ -12,7 +12,7 @@ export const ConfigSchema = z.object({
   FUEL_DROP_MIN_L: z.coerce.number().positive().default(40),
   DETECTOR_DEBOUNCE_SECONDS: z.coerce.number().min(0).default(15),
   AUTO_CLOSE_MIN_CONFIDENCE: z.coerce.number().min(0).max(1).default(0.75),
-  // 0 désactive le balayage périodique (tests)
+  // 0 disables the periodic sweep (tests)
   TASK_SWEEP_INTERVAL_MS: z.coerce.number().int().min(0).default(30_000),
 });
 export type AppConfig = z.infer<typeof ConfigSchema>;

@@ -20,7 +20,7 @@ const reading = (
 });
 
 describe('evaluateFuelDrop', () => {
-  it('détecte une chute de 60 L à l’arrêt en 12 min', () => {
+  it('detects a 60 L drop while stopped in 12 min', () => {
     const window = [
       reading(0, 400),
       reading(5, 370),
@@ -34,13 +34,13 @@ describe('evaluateFuelDrop', () => {
     });
   });
 
-  it('ignore une baisse sous le seuil', () => {
+  it('ignores a decrease below the threshold', () => {
     expect(
       evaluateFuelDrop([reading(0, 400), reading(10, 361)], 40),
     ).toBeNull();
   });
 
-  it('ignore une baisse en roulant (consommation normale ou ballottement)', () => {
+  it('ignores a decrease while driving (normal consumption or sloshing)', () => {
     const window = [
       reading(0, 400, 80),
       reading(5, 380, 82),
@@ -49,7 +49,7 @@ describe('evaluateFuelDrop', () => {
     expect(evaluateFuelDrop(window, 40)).toBeNull();
   });
 
-  it('mesure depuis le niveau maximal de la fenêtre, le plus récent à égalité', () => {
+  it('measures from the highest level of the window, the most recent on a tie', () => {
     const window = [
       reading(0, 400, 70),
       reading(5, 400),
@@ -62,14 +62,14 @@ describe('evaluateFuelDrop', () => {
     });
   });
 
-  it('ne lève rien sur une fenêtre vide ou un relevé isolé', () => {
+  it('raises nothing on an empty window or a single reading', () => {
     expect(evaluateFuelDrop([], 40)).toBeNull();
     expect(evaluateFuelDrop([reading(0, 400)], 40)).toBeNull();
   });
 });
 
 describe('buildDropDetails', () => {
-  it('résume l’épisode', () => {
+  it('summarises the episode', () => {
     const details = buildDropDetails([
       reading(0, 400, 2, true),
       reading(5, 370),

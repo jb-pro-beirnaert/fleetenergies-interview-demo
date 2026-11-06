@@ -298,10 +298,10 @@ ALTER TABLE "investigation_steps" ADD CONSTRAINT "investigation_steps_investigat
 -- AddForeignKey
 ALTER TABLE "human_reviews" ADD CONSTRAINT "human_reviews_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "alerts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- Ajouts manuels (non exprimables dans schema.prisma)
+-- Manual additions (not expressible in schema.prisma)
 
--- Index partiel de la file de tâches (spec 01)
+-- Partial index of the task queue (spec 01)
 CREATE INDEX "tasks_type_created_at_open_idx" ON "tasks"("type", "created_at") WHERE "status" IN ('pending', 'in_progress');
 
--- Recherche de la tâche d'une alerte (payload ->> 'alertId')
+-- Lookup of an alert's task (payload ->> 'alertId')
 CREATE INDEX "tasks_payload_alert_id_idx" ON "tasks"(("payload" ->> 'alertId'));

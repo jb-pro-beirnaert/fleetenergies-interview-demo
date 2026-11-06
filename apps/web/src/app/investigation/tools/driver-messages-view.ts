@@ -1,18 +1,19 @@
 import { Component, computed, input } from '@angular/core';
 import type { DriverMessages } from '@fleet/contracts';
 import { fmtDateTime } from '../../core/format';
+import { t } from '../../core/i18n/i18n';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord } from './tool-window';
 
-// Découpe le texte pour rendre visibles les passages masqués par le module `pii`
-const MASK = /(\[[^\]]*masqué\])/g;
+// Splits the text so that the parts masked by the API `pii` module are visible as such
+const MASK = /(\[[^\]]*masked\])/g;
 
 @Component({
   selector: 'app-driver-messages-view',
   template: `
     @let messages = list();
     @if (messages.length === 0) {
-      <p class="empty">Aucun message sur la période</p>
+      <p class="empty">{{ t('tools.messages.none') }}</p>
     } @else {
       <div class="bubbles">
         @for (m of messages; track $index) {
@@ -23,7 +24,7 @@ const MASK = /(\[[^\]]*masqué\])/g;
             <p>
               @for (part of split(m.body); track $index) {
                 @if (part.masked) {
-                  <span class="masked" title="Masqué avant transmission à l’agent">{{
+                  <span class="masked" [title]="t('tools.messages.masked')">{{
                     part.text
                   }}</span>
                 } @else {
@@ -81,11 +82,12 @@ export class DriverMessagesView {
       : [];
   });
   protected readonly fmtDateTime = fmtDateTime;
+  protected readonly t = t;
 
   protected split(body: string) {
     return body
       .split(MASK)
       .filter((text) => text !== '')
-      .map((text) => ({ text, masked: /^\[[^\]]*masqué\]$/.test(text) }));
+      .map((text) => ({ text, masked: /^\[[^\]]*masked\]$/.test(text) }));
   }
 }

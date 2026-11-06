@@ -7,9 +7,9 @@ import { PrismaExceptionFilter } from './database/prisma-exception.filter.js';
 
 export const DOCS_PATH = 'docs';
 
-// Configuration commune à main.ts et aux tests d'intégration
+// Configuration shared by main.ts and the integration tests
 export function setupApp(app: INestApplication) {
-  // Valide chaque paramètre déclaré avec `{ schema }` (schémas Zod de @fleet/contracts)
+  // Validates every parameter declared with `{ schema }` (Zod schemas from @fleet/contracts)
   app.useGlobalPipes(new StandardSchemaValidationPipe());
   app.useGlobalFilters(new PrismaExceptionFilter());
   app.enableShutdownHooks();
@@ -17,7 +17,7 @@ export function setupApp(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Fleet Copilot API')
     .setDescription(
-      "Centre de contrôle : ingestion, détecteur, file de tâches, enquêtes, routes agents et écran. Le code détecte et calcule, l'IA enquête et explique, l'humain décide.",
+      'Control centre: ingestion, detector, task queue, investigations, agent and screen routes. Code detects and computes, AI investigates and explains, the human decides.',
     )
     .setVersion('1.0')
     .addBearerAuth(

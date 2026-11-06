@@ -36,14 +36,14 @@ const toWindow = (query: TimeWindowQuery): Window => ({
   to: new Date(query.to),
 });
 
-// Routes adaptées 1 pour 1 par le serveur MCP (un outil = une route)
+// Routes adapted 1:1 by the MCP server (one tool = one route)
 @ApiTags('agent · outils')
 @RequireToken('agent')
 @UseInterceptors(PiiInterceptor)
 @ApiBadRequestResponse({
-  description: 'Paramètres invalides (fenêtre maximale 72 h)',
+  description: 'Invalid parameters (maximum window 72 h)',
 })
-@ApiNotFoundResponse({ description: 'Camion introuvable ou aucun relevé' })
+@ApiNotFoundResponse({ description: 'Truck not found or no readings' })
 @Controller('agent/trucks/:truckId')
 export class InvestigationDataController {
   constructor(private readonly data: InvestigationDataService) {}

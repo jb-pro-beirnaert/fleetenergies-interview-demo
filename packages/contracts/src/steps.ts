@@ -19,8 +19,8 @@ export const StepInputResult = z
   .meta({ id: 'StepInputResult' });
 export type StepInputResult = z.infer<typeof StepInputResult>;
 
-// Forme des `payload` selon `kind` (écrits par le worker, lus par l'écran).
-// La référence de preuve ("E1"…) est portée par `toolCallId`, identique sur `tool_call` et `tool_result`.
+// Shape of the `payload` by `kind` (written by the worker, read by the screen).
+// The evidence reference ("E1"…) is carried by `toolCallId`, identical on `tool_call` and `tool_result`.
 export const ReasoningPayload = z.object({ text: z.string() });
 export type ReasoningPayload = z.infer<typeof ReasoningPayload>;
 
@@ -29,13 +29,13 @@ export const ToolCallPayload = z.object({
 });
 export type ToolCallPayload = z.infer<typeof ToolCallPayload>;
 
-// `result` : sortie de l'outil (tronquée à 20 Ko) ; `error` : message si l'outil a échoué
+// `result`: tool output (truncated to 20 KB); `error`: message if the tool failed
 export const ToolResultPayload = z.object({
   result: z.unknown().optional(),
   error: z.string().optional(),
 });
 export type ToolResultPayload = z.infer<typeof ToolResultPayload>;
 
-// `retry` et `error`
+// `retry` and `error`
 export const StepMessagePayload = z.object({ message: z.string() });
 export type StepMessagePayload = z.infer<typeof StepMessagePayload>;

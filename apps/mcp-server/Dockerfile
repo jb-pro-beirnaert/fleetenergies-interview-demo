@@ -1,8 +1,8 @@
-# Contexte de build : racine du monorepo (pour accéder au lockfile et aux packages partagés)
+# Build context: monorepo root (to reach the lockfile and the shared packages)
 FROM node:24-alpine AS dev
 WORKDIR /app
 
-# Manifestes uniquement, pour profiter du cache Docker sur `npm ci`
+# Manifests only, to benefit from the Docker cache on `npm ci`
 COPY package.json package-lock.json ./
 COPY packages/contracts/package.json packages/contracts/
 COPY apps/mcp-server/package.json apps/mcp-server/
@@ -19,7 +19,7 @@ CMD ["npm", "run", "dev"]
 FROM dev AS build
 RUN npm run build
 
-# Image finale : dépendances de production + dist/ uniquement
+# Final image: production dependencies + dist/ only
 FROM node:24-alpine AS prod
 WORKDIR /app
 ENV NODE_ENV=production
@@ -29,7 +29,7 @@ COPY packages/contracts/package.json packages/contracts/
 COPY apps/mcp-server/package.json apps/mcp-server/
 RUN npm ci --omit=dev -w apps/mcp-server && npm cache clean --force
 
-# @fleet/contracts est consommé en TypeScript (type stripping natif de Node 24)
+# @fleet/contracts is consumed as TypeScript (Node 24 native type stripping)
 COPY packages/contracts/src packages/contracts/src
 COPY --from=build /app/apps/mcp-server/dist apps/mcp-server/dist
 

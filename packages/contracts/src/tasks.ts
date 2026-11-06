@@ -19,7 +19,7 @@ export const ClaimedTask = z
   .meta({ id: 'ClaimedTask' });
 export type ClaimedTask = z.infer<typeof ClaimedTask>;
 
-// `workerId` : seul le worker titulaire du verrou peut terminer ou faire échouer la tâche (409 sinon)
+// `workerId`: only the worker holding the lock can complete or fail the task (409 otherwise)
 export const CompleteRequest = z
   .object({ workerId: z.string().min(1).max(200) })
   .meta({ id: 'CompleteRequest' });

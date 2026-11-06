@@ -49,7 +49,7 @@ describe('Administration', () => {
   const load = (body: object) =>
     t.http().post('/admin/history/load').set(auth('admin')).send(body);
 
-  it('charge référentiel et historique, de façon idempotente et sans détection', async () => {
+  it('loads reference data and history, idempotently and without detection', async () => {
     const first = await load(HISTORY).expect(200);
     expect(first.body.inserted).toEqual({
       carriers: 1,
@@ -72,7 +72,7 @@ describe('Administration', () => {
     ).toBe(true);
   });
 
-  it('/admin/wipe vide toute la base, référentiel et historique compris', async () => {
+  it('/admin/wipe empties the whole database, reference data and history included', async () => {
     await load(HISTORY).expect(200);
     await t
       .http()
@@ -112,12 +112,12 @@ describe('Administration', () => {
     ]);
     expect(counts.every((count) => count === 0)).toBe(true);
 
-    // Rechargeable aussitôt (mêmes identifiants)
+    // Can be reloaded right away (same ids)
     const reloaded = await load(HISTORY).expect(200);
     expect(reloaded.body.inserted.trucks).toBe(2);
   });
 
-  it('refuse un lot invalide', async () => {
+  it('rejects an invalid batch', async () => {
     await load({
       trucks: [{ ...REFERENCE.trucks[0], plate: 'ab123cd' }],
     }).expect(400);

@@ -1,11 +1,11 @@
 import type { SimulationCommand, SimulationStatus } from './simulation.ts';
 
-// Constantes du pilotage de la simulation, sans zod : l'écran les importe sans embarquer les schémas
+// Simulation control constants, without zod: the screen imports them without bundling the schemas
 
-/** Paliers de vitesse (× temps réel), du plus lent au plus rapide. */
+/** Speed steps (× real time), from slowest to fastest. */
 export const SIMULATION_SPEEDS = [30, 60, 120, 300, 600] as const;
 
-/** Commandes acceptées dans chaque état (409 sinon) ; le changement de vitesse est toujours accepté. */
+/** Commands accepted in each state (409 otherwise); a speed change is always accepted. */
 export const SIMULATION_COMMANDS: Record<
   SimulationStatus,
   readonly SimulationCommand[]

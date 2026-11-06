@@ -1,7 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
 import { ControlRoomStore } from '../core/control-room.store';
 import { fmtDateTime, fmtDuration, fmtLiters, fmtTime } from '../core/format';
-import { ALERT_TYPE_LABELS } from '../core/labels';
+import { t } from '../core/i18n/i18n';
+import { alertTypeLabel } from '../core/labels';
 import { StatusPill } from '../core/status-pill';
 import { buildTrace, stepAnchor } from '../core/trace';
 import { ReviewForm } from './review-form';
@@ -20,40 +21,40 @@ import { VerdictCard } from './verdict-card';
         </div>
         <div class="facts">
           <div>
-            <span class="k">Type</span>
-            <span>{{ typeLabels[alert.type] }}</span>
+            <span class="k">{{ t('inv.type') }}</span>
+            <span>{{ alertTypeLabel(alert.type) }}</span>
           </div>
           <div>
-            <span class="k">Fenêtre</span>
+            <span class="k">{{ t('inv.window') }}</span>
             <span>{{ fmtDateTime(alert.windowStart) }} → {{ fmtTime(alert.windowEnd) }}</span>
           </div>
           <div>
-            <span class="k">Baisse</span>
+            <span class="k">{{ t('inv.drop') }}</span>
             <span class="big">{{ fmtLiters(alert.dropL) }}</span>
           </div>
           <div>
-            <span class="k">Camion</span>
+            <span class="k">{{ t('inv.truck') }}</span>
             <span>{{ alert.truck.make }} {{ alert.truck.model }} · {{ alert.truck.carrier }}</span>
           </div>
           <div>
-            <span class="k">Durée d’enquête</span>
+            <span class="k">{{ t('inv.duration') }}</span>
             <span>{{ duration() }}</span>
           </div>
           <div>
-            <span class="k">Appels d’outils</span>
+            <span class="k">{{ t('inv.toolCalls') }}</span>
             <span>{{ toolCalls() }}</span>
           </div>
         </div>
       </section>
 
       <section class="trace">
-        <h2>Enquête de l’agent</h2>
+        <h2>{{ t('inv.traceTitle') }}</h2>
         @if (!alert.investigation) {
-          <p class="muted">En attente d’un agent enquêteur…</p>
+          <p class="muted">{{ t('inv.waiting') }}</p>
         }
         @for (attempt of trace(); track attempt.attempt) {
           @if (trace().length > 1) {
-            <h3 class="attempt">Tentative {{ attempt.attempt }}</h3>
+            <h3 class="attempt">{{ t('inv.attempt', { n: attempt.attempt }) }}</h3>
           }
           <ol>
             @for (item of attempt.items; track item.id) {
@@ -70,7 +71,7 @@ import { VerdictCard } from './verdict-card';
           </ol>
         }
         @if (running()) {
-          <p class="running"><span class="spinner"></span>Enquête en cours…</p>
+          <p class="running"><span class="spinner"></span>{{ t('inv.running') }}</p>
         }
       </section>
 
@@ -82,7 +83,7 @@ import { VerdictCard } from './verdict-card';
         />
       } @else if (alert.investigation?.status === 'failed') {
         <section class="card failed">
-          <strong>Enquête en échec</strong> — l’alerte est escaladée à un analyste.
+          <strong>{{ t('inv.failedTitle') }}</strong> {{ t('inv.failedText') }}
         </section>
       }
 
@@ -90,18 +91,17 @@ import { VerdictCard } from './verdict-card';
         <app-review-form [alert]="alert" />
       }
     } @else if (store.selectedId()) {
-      <p class="placeholder">Chargement de l’alerte…</p>
+      <p class="placeholder">{{ t('inv.loading') }}</p>
     } @else {
-      <p class="placeholder">
-        Aucune alerte sélectionnée. Les alertes apparaîtront ici dès que le détecteur en lèvera.
-      </p>
+      <p class="placeholder">{{ t('inv.none') }}</p>
     }
   `,
   styleUrl: './investigation-panel.css',
 })
 export class InvestigationPanel {
   protected readonly store = inject(ControlRoomStore);
-  protected readonly typeLabels = ALERT_TYPE_LABELS;
+  protected readonly t = t;
+  protected readonly alertTypeLabel = alertTypeLabel;
   protected readonly fmtDateTime = fmtDateTime;
   protected readonly fmtTime = fmtTime;
   protected readonly fmtLiters = fmtLiters;
@@ -119,7 +119,7 @@ export class InvestigationPanel {
   protected readonly toolCalls = computed(() => {
     const investigation = this.store.detail()?.investigation;
     if (!investigation) return '—';
-    // pendant l'enquête, le compteur de l'API n'est renseigné qu'au verdict
+    // during the investigation, the API counter is only filled in at the verdict
     const live = this.trace().reduce(
       (n, a) => n + a.items.filter((i) => i.kind === 'tool').length,
       0,
@@ -145,7 +145,7 @@ export class InvestigationPanel {
     if (!element) return;
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     element.classList.remove('flash');
-    // relance l'animation de surbrillance
+    // restart the highlight animation
     void element.offsetWidth;
     element.classList.add('flash');
   }

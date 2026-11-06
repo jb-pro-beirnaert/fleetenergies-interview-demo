@@ -23,7 +23,7 @@ export interface Window {
   to: Date;
 }
 
-// Une alerte ne peut être revue qu'une fois l'API a décidé
+// An alert can only be reviewed once the API has decided
 const REVIEWABLE = new Set(['escalated', 'closed']);
 
 @Injectable()
@@ -70,7 +70,7 @@ export class ScreenService {
         review: true,
       },
     });
-    if (!alert) throw new NotFoundException('Alerte introuvable');
+    if (!alert) throw new NotFoundException('Alert not found');
     const { truck, investigation, review } = alert;
 
     return {
@@ -172,11 +172,11 @@ export class ScreenService {
         where: { id: alertId },
         include: { review: { select: { id: true } } },
       });
-      if (!alert) throw new NotFoundException('Alerte introuvable');
-      if (alert.review) throw new ConflictException('Alerte déjà revue');
+      if (!alert) throw new NotFoundException('Alert not found');
+      if (alert.review) throw new ConflictException('Alert already reviewed');
       if (!REVIEWABLE.has(alert.status)) {
         throw new ConflictException(
-          `Revue possible seulement pour une alerte escaladée ou close (statut : ${alert.status})`,
+          `Review only possible for an escalated or closed alert (status: ${alert.status})`,
         );
       }
       const status = request.decision === 'confirm' ? 'confirmed' : 'dismissed';
@@ -282,7 +282,7 @@ export class ScreenService {
       where: { id: truckId },
       select: { id: true },
     });
-    if (!truck) throw new NotFoundException('Camion introuvable');
+    if (!truck) throw new NotFoundException('Truck not found');
     return this.prisma.telemetryReading.findMany({
       where: { truckId, recordedAt: { gte: window.from, lte: window.to } },
       orderBy: { recordedAt: 'asc' },

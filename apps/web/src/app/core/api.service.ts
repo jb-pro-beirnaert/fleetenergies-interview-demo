@@ -16,7 +16,7 @@ export interface TimeWindow {
   to: string;
 }
 
-// Routes écran de l'API (`/api/*`, proxifiées par `ng serve` ou nginx)
+// API screen routes (`/api/*`, proxied by `ng serve` or nginx)
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);

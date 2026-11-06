@@ -7,15 +7,15 @@ import { poll } from './polling';
 
 export type FeedFilter = 'all' | 'todo' | 'closed';
 
-/** État partagé de la salle de contrôle, alimenté par polling (2 s). */
+/** Shared state of the control room, fed by polling (2 s). */
 @Injectable({ providedIn: 'root' })
 export class ControlRoomStore {
   private readonly api = inject(ApiService);
 
-  // --- Santé, statistiques, alertes ---------------------------------------------------------
+  // --- Health, statistics, alerts ---------------------------------------------------------
 
   private readonly healthPoll = toSignal(poll(() => this.api.health()));
-  /** `undefined` tant qu'aucune réponse n'est arrivée */
+  /** `undefined` until a first response has arrived */
   readonly healthy = computed(() => {
     const result = this.healthPoll();
     return result === undefined ? undefined : result.ok;
@@ -24,16 +24,16 @@ export class ControlRoomStore {
   private readonly lastStats = signal<Stats | null>(null);
   private readonly lastAlerts = signal<AlertListItem[] | null>(null);
   readonly stats = this.lastStats.asReadonly();
-  /** `null` tant que la première liste n'est pas chargée */
+  /** `null` until the first list is loaded */
   readonly alerts = this.lastAlerts.asReadonly();
 
   constructor() {
-    // En cas d'erreur, on garde la dernière valeur connue (le point rouge signale l'incident)
+    // On error, keep the last known value (the red dot signals the incident)
     poll(() => this.api.stats()).subscribe((r) => r.ok && this.lastStats.set(r.value));
     poll(() => this.api.alerts()).subscribe((r) => r.ok && this.lastAlerts.set(r.value));
   }
 
-  // --- Filtre du flux -------------------------------------------------------------------------
+  // --- Feed filter ---------------------------------------------------------------------------
 
   readonly feedFilter = signal<FeedFilter>('all');
   readonly filteredAlerts = computed(() => {
@@ -48,13 +48,13 @@ export class ControlRoomStore {
     }
   });
 
-  // --- Sélection ------------------------------------------------------------------------------
+  // --- Selection ------------------------------------------------------------------------------
 
-  /** Choix explicite de l'utilisateur ; tant qu'il est `null`, la sélection est automatique */
+  /** Explicit user choice; while it is `null`, the selection is automatic */
   private readonly manualSelection = signal<string | null>(null);
   private readonly autoSelection = signal<string | null>(null);
 
-  /** Par défaut : la dernière alerte en enquête, sinon la sélection automatique précédente, sinon la plus récente. */
+  /** By default: the latest alert under investigation, else the previous automatic selection, else the most recent. */
   readonly selectedId = computed(() => {
     const manual = this.manualSelection();
     if (manual) return manual;
@@ -70,19 +70,19 @@ export class ControlRoomStore {
     this.manualSelection.set(id);
   }
 
-  // --- Détail de l'alerte sélectionnée -------------------------------------------------------
+  // --- Selected alert detail -----------------------------------------------------------------
 
   private readonly refreshDetail$ = new Subject<string>();
 
   private readonly detailState = toSignal(
     toObservable(this.selectedId).pipe(
       switchMap((id) => {
-        // mémorise la sélection automatique pour qu'elle reste stable une fois l'enquête finie
+        // remember the automatic selection so it stays stable once the investigation is over
         if (!this.manualSelection()) this.autoSelection.set(id);
         if (!id) return of(null);
         return merge(
           poll(() => this.api.alert(id)),
-          // rafraîchissement immédiat après une revue
+          // immediate refresh after a review
           this.refreshDetail$.pipe(
             filter((refreshId) => refreshId === id),
             switchMap(() => this.api.alert(id)),
@@ -97,13 +97,13 @@ export class ControlRoomStore {
     { initialValue: null },
   );
 
-  /** Détail de l'alerte sélectionnée (jamais celui d'une alerte précédemment sélectionnée) */
+  /** Detail of the selected alert (never that of a previously selected alert) */
   readonly detail = computed<AlertDetail | null>(() => {
     const detail = this.detailState();
     return detail && detail.id === this.selectedId() ? detail : null;
   });
 
-  // --- Revue humaine ----------------------------------------------------------------------------
+  // --- Human review ------------------------------------------------------------------------------
 
   async review(alertId: string, decision: ReviewDecision, comment: string) {
     const trimmed = comment.trim();
@@ -111,6 +111,6 @@ export class ControlRoomStore {
       this.api.review(alertId, { decision, ...(trimmed ? { comment: trimmed } : {}) }),
     );
     this.refreshDetail$.next(alertId);
-    // le flux et les indicateurs suivront au prochain tick
+    // the feed and the indicators will follow on the next tick
   }
 }

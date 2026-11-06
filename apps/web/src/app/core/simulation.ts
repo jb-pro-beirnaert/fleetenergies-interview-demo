@@ -5,14 +5,14 @@ import {
   type SimulationSpeed,
   type SimulationView,
 } from '@fleet/contracts';
+import { fmtDayMonth } from './format';
+import { t } from './i18n/i18n';
 
-const dayFmt = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
-
-/** La commande est-elle acceptée dans l'état courant (sinon le simulateur répond 409) ? */
+/** Is the command accepted in the current state (otherwise the simulator answers 409)? */
 export const canRun = (view: SimulationView | null, command: SimulationCommand) =>
   !!view && SIMULATION_COMMANDS[view.status].includes(command);
 
-/** Palier voisin, ou `null` en bout d'échelle. */
+/** Neighbouring step, or `null` at either end of the scale. */
 export function neighbourSpeed(speed: SimulationSpeed, direction: -1 | 1): SimulationSpeed | null {
   const index = SIMULATION_SPEEDS.indexOf(speed);
   return SIMULATION_SPEEDS[index + direction] ?? null;
@@ -21,18 +21,18 @@ export function neighbourSpeed(speed: SimulationSpeed, direction: -1 | 1): Simul
 export function simulationLabel(view: SimulationView): string {
   switch (view.status) {
     case 'idle':
-      return 'Prête à démarrer';
+      return t('sim.status.idle');
     case 'preparing':
       return view.progress
-        ? `Préparation… ${view.progress.done} / ${view.progress.total} lots`
-        : 'Préparation…';
+        ? t('sim.status.preparingProgress', view.progress)
+        : t('sim.status.preparing');
     case 'running':
       return view.demoDate
-        ? `En cours · journée du ${dayFmt.format(new Date(`${view.demoDate}T00:00:00Z`))}`
-        : 'En cours';
+        ? t('sim.status.runningDay', { day: fmtDayMonth(view.demoDate) })
+        : t('sim.status.running');
     case 'paused':
-      return 'En pause';
+      return t('sim.status.paused');
     case 'finished':
-      return 'Terminée';
+      return t('sim.status.finished');
   }
 }

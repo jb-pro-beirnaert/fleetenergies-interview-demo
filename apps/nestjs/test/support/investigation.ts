@@ -6,17 +6,17 @@ export const verdict = (overrides: Partial<Verdict> = {}): Verdict => ({
   category: 'sensor_fault',
   confidence: 0.9,
   summary:
-    'La baisse est suivie d’une remontée de 88 L sans plein : artefact de sonde déjà signalé.',
+    'The decrease is followed by an 88 L rise without a refuel: sensor artefact already reported.',
   evidence: [
     {
       toolCallId: 'E1',
-      finding: 'Remontée de 88 L dix minutes après la chute',
+      finding: '88 L rise ten minutes after the drop',
     },
   ],
   ...overrides,
 });
 
-/** Alerte réservée par `worker-a`, avec des étapes `tool_call` E1 et E2 (tentative 1). */
+/** Alert claimed by `worker-a`, with `tool_call` steps E1 and E2 (attempt 1). */
 export async function startInvestigation(t: TestApp) {
   const { alert, task } = await createAlertWithTask(t.prisma);
   await t

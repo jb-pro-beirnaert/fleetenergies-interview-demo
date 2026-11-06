@@ -3,18 +3,19 @@ import { Component, effect, inject, input, signal, untracked } from '@angular/co
 import type { AlertDetail, ReviewDecision } from '@fleet/contracts';
 import { ControlRoomStore } from '../core/control-room.store';
 import { fmtDateTime } from '../core/format';
+import { type MessageKey, t } from '../core/i18n/i18n';
 
 @Component({
   selector: 'app-review-form',
   template: `
     <section class="card">
-      <h2>Revue humaine</h2>
+      <h2>{{ t('review.title') }}</h2>
       @if (alert().review; as review) {
         <p class="done" [attr.data-decision]="review.decision">
           <strong>{{
-            review.decision === 'confirm' ? 'Verdict confirmé' : 'Verdict rejeté'
+            t(review.decision === 'confirm' ? 'review.confirmed' : 'review.dismissed')
           }}</strong>
-          le {{ fmtDateTime(review.reviewedAt) }}
+          {{ t('review.on', { date: fmtDateTime(review.reviewedAt) }) }}
         </p>
         @if (review.comment) {
           <blockquote>{{ review.comment }}</blockquote>
@@ -23,20 +24,20 @@ import { fmtDateTime } from '../core/format';
         <textarea
           rows="2"
           maxlength="2000"
-          placeholder="Commentaire (facultatif)"
+          [placeholder]="t('review.placeholder')"
           [value]="comment()"
           (input)="comment.set($any($event.target).value)"
           [disabled]="busy()"
         ></textarea>
         <div class="actions">
           <button type="button" class="confirm" [disabled]="busy()" (click)="submit('confirm')">
-            Confirmer
+            {{ t('review.confirm') }}
           </button>
           <button type="button" class="dismiss" [disabled]="busy()" (click)="submit('dismiss')">
-            Rejeter
+            {{ t('review.dismiss') }}
           </button>
           @if (error(); as e) {
-            <span class="error">{{ e }}</span>
+            <span class="error">{{ t(e) }}</span>
           }
         </div>
       }
@@ -111,11 +112,12 @@ export class ReviewForm {
 
   protected readonly comment = signal('');
   protected readonly busy = signal(false);
-  protected readonly error = signal<string | null>(null);
+  protected readonly error = signal<MessageKey | null>(null);
+  protected readonly t = t;
   protected readonly fmtDateTime = fmtDateTime;
 
   constructor() {
-    // changement d'alerte : formulaire vierge
+    // different alert: blank form
     let lastId: string | null = null;
     effect(() => {
       const id = this.alert().id;
@@ -137,8 +139,8 @@ export class ReviewForm {
     } catch (err) {
       this.error.set(
         err instanceof HttpErrorResponse && err.status === 409
-          ? 'Cette alerte a déjà été revue ou ne peut pas l’être.'
-          : 'La revue n’a pas pu être enregistrée.',
+          ? 'review.conflict'
+          : 'review.failed',
       );
     } finally {
       this.busy.set(false);

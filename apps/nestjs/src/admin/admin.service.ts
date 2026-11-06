@@ -7,9 +7,9 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Chargement du référentiel et de l'historique (simulateur, état `preparing`). Idempotent :
-   * identifiants stables fournis par le simulateur, ON CONFLICT DO NOTHING partout.
-   * Ordre d'insertion compatible avec les clés étrangères.
+   * Loads the reference data and the history (simulator, `preparing` state). Idempotent:
+   * stable ids supplied by the simulator, ON CONFLICT DO NOTHING everywhere.
+   * Insertion order compatible with the foreign keys.
    */
   async loadHistory(batch: HistoryLoadBatch): Promise<HistoryLoadResult> {
     return this.prisma.$transaction(async (tx) => {
@@ -106,8 +106,8 @@ export class AdminService {
   }
 
   /**
-   * Remise à zéro complète (spec 01) : chaque simulation repart d'une base vide.
-   * Une seule instruction TRUNCATE, donc atomique.
+   * Full reset (spec 01): every simulation starts from an empty database.
+   * A single TRUNCATE statement, hence atomic.
    */
   async wipe(): Promise<void> {
     await this.prisma.$executeRawUnsafe(`

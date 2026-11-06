@@ -13,7 +13,7 @@ import { Verdict } from './verdict.ts';
 
 const isoDatetime = z.iso.datetime({ offset: true });
 
-// Contexte d'alerte pour les agents (`GET /agent/alerts/:id`) : aucune donnée personnelle
+// Alert context for the agents (`GET /agent/alerts/:id`): no personal data
 export const AlertContext = z
   .object({
     alertId: z.uuid(),

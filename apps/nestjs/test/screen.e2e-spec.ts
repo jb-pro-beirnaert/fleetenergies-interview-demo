@@ -17,7 +17,7 @@ import {
   verdict,
 } from './support/investigation.js';
 
-describe('Routes écran', () => {
+describe('Screen routes', () => {
   let t: TestApp;
 
   beforeAll(async () => {
@@ -29,7 +29,7 @@ describe('Routes écran', () => {
     await seedReference(t.prisma);
   });
 
-  it('liste et détail d’une alerte avec enquête, étapes et verdict', async () => {
+  it('list and detail of an alert with investigation, steps and verdict', async () => {
     const { alert } = await startInvestigation(t);
     await postStep(t, alert.id, {
       attempt: 1,
@@ -79,7 +79,7 @@ describe('Routes écran', () => {
     expect(detail.body.review).toBeNull();
   });
 
-  it('revue humaine : seulement après décision, une seule fois', async () => {
+  it('human review: only after the decision, only once', async () => {
     const { alert } = await startInvestigation(t);
     const review = (decision: string) =>
       t
@@ -87,7 +87,7 @@ describe('Routes écran', () => {
         .post(`/api/alerts/${alert.id}/review`)
         .send({ decision, comment: 'Vu' });
 
-    await review('confirm').expect(409); // encore en enquête
+    await review('confirm').expect(409); // still under investigation
     await postVerdict(t, alert.id, verdict()).expect(200);
     const response = await review('dismiss').expect(200);
     expect(response.body).toEqual({ alertId: alert.id, status: 'dismissed' });
@@ -127,7 +127,7 @@ describe('Routes écran', () => {
     });
   });
 
-  it('courbe complète, positions et lieux', async () => {
+  it('full curve, positions and places', async () => {
     await t
       .http()
       .post('/api/telemetry')
@@ -178,7 +178,7 @@ describe('Routes écran', () => {
       .expect(404);
   });
 
-  it('santé', async () => {
+  it('health', async () => {
     expect((await t.http().get('/api/health').expect(200)).body).toEqual({
       status: 'ok',
       database: 'ok',

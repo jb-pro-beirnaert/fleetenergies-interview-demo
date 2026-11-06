@@ -1,40 +1,40 @@
-# 05 — Serveur MCP (`apps/mcp-server`)
+# 05 — MCP server (`apps/mcp-server`)
 
-Expose les **7 outils d'enquête** au standard MCP (Model Context Protocol). C'est un **adaptateur fin** : chaque outil valide ses arguments, appelle la route agent correspondante de l'API et renvoie le résultat. **Aucune logique métier, aucun accès à la base.**
+Exposes the **7 investigation tools** following the MCP standard (Model Context Protocol). It is a **thin adapter**: each tool validates its arguments, calls the matching API agent route and returns the result. **No business logic, no database access.**
 
-## Pourquoi un serveur MCP (à savoir expliquer)
-Les mêmes outils servent plusieurs consommateurs : l'agent enquêteur (V1), l'assistant analyste et tout client compatible MCP (V3). Le serveur est aussi un point de contrôle unique : authentification, journalisation et lecture seule.
+## Why an MCP server (be able to explain it)
+The same tools serve several consumers: the investigator agent (V1), the analyst assistant and any MCP-compatible client (V3). The server is also a single control point: authentication, logging and read-only access.
 
-## Technique
-- SDK officiel `@modelcontextprotocol/sdk` (TypeScript), API haut niveau `McpServer` (`registerTool`).
-- Transport **Streamable HTTP** sur `MCP_PORT` (défaut 3100), point d'entrée `POST /mcp`, mode sans état (une requête = un serveur et un transport neufs, réponses JSON sans flux SSE). Serveur HTTP Express, créé par `createMcpExpressApp` du SDK. Sans session, `GET` et `DELETE /mcp` répondent 405. `GET /health` est ouvert, sans jeton.
-- Option `--stdio` pour brancher un client local en développement (inspecteur MCP).
-- Authentification entrante : en-tête `Authorization: Bearer MCP_CLIENT_TOKEN` (V1 : un seul jeton, celui des workers ; V3 : jetons par rôle).
-- Appels sortants vers l'API avec `AGENT_API_TOKEN`, timeout 10 s.
+## Technical
+- Official SDK `@modelcontextprotocol/sdk` (TypeScript), high-level `McpServer` API (`registerTool`).
+- **Streamable HTTP** transport on `MCP_PORT` (default 3100), entry point `POST /mcp`, stateless mode (one request = a fresh server and transport, JSON responses without an SSE stream). Express HTTP server, created by the SDK's `createMcpExpressApp`. Without sessions, `GET` and `DELETE /mcp` answer 405. `GET /health` is open, without a token.
+- `--stdio` option to plug in a local client in development (MCP inspector).
+- Incoming authentication: `Authorization: Bearer MCP_CLIENT_TOKEN` header (V1: a single token, the workers'; V3: per-role tokens).
+- Outgoing calls to the API with `AGENT_API_TOKEN`, 10 s timeout.
 
-## Outils
-Schémas d'entrée et de sortie : `packages/contracts/src/tools.ts`. Pour chaque outil, la **description est aussi importante que le code** : c'est elle que lit le modèle pour décider quand l'utiliser. Descriptions en français, 1 à 3 phrases, qui disent **quand** utiliser l'outil et **ce qu'il renvoie**.
+## Tools
+Input and output schemas: `packages/contracts/src/tools.ts`. For each tool, the **description matters as much as the code**: it is what the model reads to decide when to use it. Descriptions in English, 1 to 3 sentences, saying **when** to use the tool and **what it returns**.
 
-| Outil | Route API | Description (à affiner grâce aux evals) |
+| Tool | API route | Description (to be refined through the evals) |
 |---|---|---|
-| `get_truck_profile` | `GET /agent/trucks/:truckId/profile` | Fiche du camion : capacité du réservoir, énergie, présence d'un groupe frigo, consommation habituelle, notes connues sur la sonde. À appeler en premier pour connaître le contexte. |
-| `get_tank_curve` | `GET /agent/trucks/:truckId/tank-curve` | Niveau du réservoir sur une période, résumé : niveaux de début et de fin, plus forte chute (moteur coupé ou non), remontées sans plein qui peuvent trahir un artefact de sonde. |
-| `get_vehicle_activity` | `GET /agent/trucks/:truckId/activity` | Arrêts du camion avec leur durée, l'état du moteur et le type de lieu (station, dépôt, atelier, aire d'autoroute, client). Permet de savoir où et dans quelles conditions la baisse a eu lieu. |
-| `find_fuel_transactions` | `GET /agent/trucks/:truckId/fuel-transactions` | Pleins enregistrés (cartes carburant et factures) sur une période. Une chute expliquée par un plein mal enregistré ou une facture incohérente se voit ici. |
-| `read_driver_messages` | `GET /agent/trucks/:truckId/driver-messages` | Messages libres envoyés par le conducteur sur une période (pseudonymisés). Peut contenir une explication : intervention d'atelier, problème de jauge, transfert vers le groupe frigo. |
-| `compute_fuel_balance` | `GET /agent/trucks/:truckId/fuel-balance` | Calcul exact du bilan carburant : consommation attendue selon les kilomètres et le ralenti, pleins, baisse observée et litres inexpliqués. Utiliser ce calcul plutôt que d'estimer soi-même. |
-| `find_similar_events` | `GET /agent/trucks/:truckId/similar-events` | Chutes de niveau comparables du même camion sur les jours précédents, avec l'heure, le lieu et le verdict passé s'il existe. Un motif répété renforce un soupçon. |
+| `get_truck_profile` | `GET /agent/trucks/:truckId/profile` | Truck profile: tank capacity, energy, whether it has a reefer unit, usual consumption, known notes about the fuel sensor. Call it first to get the context. |
+| `get_tank_curve` | `GET /agent/trucks/:truckId/tank-curve` | Tank level over a period, summarised: start and end levels, biggest drop (engine off or not), rises without a refuel that may betray a sensor artefact. |
+| `get_vehicle_activity` | `GET /agent/trucks/:truckId/activity` | Truck stops with their duration, engine state and place type (fuel station, depot, workshop, motorway rest area, customer). Shows where and under which conditions the decrease happened. |
+| `find_fuel_transactions` | `GET /agent/trucks/:truckId/fuel-transactions` | Recorded refuels (fuel cards and invoices) over a period. A drop explained by a badly recorded refuel or an inconsistent invoice shows up here. |
+| `read_driver_messages` | `GET /agent/trucks/:truckId/driver-messages` | Free-text messages sent by the driver over a period (pseudonymised). May contain an explanation: workshop job, gauge problem, transfer to the reefer unit. |
+| `compute_fuel_balance` | `GET /agent/trucks/:truckId/fuel-balance` | Exact fuel balance calculation: expected consumption from kilometres and idling, refuels, observed decrease and unexplained liters. Use this calculation rather than estimating yourself. |
+| `find_similar_events` | `GET /agent/trucks/:truckId/similar-events` | Comparable level drops of the same truck over the previous days, with the time, the place and the past verdict if any. A repeated pattern strengthens a suspicion. |
 
-## Comportement
-- Chaque outil est déclaré avec son schéma d'entrée **et son schéma de sortie** (ceux de `packages/contracts`) et l'annotation `readOnlyHint: true`.
-- Arguments invalides → résultat d'outil en erreur (`isError: true`), pour que le modèle puisse se corriger. Pas d'exception non gérée. La validation est faite par le SDK avant l'appel de l'outil : le message est celui du SDK, qui reprend les messages des schémas Zod (par exemple `MCP error -32602: Input validation error: Invalid arguments for tool compute_fuel_balance: fenêtre maximale 72 h at to`). On ne le réécrit pas.
-- Erreur de l'API (4xx) → résultat en erreur avec le message de l'API ; (5xx ou timeout) → résultat en erreur « service indisponible, réessaie plus tard ».
-- Résultat → `content` texte (JSON compact) **et** `structuredContent` (objet), conformément au SDK. Le SDK vérifie `structuredContent` contre le schéma de sortie : une réponse de l'API hors contrat devient un résultat en erreur plutôt qu'une donnée transmise au modèle.
-- Journal d'une ligne par appel **transmis à l'API** : outil, durée, statut, code HTTP de l'API, taille du résultat. **Jamais** le contenu. Les appels refusés par la validation du SDK ne sont pas journalisés. Le journal est écrit sur stderr, car stdout est réservé au protocole en mode `--stdio`.
+## Behaviour
+- Each tool is declared with its input schema **and its output schema** (those of `packages/contracts`) and the `readOnlyHint: true` annotation.
+- Invalid arguments → tool result in error (`isError: true`), so that the model can correct itself. No unhandled exception. Validation is done by the SDK before the tool is called: the message is the SDK's, which reuses the Zod schema messages (for example `MCP error -32602: Input validation error: Invalid arguments for tool compute_fuel_balance: maximum window 72 h at to`). It is not rewritten.
+- API error (4xx) → error result with the API message; (5xx or timeout) → error result "service unavailable, try again later".
+- Result → text `content` (compact JSON) **and** `structuredContent` (object), as per the SDK. The SDK checks `structuredContent` against the output schema: an API response outside the contract becomes an error result rather than data passed to the model.
+- One log line per call **forwarded to the API**: tool, duration, status, API HTTP code, result size. **Never** the content. Calls rejected by the SDK validation are not logged. The log is written to stderr, since stdout is reserved for the protocol in `--stdio` mode.
 
-## Critères d'acceptation
-1. L'inspecteur MCP officiel liste les 7 outils avec leurs descriptions et schémas d'entrée.
-2. Chaque outil appelé avec des arguments valides renvoie le même contenu que la route API correspondante.
-3. Un appel sans jeton ou avec un mauvais jeton est refusé.
-4. Des arguments invalides produisent un résultat d'outil en erreur, pas un crash.
-5. Le serveur ne contient aucune requête SQL ni dépendance de base de données.
+## Acceptance criteria
+1. The official MCP inspector lists the 7 tools with their descriptions and input schemas.
+2. Each tool called with valid arguments returns the same content as the matching API route.
+3. A call without a token or with a wrong token is refused.
+4. Invalid arguments produce a tool result in error, not a crash.
+5. The server contains no SQL query and no database dependency.

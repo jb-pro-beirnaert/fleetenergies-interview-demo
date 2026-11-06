@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AlertDecision, AlertStatus, VerdictCategory } from './enums.ts';
 
 export const Evidence = z.object({
-  // Référence "E1", "E2"… attribuée par le worker ; doit correspondre à une étape `tool_call`
+  // Reference "E1", "E2"… assigned by the worker; must match a `tool_call` step
   toolCallId: z.string().min(1).max(20),
   finding: z.string().min(1).max(200),
 });

@@ -1,4 +1,4 @@
-// Client HTTP minimal de l'API (le simulateur ne touche jamais la base).
+// Minimal HTTP client of the API (the simulator never touches the database).
 
 import type { HistoryLoadBatch, PlaceList } from '@fleet/contracts';
 import type { Backend } from './simulation.ts';
@@ -10,14 +10,14 @@ export interface ApiConfig {
   adminToken: string;
 }
 
-/** Variables de la spec 08 ; défauts pour un lancement depuis l'hôte. */
+/** Variables from spec 08; defaults for a run from the host. */
 export const configFromEnv = (env: NodeJS.ProcessEnv = process.env): ApiConfig => ({
   apiUrl: (env.API_URL ?? 'http://localhost:3000').replace(/\/$/, ''),
   deviceToken: env.DEVICE_TOKEN ?? 'dev-device-token',
   adminToken: env.ADMIN_TOKEN ?? 'dev-admin-token',
 });
 
-/** `public` : routes écran, sans jeton. */
+/** `public`: screen routes, without a token. */
 type Role = 'device' | 'admin' | 'public';
 
 export class ApiClient {
@@ -60,7 +60,7 @@ export class ApiClient {
   }
 }
 
-/** Ce dont la simulation a besoin de l'API (remplacé par un faux dans les tests). */
+/** What the simulation needs from the API (replaced by a fake in the tests). */
 export function apiBackend(api: ApiClient): Backend {
   return {
     wipe: () => api.post<void>('/admin/wipe', 'admin'),
@@ -75,7 +75,7 @@ export function apiBackend(api: ApiClient): Backend {
           await api.get('/api/health');
           return;
         } catch (error) {
-          if (attempt === 0) log(`En attente de l'API (${api.config.apiUrl})… ${(error as Error).message}`);
+          if (attempt === 0) log(`Waiting for the API (${api.config.apiUrl})… ${(error as Error).message}`);
           await new Promise((resolve) => setTimeout(resolve, 2_000));
         }
       }

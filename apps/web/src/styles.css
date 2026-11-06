@@ -1,6 +1,6 @@
 @import 'leaflet/dist/leaflet.css';
 
-/* Style sobre, lisible en partage d'écran : fond clair, une couleur d'accent, rien sous 13 px */
+/* Plain style, readable when screen sharing: light background, one accent colour, nothing below 13 px */
 :root {
   --bg: #f4f6f9;
   --surface: #ffffff;

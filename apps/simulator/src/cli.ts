@@ -1,4 +1,4 @@
-// CLI du simulateur (spec 04) : serve | generate.
+// Simulator CLI (spec 04): serve | generate.
 
 import { parseArgs } from 'node:util';
 import { SimulationSpeed } from '@fleet/contracts';
@@ -10,18 +10,18 @@ import { Simulation } from './simulation.ts';
 import { fileStore } from './store.ts';
 import { assertDate, parseHHMM, todayInParis } from './time.ts';
 
-const USAGE = `Usage : simulator <commande> [options]
+const USAGE = `Usage: simulator <command> [options]
 
-  serve                                             service de simulation : API de contrôle sur SIM_PORT,
-                                                    pilotée depuis la salle de contrôle
-  generate [--seed 42] [--today AAAA-MM-JJ] [--out data/generated]
-                                                    (débogage) simule [aujourd'hui − 1 mois ; aujourd'hui]
-                                                    (heure de Paris) et écrit les fichiers
+  serve                                             simulation service: control API on SIM_PORT,
+                                                    driven from the control room
+  generate [--seed 42] [--today YYYY-MM-DD] [--out data/generated]
+                                                    (debugging) simulates [today − 1 month; today]
+                                                    (Paris time) and writes the files
 
-Environnement : API_URL (http://localhost:3000), DEVICE_TOKEN, ADMIN_TOKEN, SIM_SEED (42),
-                SIM_SPEED (120), SIM_FROM (02:00), SIM_PORT (3200), SIM_DATA_DIR (/data)`;
+Environment: API_URL (http://localhost:3000), DEVICE_TOKEN, ADMIN_TOKEN, SIM_SEED (42),
+             SIM_SPEED (120), SIM_FROM (02:00), SIM_PORT (3200), SIM_DATA_DIR (/data)`;
 
-/** Fin du rejeu (heure de Paris). */
+/** End of the replay (Paris time). */
 const REPLAY_END = '23:55';
 
 function parseSeed(value: string): number {
@@ -46,9 +46,9 @@ async function serve(env: NodeJS.ProcessEnv): Promise<never> {
 
   const server = createControlServer(simulation);
   await new Promise<void>((resolve) => server.listen(port, resolve));
-  console.log(`Simulateur à l'écoute sur le port ${port} → API ${api.config.apiUrl}`);
+  console.log(`Simulator listening on port ${port} → API ${api.config.apiUrl}`);
   const { status } = await simulation.recover();
-  console.log(`État : ${status}`);
+  console.log(`State: ${status}`);
 
   const shutdown = () => {
     server.close();
@@ -85,12 +85,12 @@ async function main(argv: string[]): Promise<number> {
       const dataset = generate(seed, today);
       await writeFiles(values.out, serialize(dataset));
       const cal = dataset.calendar;
-      console.log(`Graine ${seed}, du ${cal.startDate} au ${cal.demoDate} (${cal.days} jours, heure de Paris) → ${values.out}`);
+      console.log(`Seed ${seed}, from ${cal.startDate} to ${cal.demoDate} (${cal.days} days, Paris time) → ${values.out}`);
       for (const [label, data] of [
         [`historique (${cal.startDate} → ${cal.date(cal.liveDay - 1)})`, dataset.history],
-        [`journée de démo (${cal.demoDate})`, dataset.live],
+        [`demo day (${cal.demoDate})`, dataset.live],
       ] as const) {
-        console.log(`  ${label} : ${data.telemetry.length} relevés, ${data.refuels.length} pleins, ${data.messages.length} messages`);
+        console.log(`  ${label}: ${data.telemetry.length} readings, ${data.refuels.length} refuels, ${data.messages.length} messages`);
       }
       for (const s of dataset.groundTruth.scenarios) {
         console.log(`  ${s.id.padEnd(13)} ${s.truck} ${s.plate} ${s.localTime}  ${s.place.name}`);
@@ -98,7 +98,7 @@ async function main(argv: string[]): Promise<number> {
       return 0;
     }
     default:
-      console.error(`Commande inconnue : ${command}\n\n${USAGE}`);
+      console.error(`Unknown command: ${command}\n\n${USAGE}`);
       return 1;
   }
 }
@@ -106,7 +106,7 @@ async function main(argv: string[]): Promise<number> {
 main(process.argv.slice(2)).then(
   (code) => process.exit(code),
   (error: unknown) => {
-    console.error(`Erreur : ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   },
 );

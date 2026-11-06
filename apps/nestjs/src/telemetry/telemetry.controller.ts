@@ -18,7 +18,7 @@ import { TelemetryService } from './telemetry.service.js';
 
 @ApiTags('ingestion')
 @RequireToken('device')
-@ApiBadRequestResponse({ description: 'Corps invalide ou référence inconnue' })
+@ApiBadRequestResponse({ description: 'Invalid body or unknown reference' })
 @Controller('api')
 export class TelemetryController {
   constructor(private readonly telemetry: TelemetryService) {}
@@ -26,9 +26,9 @@ export class TelemetryController {
   @Post('telemetry')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({
-    summary: 'Ingestion de relevés télématiques',
+    summary: 'Telematics readings ingestion',
     description:
-      'Idempotent. Les lots `live` passent par le détecteur de chute de carburant.',
+      'Idempotent. `live` batches go through the fuel drop detector.',
   })
   @ApiAcceptedResponse({ standardSchema: TelemetryIngestResult })
   ingestTelemetry(@Body({ schema: TelemetryBatch }) batch: TelemetryBatch) {
@@ -37,7 +37,7 @@ export class TelemetryController {
 
   @Post('fuel-card-transactions')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Ingestion de transactions de cartes carburant' })
+  @ApiOperation({ summary: 'Fuel card transactions ingestion' })
   @ApiOkResponse({ standardSchema: IngestResult })
   ingestFuelCards(@Body({ schema: FuelCardBatch }) batch: FuelCardBatch) {
     return this.telemetry.ingestFuelCards(batch);
@@ -45,7 +45,7 @@ export class TelemetryController {
 
   @Post('driver-messages')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Ingestion de messages de conducteurs' })
+  @ApiOperation({ summary: 'Driver messages ingestion' })
   @ApiOkResponse({ standardSchema: IngestResult })
   ingestDriverMessages(
     @Body({ schema: DriverMessageBatch }) batch: DriverMessageBatch,

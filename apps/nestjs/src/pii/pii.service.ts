@@ -6,7 +6,7 @@ import { createMasker, type Masker } from './pii.js';
 export class PiiService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Rechargé à chaque appel : 14 conducteurs, et un conducteur ajouté est masqué immédiatement
+  // Reloaded on every call: 14 drivers, and a newly added driver is masked immediately
   async masker(): Promise<Masker> {
     const drivers = await this.prisma.driver.findMany({
       select: { fullName: true, pseudonym: true },

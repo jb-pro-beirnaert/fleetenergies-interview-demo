@@ -1,36 +1,70 @@
-// La journée de démo est en heure de Paris, quel que soit le fuseau du navigateur
+import { currentLang, currentLocale } from './i18n/i18n';
+
+// The demo day is in Paris time, whatever the browser's time zone
 const TZ = 'Europe/Paris';
 
-const dateTimeFmt = new Intl.DateTimeFormat('fr-FR', {
-  timeZone: TZ,
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-const timeFmt = new Intl.DateTimeFormat('fr-FR', {
-  timeZone: TZ,
-  hour: '2-digit',
-  minute: '2-digit',
-});
-const numberFmt = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
-const decimalFmt = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
+interface Formatters {
+  dateTime: Intl.DateTimeFormat;
+  time: Intl.DateTimeFormat;
+  number: Intl.NumberFormat;
+  decimal: Intl.NumberFormat;
+  currency: Intl.NumberFormat;
+}
+
+const cache = new Map<string, Formatters>();
+
+// Reads the language signal: a template calling a formatter re-renders when the language changes
+function formatters(): Formatters {
+  const locale = currentLocale();
+  let f = cache.get(locale);
+  if (!f) {
+    f = {
+      dateTime: new Intl.DateTimeFormat(locale, {
+        timeZone: TZ,
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      time: new Intl.DateTimeFormat(locale, { timeZone: TZ, hour: '2-digit', minute: '2-digit' }),
+      number: new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }),
+      decimal: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }),
+      currency: new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }),
+    };
+    cache.set(locale, f);
+  }
+  return f;
+}
 
 const toDate = (value: string | number | Date) => (value instanceof Date ? value : new Date(value));
 
 export const fmtDateTime = (value: string | number | Date) =>
-  dateTimeFmt.format(toDate(value)).replace(',', '');
+  formatters().dateTime.format(toDate(value)).replace(',', '');
 
-export const fmtTime = (value: string | number | Date) => timeFmt.format(toDate(value));
+export const fmtTime = (value: string | number | Date) => formatters().time.format(toDate(value));
+
+/** Day and month of a calendar date (`YYYY-MM-DD`), without time-zone shift. */
+export const fmtDayMonth = (isoDate: string) =>
+  new Intl.DateTimeFormat(currentLocale(), { day: '2-digit', month: '2-digit', timeZone: 'UTC' })
+    .format(new Date(`${isoDate}T00:00:00Z`));
 
 export const fmtLiters = (value: number | null | undefined) =>
-  value === null || value === undefined ? '—' : `${numberFmt.format(value)} L`;
+  value === null || value === undefined ? '—' : `${formatters().number.format(value)} L`;
 
 export const fmtNumber = (value: number | null | undefined, decimals = false) =>
-  value === null || value === undefined ? '—' : (decimals ? decimalFmt : numberFmt).format(value);
+  value === null || value === undefined
+    ? '—'
+    : (decimals ? formatters().decimal : formatters().number).format(value);
 
-export const fmtPercent = (ratio: number | null | undefined) =>
-  ratio === null || ratio === undefined ? '—' : `${Math.round(ratio * 100)} %`;
+export const fmtEuros = (value: number | null | undefined) =>
+  value === null || value === undefined ? '—' : formatters().currency.format(value);
+
+export const fmtPercent = (ratio: number | null | undefined) => {
+  if (ratio === null || ratio === undefined) return '—';
+  const n = Math.round(ratio * 100);
+  // French typography puts a space before %
+  return currentLang() === 'fr' ? `${n} %` : `${n}%`;
+};
 
 export function fmtDuration(seconds: number | null | undefined): string {
   if (seconds === null || seconds === undefined) return '—';

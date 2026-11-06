@@ -17,7 +17,7 @@ import { postStep, startInvestigation } from './support/investigation.js';
 const normalize = (text: string) => stripAccents(text).toLowerCase();
 const digits = (text: string) => text.replace(/\D/g, '');
 
-/** Toutes les formes sous lesquelles une donnée personnelle pourrait fuiter. */
+/** Every form in which personal data could leak. */
 const FORBIDDEN = DRIVERS.flatMap((driver) =>
   [driver.fullName, ...driver.fullName.split(' ')].map(normalize),
 );
@@ -25,7 +25,7 @@ const FORBIDDEN_PHONES = DRIVERS.map((driver) =>
   digits(driver.phone).slice(-8),
 );
 
-describe('Aucune donnée personnelle sur /agent/*', () => {
+describe('No personal data on /agent/*', () => {
   let t: TestApp;
   let alertId: string;
 
@@ -52,14 +52,14 @@ describe('Aucune donnée personnelle sur /agent/*', () => {
           driverId: IDS.driver,
           truckId: IDS.truck,
           sentAt: minutesAfter(121),
-          body: `Ici ${DRIVERS[0].fullName}, rappelez-moi au ${DRIVERS[0].phone} ou helene.garnier@durance.fr`,
+          body: `${DRIVERS[0].fullName} here, call me back on ${DRIVERS[0].phone} or helene.garnier@durance.fr`,
           dataOrigin: 'history',
         },
         {
           driverId: IDS.otherDriver,
           truckId: IDS.truck,
           sentAt: minutesAfter(126),
-          body: `BRUNO dit que le mécanicien M. Petit (04 75 12 34 56) vidange le réservoir`,
+          body: `BRUNO says the mechanic Mr Petit (04 75 12 34 56) is draining the tank`,
           dataOrigin: 'history',
         },
       ],
@@ -67,12 +67,12 @@ describe('Aucune donnée personnelle sur /agent/*', () => {
     ({
       alert: { id: alertId },
     } = await startInvestigation(t));
-    // Une étape dont le contenu mentionne un conducteur
+    // A step whose content mentions a driver
     await postStep(t, alertId, {
       attempt: 1,
       seq: 5,
       kind: 'tool_result',
-      payload: { note: `Lacombe joignable au ${DRIVERS[1].phone}` },
+      payload: { note: `Lacombe reachable on ${DRIVERS[1].phone}` },
     }).expect(200);
   });
   afterAll(() => t.app.close());
@@ -81,18 +81,18 @@ describe('Aucune donnée personnelle sur /agent/*', () => {
     const text = JSON.stringify(body);
     const normalized = normalize(text);
     for (const name of FORBIDDEN) {
-      expect(normalized, `${path} contient « ${name} »`).not.toMatch(
+      expect(normalized, `${path} contains "${name}"`).not.toMatch(
         new RegExp(`(?<![\\p{L}])${name}(?![\\p{L}])`, 'u'),
       );
     }
     for (const phone of FORBIDDEN_PHONES) {
-      expect(digits(text), `${path} contient un téléphone`).not.toContain(
+      expect(digits(text), `${path} contains a phone number`).not.toContain(
         phone,
       );
     }
   }
 
-  it('read_driver_messages : pseudonymes et textes masqués', async () => {
+  it('read_driver_messages: pseudonyms and masked text', async () => {
     const response = await t
       .http()
       .get(`/agent/trucks/${IDS.truck}/driver-messages`)
@@ -106,17 +106,17 @@ describe('Aucune donnée personnelle sur /agent/*', () => {
       {
         sentAt: minutesAfter(121).toISOString(),
         driver: 'C-01',
-        body: 'Ici C-01, rappelez-moi au [téléphone masqué] ou [e-mail masqué]',
+        body: 'C-01 here, call me back on [phone masked] or [email masked]',
       },
       {
         sentAt: minutesAfter(126).toISOString(),
         driver: 'C-02',
-        body: 'C-02 dit que le mécanicien M. Petit ([téléphone masqué]) vidange le réservoir',
+        body: 'C-02 says the mechanic Mr Petit ([phone masked]) is draining the tank',
       },
     ]);
   });
 
-  it('parcourt toutes les routes GET /agent/* de la documentation OpenAPI', async () => {
+  it('walks every GET /agent/* route of the OpenAPI document', async () => {
     const doc = (await t.http().get('/docs/json').expect(200)).body as {
       paths: Record<string, Record<string, unknown>>;
     };
@@ -147,7 +147,7 @@ describe('Aucune donnée personnelle sur /agent/*', () => {
     }
   });
 
-  it('les réponses des routes POST /agent/* sont également sûres', async () => {
+  it('the responses of the POST /agent/* routes are safe too', async () => {
     const step = await postStep(t, alertId, {
       attempt: 1,
       seq: 6,

@@ -1,4 +1,5 @@
 import type { AlertDetail } from '@fleet/contracts';
+import { setLang } from './i18n/i18n';
 import { decisionReason } from './labels';
 
 const alert = (partial: {
@@ -13,31 +14,40 @@ const alert = (partial: {
   }) as unknown as AlertDetail;
 
 describe('decisionReason', () => {
-  it('explique qu’un vol probable est toujours escaladé', () => {
-    expect(decisionReason(alert({ decision: 'escalated', category: 'theft_suspected' }))).toContain(
-      'toujours revu',
+  afterEach(() => setLang('en'));
+
+  it('explains that a suspected theft is always escalated', () => {
+    expect(decisionReason(alert({ decision: 'escalated', category: 'theft_suspected' }))).toBe(
+      '“Suspected theft” is always reviewed by an analyst',
     );
   });
 
-  it('explique une escalade pour confiance insuffisante', () => {
+  it('explains an escalation for insufficient confidence', () => {
     expect(decisionReason(alert({ decision: 'escalated', category: 'sensor_fault' }))).toBe(
-      'Confiance sous le seuil d’auto-clôture',
+      'Confidence below the auto-close threshold',
     );
   });
 
-  it('explique une auto-clôture', () => {
+  it('explains an auto-close', () => {
     expect(decisionReason(alert({ decision: 'auto_closed', category: 'sensor_fault' }))).toContain(
-      'au-dessus du seuil',
+      'above the auto-close threshold',
     );
   });
 
-  it('remonte le motif d’échec d’enquête', () => {
+  it('surfaces the investigation failure reason', () => {
     expect(
-      decisionReason(alert({ decision: 'escalated', details: { failure: 'aucun outil appelé' } })),
-    ).toBe('Enquête en échec : aucun outil appelé');
+      decisionReason(alert({ decision: 'escalated', details: { failure: 'no tool called' } })),
+    ).toBe('Investigation failed: no tool called');
   });
 
-  it('ne dit rien tant qu’aucune décision n’est prise', () => {
+  it('says nothing until a decision is made', () => {
     expect(decisionReason(alert({ decision: null }))).toBeNull();
+  });
+
+  it('follows the current language', () => {
+    setLang('fr');
+    expect(decisionReason(alert({ decision: 'escalated', category: 'theft_suspected' }))).toBe(
+      '« Vol probable » est toujours revu par un analyste',
+    );
   });
 });

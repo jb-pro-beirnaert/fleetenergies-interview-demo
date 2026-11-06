@@ -1,65 +1,65 @@
-# 00 — Vue d'ensemble
+# 00 — Overview
 
-## Le problème métier (fictif)
-Un détecteur simple lève des alertes dès qu'un niveau de réservoir chute anormalement. La plupart sont des faux positifs (capteur défaillant, transfert vers un groupe frigo, opération d'atelier). Un analyste passe 10 à 20 minutes par alerte à croiser les sources. Fleet Copilot confie cette enquête à un agent IA, qui rend un verdict prouvé et n'escalade aux humains que ce qui le mérite. En V2, un extracteur IA lit les factures carburant, et un rapprochement en code détecte les écarts de facturation, qui deviennent à leur tour des alertes à enquêter.
+## The business problem (fictional)
+A simple detector raises alerts as soon as a tank level drops abnormally. Most of them are false positives (faulty sensor, transfer to a reefer unit, workshop job). An analyst spends 10 to 20 minutes per alert cross-checking sources. Fleet Copilot hands this investigation over to an AI agent, which returns an evidence-backed verdict and only escalates to humans what deserves it. In V2, an AI extractor reads fuel invoices, and a reconciliation in code detects billing discrepancies, which in turn become alerts to investigate.
 
-Principe directeur : **le code détecte et calcule, l'IA enquête et explique, l'humain décide.**
+Guiding principle: **code detects and computes, AI investigates and explains, the human decides.**
 
 ## Services
 
-| Service | Rôle | Version | Port | Parle à |
+| Service | Role | Version | Port | Talks to |
 |---|---|---|---|---|
-| `postgres` | Données métier + file de tâches | V1 | 5432 | — |
-| `api` (NestJS) | Centre de contrôle : ingestion, détecteur, tâches, enquêtes, routes écran et agents ; V2 : factures, rapprochement | V1 | 3000 | postgres |
-| `mcp-server` | 7 outils d'enquête en lecture seule (adaptateur fin sur les routes agents de l'API) | V1 | 3100 | api |
-| `investigator` | Worker : agent enquêteur | V1 | — | api (pilotage), mcp-server (outils), Ollama |
-| `extractor` | Worker : extracteur IA de factures | V2 | — | api, Ollama |
-| `web` (Angular) | Salle de contrôle, dont le pilotage de la simulation | V1 | 4200 | api, simulator |
-| `simulator` | Service permanent : simule les boîtiers des camions et les fournisseurs ; génère les données au démarrage de la simulation, les charge, rejoue la journée de démo ; piloté depuis l'écran | V1 | 3200 | api |
-| `generator` | CLI hors ligne : factures PDF et messages conducteurs | V2 | — | Ollama, fichiers |
-| Ollama (hôte) | Modèle `fleet-qwen` | V1 | 11434 | — |
+| `postgres` | Business data + task queue | V1 | 5432 | — |
+| `api` (NestJS) | Control centre: ingestion, detector, tasks, investigations, screen and agent routes; V2: invoices, reconciliation | V1 | 3000 | postgres |
+| `mcp-server` | 7 read-only investigation tools (thin adapter over the API agent routes) | V1 | 3100 | api |
+| `investigator` | Worker: investigator agent | V1 | — | api (control), mcp-server (tools), Ollama |
+| `extractor` | Worker: AI invoice extractor | V2 | — | api, Ollama |
+| `web` (Angular) | Control room, including simulation control | V1 | 4200 | api, simulator |
+| `simulator` | Long-running service: simulates the trucks' telematics boxes and the suppliers; generates the data when the simulation starts, loads it, replays the demo day; driven from the screen | V1 | 3200 | api |
+| `generator` | Offline CLI: PDF invoices and driver messages | V2 | — | Ollama, files |
+| Ollama (host) | `fleet-qwen` model | V1 | 11434 | — |
 
-## Flux V1 : de l'alerte au verdict
-0. Dans la salle de contrôle, « Démarrer » : le simulateur vide la base, génère le jeu de données en mémoire, charge le référentiel et l'historique, puis rejoue la journée de démo pas à pas (vitesse réglable, pause, arrêt, reset).
-1. Le simulateur envoie les relevés de la journée de démo : `POST /api/telemetry`.
-2. L'API les enregistre. Le module détecteur applique ses règles ; s'il y a chute anormale, il crée une `alert` (statut `detected`) et une `task` `investigate_alert` (statut `pending`).
-3. `investigator` interroge `POST /agent/tasks/claim` toutes les 2 s. L'API réserve une tâche (`FOR UPDATE SKIP LOCKED`) et passe l'alerte en `investigating`.
-4. Le worker récupère le contexte de l'alerte, la liste des outils du serveur MCP, et lance la boucle avec le modèle. Chaque outil demandé est exécuté via MCP ; chaque étape est enregistrée via `POST /agent/investigations/:alertId/steps`.
-5. Le modèle termine par l'outil local `submit_verdict`. Le worker valide le verdict (Zod + vérification des preuves) et l'envoie à l'API. **L'API décide** de l'auto-clôture ou de l'escalade selon des règles en code.
-6. `web` interroge l'API toutes les 2 s et affiche alertes, trace et verdict. Un humain peut confirmer ou rejeter.
+## V1 flow: from alert to verdict
+0. In the control room, "Start": the simulator wipes the database, generates the dataset in memory, loads the reference data and the history, then replays the demo day step by step (adjustable speed, pause, stop, reset).
+1. The simulator sends the demo day readings: `POST /api/telemetry`.
+2. The API stores them. The detector module applies its rules; if there is an abnormal drop, it creates an `alert` (status `detected`) and an `investigate_alert` `task` (status `pending`).
+3. `investigator` polls `POST /agent/tasks/claim` every 2 s. The API claims a task (`FOR UPDATE SKIP LOCKED`) and moves the alert to `investigating`.
+4. The worker fetches the alert context and the MCP server's tool list, and starts the loop with the model. Each requested tool is run through MCP; each step is recorded via `POST /agent/investigations/:alertId/steps`.
+5. The model ends with the local `submit_verdict` tool. The worker validates the verdict (Zod + evidence check) and sends it to the API. **The API decides** between auto-close and escalation according to rules in code.
+6. `web` polls the API every 2 s and shows alerts, trace and verdict. A human can confirm or dismiss.
 
-## Flux V2 : de la facture à l'alerte
-1. Le simulateur dépose les factures PDF de la journée pendant le rejeu : `POST /api/invoices` (multipart).
-2. L'API stocke le fichier, extrait son texte (code, pas IA) et crée une `task` `extract_invoice`.
-3. `extractor` réclame la tâche, lit le texte via l'API, appelle le modèle avec un format de sortie imposé, valide (Zod, 2 relances), renvoie le résultat.
-4. L'API enregistre le plein et lance le **rapprochement** (code). En cas d'écart, alerte `billing_mismatch` + tâche d'enquête : l'enquêteur s'en saisit comme de toute autre alerte.
+## V2 flow: from invoice to alert
+1. The simulator drops the day's PDF invoices during the replay: `POST /api/invoices` (multipart).
+2. The API stores the file, extracts its text (code, not AI) and creates an `extract_invoice` `task`.
+3. `extractor` claims the task, reads the text through the API, calls the model with an enforced output format, validates (Zod, 2 retries), sends the result back.
+4. The API records the refuel and runs the **reconciliation** (code). On a discrepancy, a `billing_mismatch` alert + investigation task: the investigator picks it up like any other alert.
 
-## Décisions structurantes (à ne pas remettre en cause sans discussion)
-- **NestJS est le seul service connecté à PostgreSQL.**
-- **File de tâches dans PostgreSQL** (table `tasks`), sans Redis ni BullMQ. Les workers tirent leur travail (polling 2 s).
-- **Agent = trois connexions** : API en direct pour le pilotage (claim, étapes, verdict), serveur MCP pour les outils que voit le modèle, Ollama pour le raisonnement.
-- **Boucle agent écrite à la main**, sans framework d'agents.
-- **Le modèle ne voit que des outils de lecture**, des résultats résumés et des conducteurs pseudonymisés.
-- **L'extracteur n'est pas un agent** (pas de boucle, pas d'outils) : c'est un pipeline LLM à sortie structurée.
-- **Polling** côté écran (pas de SSE ni WebSocket en V1/V2).
-- **La simulation est pilotée depuis l'écran** : le simulateur est un service qui garde son propre état (mémoire + volume), sans table dans Postgres ; l'écran lui parle directement (proxy `/simulation`), l'API ne le connaît pas.
+## Structural decisions (not to be challenged without discussion)
+- **NestJS is the only service connected to PostgreSQL.**
+- **Task queue in PostgreSQL** (`tasks` table), without Redis or BullMQ. Workers pull their work (2 s polling).
+- **Agent = three connections**: the API directly for control (claim, steps, verdict), the MCP server for the tools the model sees, Ollama for reasoning.
+- **Hand-written agent loop**, without an agent framework.
+- **The model only sees read tools**, summarised results and pseudonymised drivers.
+- **The extractor is not an agent** (no loop, no tools): it is an LLM pipeline with structured output.
+- **Polling** on the screen side (no SSE or WebSocket in V1/V2).
+- **The simulation is driven from the screen**: the simulator is a service that keeps its own state (memory + volume), with no table in Postgres; the screen talks to it directly (`/simulation` proxy), the API does not know about it.
 
-## Glossaire
-- **Alerte** : anomalie détectée par une règle en code (`fuel_drop`, V2 : `billing_mismatch`).
-- **Tâche** : travail à faire par un worker, dans la table `tasks`.
-- **Enquête** (`investigation`) : exécution de l'agent sur une alerte, avec ses étapes et son verdict.
-- **Étape** (`investigation_step`) : un message du modèle, un appel d'outil, son résultat, une relance ou une erreur.
-- **Journée de démo** : le jour J où la simulation est démarrée (heure de Paris), rejouée en accéléré. Le mois qui précède (J − 1 mois à J − 1) est l'historique chargé au démarrage.
-- **Simulation** : une exécution du simulateur, de « Démarrer » à la fin de la journée ou au reset ; états `idle`, `preparing`, `running`, `paused`, `finished`.
+## Glossary
+- **Alert**: anomaly detected by a rule in code (`fuel_drop`, V2: `billing_mismatch`).
+- **Task**: work to be done by a worker, in the `tasks` table.
+- **Investigation** (`investigation`): a run of the agent on an alert, with its steps and its verdict.
+- **Step** (`investigation_step`): a model message, a tool call, its result, a retry or an error.
+- **Demo day**: day D on which the simulation is started (Paris time), replayed at accelerated speed. The preceding month (D − 1 month to D − 1) is the history loaded at startup.
+- **Simulation**: one run of the simulator, from "Start" to the end of the day or to a reset; states `idle`, `preparing`, `running`, `paused`, `finished`.
 
-## Index des specs
-- `01-data-model.md` — schéma PostgreSQL
-- `02-contracts.md` — schémas partagés (`packages/contracts`)
+## Spec index
+- `01-data-model.md` — PostgreSQL schema
+- `02-contracts.md` — shared schemas (`packages/contracts`)
 - `03-api.md` — NestJS
-- `04-simulator.md` — données, scénarios, rejeu, pilotage de la simulation
-- `05-mcp-server.md` — outils d'enquête
-- `06-agents.md` — enquêteur et extracteur
-- `07-web.md` — salle de contrôle
+- `04-simulator.md` — data, scenarios, replay, simulation control
+- `05-mcp-server.md` — investigation tools
+- `06-agents.md` — investigator and extractor
+- `07-web.md` — control room
 - `08-infra-local.md` — Docker Compose, Ollama, variables, scripts
-- `09-implementation-plan.md` — jalons et ordre de réalisation
-- `10-generator.md` — (V2) factures PDF et messages
+- `09-implementation-plan.md` — milestones and order of work
+- `10-generator.md` — (V2) PDF invoices and messages

@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { ControlRoomStore } from '../core/control-room.store';
 import { fmtDateTime } from '../core/format';
+import { LANGS, currentLang, setLang, t } from '../core/i18n/i18n';
 
 @Component({
   selector: 'app-header',
@@ -9,19 +10,33 @@ import { fmtDateTime } from '../core/format';
       <span class="logo" aria-hidden="true">⛽</span>
       <strong>Fleet Copilot</strong>
       <span class="sep">·</span>
-      <span>Salle de contrôle</span>
+      <span>{{ t('header.subtitle') }}</span>
     </div>
 
-    <nav class="tabs" aria-label="Sections">
-      <a class="tab active" aria-current="page">Alertes</a>
-      <span class="tab disabled" title="Disponible en V2">Factures</span>
+    <nav class="tabs" [attr.aria-label]="t('header.sections')">
+      <a class="tab active" aria-current="page">{{ t('header.tab.alerts') }}</a>
+      <span class="tab disabled" [title]="t('header.tab.invoicesSoon')">{{
+        t('header.tab.invoices')
+      }}</span>
     </nav>
 
     <div class="meta">
-      <span class="clock" title="Dernier relevé reçu de la journée de démo">
-        Heure simulée <strong>{{ simulatedNow() }}</strong>
+      <span class="clock" [title]="t('header.clock.title')">
+        {{ t('header.clock.label') }} <strong>{{ simulatedNow() }}</strong>
       </span>
-      <span class="model" title="Modèle utilisé par les agents">{{ model() }}</span>
+      <span class="model" [title]="t('header.model.title')">{{ model() }}</span>
+      <div class="lang" role="group" [attr.aria-label]="t('lang.label')">
+        @for (l of langs; track l) {
+          <button
+            type="button"
+            [class.active]="lang() === l"
+            [attr.aria-pressed]="lang() === l"
+            (click)="setLang(l)"
+          >
+            {{ l.toUpperCase() }}
+          </button>
+        }
+      </div>
       <span
         class="health"
         [class.ok]="store.healthy() === true"
@@ -95,6 +110,24 @@ import { fmtDateTime } from '../core/format';
       border-radius: 6px;
       background: var(--surface-2);
     }
+    .lang {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .lang button {
+      padding: 3px 8px;
+      border: 0;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .lang button.active {
+      background: var(--accent);
+      color: white;
+    }
     .health {
       width: 12px;
       height: 12px;
@@ -113,20 +146,24 @@ import { fmtDateTime } from '../core/format';
 })
 export class AppHeader {
   protected readonly store = inject(ControlRoomStore);
+  protected readonly t = t;
+  protected readonly langs = LANGS;
+  protected readonly lang = currentLang;
+  protected readonly setLang = setLang;
 
   protected readonly simulatedNow = computed(() => {
     const at = this.store.stats()?.simulatedNow;
     return at ? fmtDateTime(at) : '—';
   });
-  protected readonly model = computed(() => this.store.stats()?.model ?? 'modèle —');
+  protected readonly model = computed(() => this.store.stats()?.model ?? t('header.model.none'));
   protected readonly healthLabel = computed(() => {
     switch (this.store.healthy()) {
       case true:
-        return 'API disponible';
+        return t('header.health.ok');
       case false:
-        return 'API injoignable';
+        return t('header.health.ko');
       default:
-        return 'Connexion à l’API…';
+        return t('header.health.connecting');
     }
   });
 }

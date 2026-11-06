@@ -28,16 +28,16 @@ import { RequireToken } from '../auth/require-token.decorator.js';
 import { PiiInterceptor } from '../pii/pii.interceptor.js';
 import { InvestigationsService } from './investigations.service.js';
 
-@ApiTags('agent · enquêtes')
+@ApiTags('agent · investigations')
 @RequireToken('agent')
 @UseInterceptors(PiiInterceptor)
-@ApiNotFoundResponse({ description: 'Alerte ou enquête introuvable' })
+@ApiNotFoundResponse({ description: 'Alert or investigation not found' })
 @Controller('agent')
 export class InvestigationsController {
   constructor(private readonly investigations: InvestigationsService) {}
 
   @Get('alerts/:id')
-  @ApiOperation({ summary: "Contexte d'une alerte (sans donnée personnelle)" })
+  @ApiOperation({ summary: 'Alert context (no personal data)' })
   @ApiOkResponse({ standardSchema: AlertContext })
   context(@Param('id', ParseUUIDPipe) id: string) {
     return this.investigations.context(id);
@@ -46,8 +46,8 @@ export class InvestigationsController {
   @Post('investigations/:alertId/steps')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Enregistrer une étape d'enquête",
-    description: 'Idempotent sur (enquête, tentative, seq).',
+    summary: 'Record an investigation step',
+    description: 'Idempotent on (investigation, attempt, seq).',
   })
   @ApiOkResponse({ standardSchema: StepInputResult })
   addStep(
@@ -60,15 +60,15 @@ export class InvestigationsController {
   @Post('investigations/:alertId/verdict')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Soumettre le verdict',
+    summary: 'Submit the verdict',
     description:
-      "Vérifie les preuves contre les étapes `tool_call` de la tentative en cours, puis l'API décide : `theft_suspected`, `billing_discrepancy`, `inconclusive` → escalade ; sinon clôture si confiance ≥ seuil. Idempotent.",
+      'Checks the evidence against the `tool_call` steps of the current attempt, then the API decides: `theft_suspected`, `billing_discrepancy`, `inconclusive` → escalation; otherwise closed if confidence ≥ threshold. Idempotent.',
   })
   @ApiOkResponse({ standardSchema: VerdictOutcome })
   @ApiUnprocessableEntityResponse({
-    description: 'Preuve citant un `toolCallId` inconnu (`unknownToolCallIds`)',
+    description: 'Evidence citing an unknown `toolCallId` (`unknownToolCallIds`)',
   })
-  @ApiConflictResponse({ description: 'Enquête en échec définitif' })
+  @ApiConflictResponse({ description: 'Investigation permanently failed' })
   submitVerdict(
     @Param('alertId', ParseUUIDPipe) alertId: string,
     @Body({ schema: VerdictSubmission }) submission: VerdictSubmission,

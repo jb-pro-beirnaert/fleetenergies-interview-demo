@@ -64,7 +64,7 @@ describe('serveur MCP', () => {
   const call = (name: string, args: Record<string, unknown>) =>
     client.callTool({ name, arguments: args }) as Promise<CallToolResult>;
 
-  it('liste les 7 outils avec description et schéma d’entrée', async () => {
+  it('lists the 7 tools with description and input schema', async () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name)).toEqual([
       'get_truck_profile',
@@ -84,7 +84,7 @@ describe('serveur MCP', () => {
     expect(curve?.inputSchema.required).toEqual(['truckId', 'from', 'to']);
   });
 
-  it('appelle la route API et renvoie son contenu (texte et structuré)', async () => {
+  it('calls the API route and returns its content (text and structured)', async () => {
     fetchMock.mockResolvedValueOnce(json(200, PROFILE));
 
     const result = await call('get_truck_profile', { truckId: TRUCK_ID });
@@ -98,7 +98,7 @@ describe('serveur MCP', () => {
     expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer agent-token');
   });
 
-  it('transmet la fenêtre et lookbackDays en query', async () => {
+  it('passes the window and lookbackDays as query parameters', async () => {
     fetchMock
       .mockResolvedValueOnce(json(200, BALANCE))
       .mockResolvedValueOnce(json(200, { events: [] }));
@@ -116,7 +116,7 @@ describe('serveur MCP', () => {
     expect(similarUrl.searchParams.get('lookbackDays')).toBe('14');
   });
 
-  it('arguments invalides → résultat en erreur, sans appel API', async () => {
+  it('invalid arguments → error result, without an API call', async () => {
     const result = await call('get_tank_curve', {
       truckId: TRUCK_ID,
       from: FROM,
@@ -124,22 +124,22 @@ describe('serveur MCP', () => {
     });
 
     expect(result.isError).toBe(true);
-    expect(JSON.stringify(result.content)).toContain('fenêtre maximale 72 h');
+    expect(JSON.stringify(result.content)).toContain('maximum window 72 h');
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('4xx de l’API → résultat en erreur avec le message de l’API', async () => {
+  it('API 4xx → error result with the API message', async () => {
     fetchMock.mockResolvedValueOnce(
-      json(404, { statusCode: 404, message: 'Camion introuvable', error: 'Not Found' }),
+      json(404, { statusCode: 404, message: 'Truck not found', error: 'Not Found' }),
     );
 
     const result = await call('get_truck_profile', { truckId: TRUCK_ID });
 
     expect(result.isError).toBe(true);
-    expect(result.content).toEqual([{ type: 'text', text: 'Camion introuvable' }]);
+    expect(result.content).toEqual([{ type: 'text', text: 'Truck not found' }]);
   });
 
-  it('5xx ou timeout → « service indisponible »', async () => {
+  it('5xx or timeout → "service unavailable"', async () => {
     fetchMock
       .mockResolvedValueOnce(json(503, { message: 'down' }))
       .mockRejectedValueOnce(new DOMException('timeout', 'TimeoutError'));
@@ -155,7 +155,7 @@ describe('serveur MCP', () => {
     }
   });
 
-  it('journalise une ligne par appel, sans le contenu', async () => {
+  it('logs one line per call, without the content', async () => {
     fetchMock.mockResolvedValueOnce(json(200, PROFILE));
 
     await call('get_truck_profile', { truckId: TRUCK_ID });

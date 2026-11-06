@@ -19,10 +19,10 @@ export const POLL_INTERVAL_MS = 2_000;
 export type PollResult<T> = { ok: true; value: T } | { ok: false; error: unknown };
 
 /**
- * Appelle `request` toutes les `intervalMs` (immédiatement au départ), suspendu quand
- * l'onglet est masqué et relancé dès qu'il redevient visible. Une erreur ne coupe pas le
- * polling : elle est émise comme `{ ok: false }`.
- * À appeler dans un contexte d'injection.
+ * Calls `request` every `intervalMs` (immediately at first), suspended while the tab is
+ * hidden and restarted as soon as it is visible again. An error does not stop the
+ * polling: it is emitted as `{ ok: false }`.
+ * Must be called in an injection context.
  */
 export function poll<T>(
   request: () => Observable<T>,
@@ -34,7 +34,7 @@ export function poll<T>(
     startWith(document.visibilityState === 'visible'),
     distinctUntilChanged(),
     switchMap((visible) => (visible ? timer(0, intervalMs) : EMPTY)),
-    // exhaustMap : une requête lente n'est pas doublée par le tick suivant
+    // exhaustMap: a slow request is not doubled by the next tick
     exhaustMap(() =>
       request().pipe(
         map((value): PollResult<T> => ({ ok: true, value })),
