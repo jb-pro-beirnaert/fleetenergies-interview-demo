@@ -26,12 +26,11 @@ services:
     ports:
       - "${NESTJS_PORT}:3000"
     volumes:
-      # Code source monté : `nest start --watch` recompile à chaque modification
-      - ./apps/nestjs:/app/apps/nestjs
-      - ./packages/contracts:/app/packages/contracts
-      # node_modules de l'image (binaires Linux), pas ceux de l'hôte macOS
-      - /app/node_modules
-      - /app/apps/nestjs/node_modules
+      # Seul src/ est monté : `nest start --watch` recompile à chaque modification.
+      # Les node_modules (binaires Linux) restent ceux de l'image, sans volume à créer.
+      # Changement de dépendance ou de config (package.json, tsconfig…) : relancer avec --build
+      - ./apps/nestjs/src:/app/apps/nestjs/src
+      - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,11 +46,9 @@ services:
     ports:
       - "${MCP_PORT:-3100}:3100"
     volumes:
-      # Code source monté : `tsx watch` relance à chaque modification
-      - ./apps/mcp-server:/app/apps/mcp-server
-      - ./packages/contracts:/app/packages/contracts
-      - /app/node_modules
-      - /app/apps/mcp-server/node_modules
+      # Seul src/ est monté : `tsx watch` relance à chaque modification
+      - ./apps/mcp-server/src:/app/apps/mcp-server/src
+      - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
       - nestjs
 
@@ -66,10 +63,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./apps/agents:/app/apps/agents
-      - ./packages/contracts:/app/packages/contracts
-      - /app/node_modules
-      - /app/apps/agents/node_modules
+      - ./apps/agents/src:/app/apps/agents/src
+      - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
       - nestjs
       - mcp-server
@@ -87,11 +82,9 @@ services:
     ports:
       - "${WEB_PORT:-4200}:4200"
     volumes:
-      - ./apps/web:/app/apps/web
-      - ./packages/contracts:/app/packages/contracts
-      - /app/node_modules
-      - /app/apps/web/node_modules
-      - /app/apps/web/.angular
+      - ./apps/web/src:/app/apps/web/src
+      - ./apps/web/public:/app/apps/web/public
+      - ./packages/contracts/src:/app/packages/contracts/src
     depends_on:
       - nestjs
 
