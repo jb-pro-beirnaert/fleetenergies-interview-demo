@@ -3,6 +3,7 @@
 import type { HistoryLoadBatch, PlaceList } from '@fleet/contracts';
 import type { Backend } from './simulation.ts';
 import { sendStep } from './replay.ts';
+import type { SimStore } from './store.ts';
 
 export interface ApiConfig {
   apiUrl: string;
@@ -35,7 +36,13 @@ export class ApiClient {
     return this.request<T>('POST', path, role, body);
   }
 
+  /** Multipart body (V2 invoices); fetch sets the content type with its boundary. */
+  postForm<T>(path: string, role: Role, form: FormData): Promise<T> {
+    return this.request<T>('POST', path, role, form);
+  }
+
   private async request<T>(method: string, path: string, role: Role, body?: unknown): Promise<T> {
+    const isForm = body instanceof FormData;
     const token = role === 'device' ? this.config.deviceToken : role === 'admin' ? this.config.adminToken : null;
     const url = `${this.config.apiUrl}${path}`;
     let response: Response;
@@ -44,9 +51,9 @@ export class ApiClient {
         method,
         headers: {
           ...(token ? { authorization: `Bearer ${token}` } : {}),
-          ...(body === undefined ? {} : { 'content-type': 'application/json' }),
+          ...(body === undefined || isForm ? {} : { 'content-type': 'application/json' }),
         },
-        body: body === undefined ? undefined : JSON.stringify(body),
+        body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       });
     } catch (error) {
       throw new Error(`API injoignable (${url}) : ${(error as Error).message}`);
@@ -61,13 +68,13 @@ export class ApiClient {
 }
 
 /** What the simulation needs from the API (replaced by a fake in the tests). */
-export function apiBackend(api: ApiClient): Backend {
+export function apiBackend(api: ApiClient, store: SimStore): Backend {
   return {
     wipe: () => api.post<void>('/admin/wipe', 'admin'),
     loadHistory: async (batch: HistoryLoadBatch) => {
       await api.post('/admin/history/load', 'admin', batch);
     },
-    sendStep: (step) => sendStep(api, step),
+    sendStep: (step) => sendStep(api, step, (file) => store.readInvoice(file)),
     hasReference: async () => (await api.get<PlaceList>('/api/places')).length > 0,
     async waitUntilReady(log) {
       for (let attempt = 0; ; attempt++) {

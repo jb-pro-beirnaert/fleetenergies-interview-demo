@@ -105,6 +105,20 @@ describe('reconciliation', () => {
     expect(stationVisited(driving, [STATION], T)).toBeNull();
   });
 
+  it('a hop customer → nearby station between two readings still counts as a station stop', () => {
+    const CUSTOMER = { name: 'Warehouse', type: 'customer', lat: 44.92, lon: 4.86, radiusM: 200 };
+    // Stopped at the customer until t − 10, at the station from t − 5: no moving reading in between
+    const merged = [
+      reading(-40, 274, CUSTOMER),
+      reading(-25, 275, CUSTOMER),
+      reading(-10, 276, CUSTOMER),
+      reading(-5, 272),
+      reading(0, 617),
+      reading(5, 616),
+    ];
+    expect(stationVisited(merged, [CUSTOMER, STATION], T)?.name).toBe('AS24 Valence Sud');
+  });
+
   it('tolerance = max(20 L, 8% of the billed liters)', () => {
     expect(gapTolerance(100)).toBe(20);
     expect(gapTolerance(412)).toBe(33);

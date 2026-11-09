@@ -59,6 +59,12 @@ export const fmtNumber = (value: number | null | undefined, decimals = false) =>
 export const fmtEuros = (value: number | null | undefined) =>
   value === null || value === undefined ? '—' : formatters().currency.format(value);
 
+/** Fuel price per liter: 3 decimals, as printed on the pumps and invoices. */
+export const fmtUnitPrice = (value: number | null | undefined) =>
+  value === null || value === undefined
+    ? '—'
+    : `${new Intl.NumberFormat(currentLocale(), { style: 'currency', currency: 'EUR', minimumFractionDigits: 3 }).format(value)} / L`;
+
 export const fmtPercent = (ratio: number | null | undefined) => {
   if (ratio === null || ratio === undefined) return '—';
   const n = Math.round(ratio * 100);

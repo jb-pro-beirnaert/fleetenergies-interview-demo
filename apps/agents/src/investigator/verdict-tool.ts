@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Verdict } from '@fleet/contracts';
+import { Verdict, type AlertType, type VerdictCategory } from '@fleet/contracts';
 import type { ChatCompletionTool } from 'openai/resources/chat/completions';
 
 export const SUBMIT_VERDICT = 'submit_verdict';
@@ -21,14 +21,36 @@ export const verdictTool: ChatCompletionTool = {
 
 export type VerdictCheck = { ok: true; verdict: Verdict } | { ok: false; message: string };
 
-// Schema validation, then every cited reference must be a tool call actually made
-export function checkVerdict(args: unknown, knownRefs: ReadonlySet<string>): VerdictCheck {
+/**
+ * Categories that can explain each alert type (checked in code). A billing gap is a difference
+ * between an invoice and the tank: a theft, a transfer or a workshop job do not explain it.
+ */
+export const ALLOWED_CATEGORIES: Record<AlertType, readonly VerdictCategory[]> = {
+  fuel_drop: ['theft_suspected', 'sensor_fault', 'equipment_transfer', 'legitimate_operation', 'inconclusive'],
+  billing_mismatch: ['billing_discrepancy', 'sensor_fault', 'inconclusive'],
+};
+
+// Schema validation, allowed category, then every cited reference must be a tool call actually made
+export function checkVerdict(
+  args: unknown,
+  knownRefs: ReadonlySet<string>,
+  alertType: AlertType = 'fuel_drop',
+): VerdictCheck {
   const parsed = Verdict.safeParse(args);
   if (!parsed.success) {
     const issues = parsed.error.issues
       .map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`)
       .join('; ');
     return { ok: false, message: `Invalid verdict: ${issues}. Call ${SUBMIT_VERDICT} again.` };
+  }
+  const allowed = ALLOWED_CATEGORIES[alertType];
+  if (!allowed.includes(parsed.data.category)) {
+    return {
+      ok: false,
+      message:
+        `Invalid verdict: category "${parsed.data.category}" does not apply to a ${alertType} alert. ` +
+        `Choose one of: ${allowed.join(', ')}. Call ${SUBMIT_VERDICT} again.`,
+    };
   }
   const unknown = parsed.data.evidence
     .map((evidence) => evidence.toolCallId)

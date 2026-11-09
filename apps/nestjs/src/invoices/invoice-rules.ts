@@ -99,7 +99,11 @@ export function observedRise(readings: Reading[], t: Date): number | null {
   return round1(Math.max(0, max - min));
 }
 
-/** Fuel station where the truck stopped within [t − 30 min, t + 30 min], or `null`. */
+/**
+ * Fuel station where the truck stopped within [t − 30 min, t + 30 min], or `null`.
+ * Every stopped reading of the window is checked, not only the first one of the stop: a short
+ * hop (customer → nearby station in 2 min) can fall between two readings and merge both stops.
+ */
 export function stationVisited<P extends PlaceRef>(
   readings: Reading[],
   places: P[],
@@ -108,12 +112,11 @@ export function stationVisited<P extends PlaceRef>(
   const at = t.getTime();
   const stations = places.filter((place) => place.type === 'fuel_station');
   for (const stop of findStops(readings)) {
-    const overlaps =
-      stop.from.at.getTime() <= at + PRESENCE_MARGIN_MS &&
-      stop.to.at.getTime() >= at - PRESENCE_MARGIN_MS;
-    if (!overlaps) continue;
-    const station = nearestPlace(stop.from, stations);
-    if (station) return station;
+    for (const reading of stop.readings) {
+      if (Math.abs(reading.at.getTime() - at) > PRESENCE_MARGIN_MS) continue;
+      const station = nearestPlace(reading, stations);
+      if (station) return station;
+    }
   }
   return null;
 }

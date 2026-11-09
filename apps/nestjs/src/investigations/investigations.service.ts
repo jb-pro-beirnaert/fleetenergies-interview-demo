@@ -115,6 +115,7 @@ export class InvestigationsService {
         verdict.category,
         verdict.confidence,
         this.config.AUTO_CLOSE_MIN_CONFIDENCE,
+        investigation.alert.type,
       );
       const alertStatus = statusForDecision(decision);
 

@@ -165,7 +165,7 @@ export class TasksService {
           matchDetails: {
             truckId: null, plate: null, refuelAt: null, billedL: null, observedRiseL: null,
             gapL: null, toleranceL: null, stationMatched: false, stationName: null,
-            refuelId: null, refuelSource: null,
+            refuelId: null, refuelSource: null, cardLiters: null,
             reason: `Extraction failed: ${error}`.slice(0, 500),
           },
         },

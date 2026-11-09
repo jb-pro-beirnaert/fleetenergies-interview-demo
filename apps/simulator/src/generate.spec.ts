@@ -14,6 +14,12 @@ import {
   evaluateFuelDrop,
   type RuleReading,
 } from '../../nestjs/src/detector/fuel-drop.rule.ts';
+// The API reconciliation rules, applied as is to the generated invoices (V2)
+import {
+  gapTolerance,
+  observedRise,
+  stationVisited,
+} from '../../nestjs/src/invoices/invoice-rules.ts';
 import { B2_INVOICE_COUNT, BILLING_SCENARIOS } from './billing.ts';
 import { FILES, generate, serialize, type Dataset } from './generate.ts';
 import { addDays } from './time.ts';
@@ -64,6 +70,24 @@ function detect(dataset: Dataset): DetectedAlert[] {
     alerts.push(...own);
   }
   return alerts;
+}
+
+/** Status the API reconciliation gives each invoice (expected extraction values, all readings). */
+function reconcile(dataset: Dataset) {
+  const telemetry = [...dataset.history.telemetry, ...dataset.live.telemetry];
+  return dataset.groundTruth.invoices.map((invoice) => {
+    const t = new Date(invoice.expected.refuelAt!);
+    const readings = telemetry
+      .filter((r) => r.truckId === invoice.truckId && Math.abs(Date.parse(r.recordedAt) - t.getTime()) <= 60 * 60_000)
+      .map((r) => ({ ...r, at: new Date(r.recordedAt) }));
+    const rise = observedRise(readings, t);
+    // `radius_m` defaults to 150 in the database (spec 01)
+    const places = dataset.reference.places.map((p) => ({ ...p, radiusM: p.radiusM ?? 150 }));
+    const station = stationVisited(readings, places, t);
+    const gap = invoice.billedL - (rise ?? 0);
+    const status = rise === null ? 'needs_review' : !station || gap > gapTolerance(invoice.billedL) ? 'mismatch' : 'matched';
+    return { id: invoice.id, status, expected: invoice.expectedStatus, rise, station: station?.name ?? null };
+  });
 }
 
 describe('simulator generate', () => {
@@ -285,6 +309,12 @@ describe('simulator generate', () => {
       }
     });
 
+    it('the API reconciliation rules give every invoice its expected status', () => {
+      for (const result of reconcile(dataset)) {
+        expect(result.status, `${result.id}: rise ${result.rise} L, station ${result.station}`).toBe(result.expected);
+      }
+    });
+
     it('`invoices-plan.json` is part of the generated files', () => {
       const plan = JSON.parse(serialize(dataset)[FILES.invoicesPlan]);
       expect(plan).toHaveLength(dataset.invoices.length);
@@ -294,7 +324,7 @@ describe('simulator generate', () => {
   // Whatever the start instant: Monday morning, Sunday just before midnight, a week crossing the switch
   // to summer time, 31 March, just after midnight, in the middle of the night
   it.each([
-    [42, '2026-11-09T07:00:00Z'],
+    [42, '2026-11-09T07:00:00Z'], [42, '2026-11-09T15:21:00Z'],
     [42, '2026-11-08T22:58:00Z'],
     [42, '2026-03-26T13:37:00Z'],
     [42, '2026-03-31T09:00:00Z'],
@@ -319,5 +349,8 @@ describe('simulator generate', () => {
     expect(ids).toEqual(expect.arrayContaining(BILLING_SCENARIOS.map((event) => event.id)));
     const b1 = other.groundTruth.invoices.find((i) => i.id === 'B1-overbilled')!;
     expect(b1.billedL - b1.deliveredL).toBe(162);
+    for (const result of reconcile(other)) {
+      expect(result.status, `${result.id}: rise ${result.rise} L, station ${result.station}`).toBe(result.expected);
+    }
   });
 });

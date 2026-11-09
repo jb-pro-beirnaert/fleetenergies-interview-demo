@@ -83,6 +83,8 @@ export const InvoiceReconciliation = z
     refuelId: z.uuid().nullable(),
     /** Card transaction the invoice was attached to, or refuel created from the invoice. */
     refuelSource: RefuelSource.nullable(),
+    /** Liters of the attached fuel card transaction (`null` without one). */
+    cardLiters: z.number().nullable(),
     /** Why the reconciliation could not conclude (`needs_review`). */
     reason: z.string().nullable(),
   })
@@ -113,6 +115,7 @@ export const InvoiceListItem = z
     receivedAt: z.iso.datetime({ offset: true }),
     supplier: z.string().nullable(),
     plate: z.string().nullable(),
+    refuelAt: z.iso.datetime({ offset: true }).nullable(),
     liters: z.number().nullable(),
     totalEur: z.number().nullable(),
     suspicious: z.boolean(),

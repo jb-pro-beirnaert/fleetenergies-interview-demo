@@ -45,9 +45,10 @@ async function serve(env: NodeJS.ProcessEnv): Promise<never> {
   }
   const port = Number(env.SIM_PORT ?? 3200);
   const api = new ApiClient(configFromEnv(env));
+  const store = fileStore(env.SIM_DATA_DIR ?? '/data');
   const simulation = new Simulation({
-    backend: apiBackend(api),
-    store: fileStore(env.SIM_DATA_DIR ?? '/data'),
+    backend: apiBackend(api, store),
+    store,
     seed: parseSeed(env.SIM_SEED ?? '42'),
     speed: speed.data,
   });

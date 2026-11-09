@@ -27,9 +27,9 @@ import { LANGS, currentLang, setLang, t } from '../core/i18n/i18n';
       <a class="tab" routerLink="/fleet" routerLinkActive="active" ariaCurrentWhenActive="page">{{
         t('header.tab.fleet')
       }}</a>
-      <span class="tab disabled" [title]="t('header.tab.invoicesSoon')">{{
+      <a class="tab" routerLink="/invoices" routerLinkActive="active" ariaCurrentWhenActive="page">{{
         t('header.tab.invoices')
-      }}</span>
+      }}</a>
     </nav>
 
     <div class="meta">

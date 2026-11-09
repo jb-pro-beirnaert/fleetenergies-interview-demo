@@ -2,6 +2,7 @@ import type {
   AlertDetail,
   AlertStatus,
   AlertType,
+  InvoiceStatus,
   PlaceType,
   VerdictCategory,
 } from '@fleet/contracts';
@@ -22,6 +23,24 @@ export const categoryLabel = (category: VerdictCategory) => t(`category.${catego
 export const statusLabel = (status: AlertStatus) => t(`status.${status}`);
 export const alertTypeLabel = (type: AlertType) => t(`alertType.${type}`);
 export const placeTypeLabel = (type: PlaceType) => t(`placeType.${type}`);
+export const invoiceStatusLabel = (status: InvoiceStatus) => t(`invoiceStatus.${status}`);
+
+/** Colour family of an invoice status pill. */
+export function invoiceStatusTone(status: InvoiceStatus): 'neutral' | 'progress' | 'ok' | 'warn' | 'bad' {
+  switch (status) {
+    case 'extracting':
+      return 'progress';
+    case 'matched':
+      return 'ok';
+    case 'needs_review':
+      return 'warn';
+    case 'mismatch':
+    case 'failed':
+      return 'bad';
+    default:
+      return 'neutral';
+  }
+}
 
 export const PLACE_TYPE_COLORS: Record<PlaceType, string> = {
   fuel_station: '#2563eb',
@@ -69,6 +88,7 @@ export function decisionReason(alert: AlertDetail): string | null {
   const category = alert.investigation?.category;
   if (!alert.decision || !category) return null;
   if (alert.decision === 'auto_closed') return t('decision.autoClosed');
+  if (alert.type === 'billing_mismatch') return t('decision.billingAlwaysEscalated');
   if (ALWAYS_ESCALATED.has(category)) {
     return t('decision.alwaysEscalated', { category: categoryLabel(category) });
   }

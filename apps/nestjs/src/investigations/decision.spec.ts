@@ -4,6 +4,13 @@ import { decide, statusForDecision } from './decision.js';
 const THRESHOLD = 0.75;
 
 describe('decide (decision after the verdict)', () => {
+  it.each<VerdictCategory>(['legitimate_operation', 'sensor_fault', 'billing_discrepancy'])(
+    'V2: a billing_mismatch alert is always escalated (%s, confidence 1)',
+    (category) => {
+      expect(decide(category, 1, THRESHOLD, 'billing_mismatch')).toBe('escalated');
+    },
+  );
+
   it.each<VerdictCategory>([
     'theft_suspected',
     'billing_discrepancy',

@@ -247,7 +247,7 @@ export async function investigate(
       verdictAttempted = true;
       const args = parseArguments(call.rawArguments);
       const check = args
-        ? checkVerdict(args, refs)
+        ? checkVerdict(args, refs, context.type)
         : { ok: false as const, message: `Arguments of ${SUBMIT_VERDICT} must be a JSON object.` };
       if (check.ok) return submit(check.verdict);
 

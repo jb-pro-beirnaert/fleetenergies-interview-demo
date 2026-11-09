@@ -24,7 +24,7 @@ The UI is available in **English (default)** and **French**, switchable from the
 │ feed          │ (header, trace, verdict, review)     │               │
 └───────────────┴──────────────────────────────────────┴───────────────┘
 ```
-Tabs at the top (router links): **Alerts** (`/`, V1), **Fleet** (`/fleet`, V1), **Invoices** (V2, disabled).
+Tabs at the top (router links): **Alerts** (`/`, V1), **Fleet** (`/fleet`, V1), **Invoices** (`/invoices`, V2).
 
 ## Header
 Title, simulated time (`stats.simulatedNow`), model used, language switch, green/red dot depending on the API health.
@@ -85,11 +85,11 @@ Overview of the telemetry received, to understand what the fleet is doing while 
 - **Fleet activity**: stacked areas, number of trucks moving / idling / parked at each 5-min step (computed by the screen from the readings).
 - **One card per truck**: plate, state, carrier and model, reefer badge, speed, fuel gauge; chart of the fuel level (left axis) with the speed faded (right axis), alert periods in red, engine-off periods greyed out, refuels as green points; refuel chips and alert chips (clicking an alert opens it in the Alerts tab).
 
-## V2 — Invoices tab
-- List: supplier, number plate, refuel date, liters, amount, status (Received, Reading, Read, Matched, **Discrepancy**, To check, Failed), red **"Suspicious content"** badge.
-- Two-column detail: the PDF (`/api/invoices/:id/file`) on the left; on the right the extracted fields, the reconciliation (billed liters, observed rise, gap, recognised station), and the suspicious passage highlighted if there is one.
-- Link to the billing discrepancy alert and its investigation.
-- In the alert feed, `billing_mismatch` alerts lead to the same investigation view.
+## V2 — Invoices tab (`/invoices`)
+- List (2 s polling, only while the tab is open): supplier, number plate, refuel date, liters, amount, status (Received, Reading, Read, Matched, **Discrepancy**, To check, Failed), red **"Suspicious content"** badge.
+- Detail (selection carried by the URL, `/invoices?id=…`, the most recent by default): the PDF (`/api/invoices/:id/file`, browser viewer in an iframe) in the centre; on the right the suspicious passage highlighted with an explanation, the reconciliation (billed liters, observed rise, gap in red above the tolerance, station stop, card transaction liters, attached refuel, or the reason of a "To check"), then the fields read by the AI extractor.
+- Button to the billing discrepancy alert and its investigation (selects it in the Alerts tab).
+- In the alert feed, `billing_mismatch` alerts lead to the same investigation view; its header shows "Billed but not in the tank" and a link back to the invoice; the decision reason says a billing discrepancy is always reviewed by an analyst.
 
 ## Acceptance criteria
 1. After "Start", alerts appear on their own, move to "Investigating" then "Auto-closed" or "Escalated", without reloading the page.

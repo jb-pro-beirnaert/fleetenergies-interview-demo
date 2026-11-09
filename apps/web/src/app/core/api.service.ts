@@ -5,6 +5,8 @@ import type {
   AlertList,
   FleetOverview,
   Health,
+  InvoiceDetail,
+  InvoiceList,
   Positions,
   ReviewRequest,
   ReviewResult,
@@ -48,6 +50,19 @@ export class ApiService {
 
   fleet(hours: number) {
     return this.http.get<FleetOverview>('/api/fleet', { params: { hours } });
+  }
+
+  invoices(limit = 200) {
+    return this.http.get<InvoiceList>('/api/invoices', { params: { limit } });
+  }
+
+  invoice(id: string) {
+    return this.http.get<InvoiceDetail>(`/api/invoices/${id}`);
+  }
+
+  /** URL of the received PDF (shown in an iframe by the browser's viewer). */
+  invoiceFileUrl(id: string) {
+    return `/api/invoices/${encodeURIComponent(id)}/file`;
   }
 
   stats() {

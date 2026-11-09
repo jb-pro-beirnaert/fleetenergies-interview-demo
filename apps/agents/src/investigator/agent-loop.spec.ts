@@ -6,6 +6,8 @@ import { RetryableError, TaskAbandonedError } from '../shared/errors.js';
 import type { ChatModel } from '../shared/llm.js';
 import type { ToolProvider } from '../shared/mcp-client.js';
 import { BUDGET_MESSAGE, investigate, NUDGE_MESSAGE, parseTextToolCalls } from './agent-loop.js';
+import { buildUserMessage } from './prompt.js';
+import { checkVerdict } from './verdict-tool.js';
 
 const ALERT_ID = '0b9f7c1e-2d3a-4e5f-8a6b-7c8d9e0f1a2b';
 const TRUCK_ID = '3f1c2a4e-8b7d-4c6a-9e5f-1a2b3c4d5e6f';
@@ -265,5 +267,34 @@ describe('parseTextToolCalls', () => {
   it('ignores plain text and unknown tools', () => {
     expect(parseTextToolCalls('The level dropped by 120 L.', known)).toEqual([]);
     expect(parseTextToolCalls('{"name": "rm_rf", "arguments": {}}', known)).toEqual([]);
+  });
+});
+
+describe('V2: billing_mismatch alerts', () => {
+  const BILLING: AlertContext = {
+    ...CONTEXT,
+    type: 'billing_mismatch',
+    dropL: 160,
+    details: { billedL: 412, observedRiseL: 252, gapL: 160, toleranceL: 33, cardLiters: 250, stationMatched: true, stationName: 'AS24 Valence Sud' },
+  };
+
+  it('the verdict category must explain a billing gap (checked in code)', () => {
+    const refs = new Set(['E1']);
+    const verdict = { ...VERDICT, evidence: [{ toolCallId: 'E1', finding: 'Tank rose by 252 L only.' }] };
+    const legitimate = checkVerdict({ ...verdict, category: 'legitimate_operation' }, refs, 'billing_mismatch');
+    expect(legitimate).toMatchObject({ ok: false });
+    expect(!legitimate.ok && legitimate.message).toMatch(/billing_discrepancy, sensor_fault, inconclusive/);
+    expect(checkVerdict({ ...verdict, category: 'billing_discrepancy' }, refs, 'billing_mismatch')).toMatchObject({ ok: true });
+    // A fuel drop is never a billing discrepancy
+    expect(checkVerdict({ ...verdict, category: 'billing_discrepancy' }, refs, 'fuel_drop')).toMatchObject({ ok: false });
+  });
+
+  it('the user message states the billed liters, the tank rise and the question', () => {
+    const message = buildUserMessage(BILLING);
+    expect(message).toContain('the invoice bills 412 L, the tank level rose by 252 L');
+    expect(message).toContain('gap of 160 L');
+    expect(message).toContain('EXCEEDS the tolerance (160 L > 33 L)');
+    expect(message).toContain('fuel card transaction of this refuel recorded 250 L');
+    expect(message).toContain('billing_discrepancy, sensor_fault, inconclusive');
   });
 });

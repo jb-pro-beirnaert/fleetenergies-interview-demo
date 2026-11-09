@@ -55,8 +55,35 @@ export function investigationPeriod(context: AlertContext): { from: string; to: 
   return { from: iso(start), to: iso(end) };
 }
 
+/** Number from the alert details computed by the API (billing alerts). */
+const detail = (context: AlertContext, key: string) => {
+  const value = context.details[key];
+  return typeof value === 'number' ? value : null;
+};
+
 export function buildUserMessage(context: AlertContext): string {
   const period = investigationPeriod(context);
+  if (context.type === 'billing_mismatch') {
+    const card = detail(context, 'cardLiters');
+    const gap = detail(context, 'gapL');
+    const tolerance = detail(context, 'toleranceL');
+    const beyond =
+      gap !== null && tolerance !== null && gap > tolerance
+        ? `The gap EXCEEDS the tolerance (${gap} L > ${tolerance} L).`
+        : 'The gap is within the tolerance, but the truck was not seen at a fuel station.';
+    const station = context.details['stationMatched']
+      ? `The truck was stopped at the fuel station ${String(context.details['stationName'] ?? '')}.`
+      : 'The code found NO stop of the truck at a fuel station around the refuel.';
+    return `Billing alert to investigate (type billing_mismatch):
+${JSON.stringify(context, null, 2)}
+
+Facts computed by the code: the invoice bills ${detail(context, 'billedL')} L, the tank level rose by ${detail(context, 'observedRiseL')} L around the refuel, a gap of ${gap} L (tolerance ${tolerance} L). ${beyond} ${card === null ? 'No fuel card transaction matches this refuel.' : `The fuel card transaction of this refuel recorded ${card} L.`} ${station}
+Question: were fewer liters delivered than billed (billing_discrepancy), is the gauge wrong (sensor_fault), or are the clues insufficient (inconclusive)? Compare the billed liters with the tank curve and with the card transaction.
+
+Truck: truckId "${context.truckId}".
+Suggested period for the tools: from "${period.from}" to "${period.to}".
+Investigate, then call submit_verdict with one of: billing_discrepancy, sensor_fault, inconclusive.`;
+  }
   return `Alert to investigate:
 ${JSON.stringify(context, null, 2)}
 

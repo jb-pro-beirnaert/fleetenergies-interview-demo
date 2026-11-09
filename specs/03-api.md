@@ -70,6 +70,7 @@ Only the worker holding the lock (`locked_by`) can complete or fail a task (409 
   - Stores the verdict, then applies the decision.
 
 ### Decision after the verdict (code, not AI)
+- (V2) a `billing_mismatch` alert → **always** `escalated`, whatever the category and the confidence: the gap is computed by code and concerns money owed to a supplier, the agent explains, a human decides;
 - `theft_suspected`, `billing_discrepancy`, `inconclusive` → **always** `escalated`;
 - other categories: `confidence ≥ AUTO_CLOSE_MIN_CONFIDENCE` (default 0.75) → `closed`, otherwise `escalated`.
 
@@ -139,9 +140,9 @@ The screen routes return the real names (authenticated human — out of V1 scope
 1. Truck by normalised plate. Not found or missing → `needs_review` (the reason is kept in `match_details.reason`).
 2. Refuel instant: `refuelAt`, otherwise `needs_review`; billed liters missing → `needs_review`; no reading around the refuel → `needs_review`.
 3. Observed tank rise: `max(level over [t, t+60 min]) − min(level over [t−30 min, t])`.
-4. Presence at a fuel station: a stop of the truck at a `fuel_station` place within `[t−30 min, t+30 min]`.
+4. Presence at a fuel station: a stop of the truck (≥ 5 min) with a reading inside a `fuel_station` place within `[t−30 min, t+30 min]`. Every reading of the stop is checked, not only the first one: a 2-min hop from a customer to a nearby station can fall between two readings and merge both stops (seen in M10 at Saint-Priest).
 5. Refuel: if there is a `fuel_card` `refuel` of the truck within ±30 min, the invoice is attached to it; otherwise a `refuel` with `source = invoice` is created.
-6. Gap = billed liters − observed rise. If `gap > max(20 L, 8% of billed liters)` **or** no presence at a fuel station → `mismatch`: `billing_mismatch` alert (window = refuel instant → +15 min, `drop_l` = gap if positive, `details`: `invoiceId`, `billedL`, `observedRiseL`, `gapL`, `toleranceL`, `stationMatched`, `stationName`, `invoiceSupplier`, `invoiceStation`, `refuelAt`) + `investigate_alert` task (available after `DETECTOR_DEBOUNCE_SECONDS`). Otherwise `matched`.
+6. Gap = billed liters − observed rise. If `gap > max(20 L, 8% of billed liters)` **or** no presence at a fuel station → `mismatch`: `billing_mismatch` alert (window = refuel instant → +15 min, `drop_l` = gap if positive, `details`: `invoiceId`, `billedL`, `observedRiseL`, `gapL`, `toleranceL`, `stationMatched`, `stationName`, `cardLiters` (liters of the attached card transaction), `invoiceSupplier`, `invoiceStation`, `refuelAt`) + `investigate_alert` task (available after `DETECTOR_DEBOUNCE_SECONDS`). Otherwise `matched`.
 7. An `extract_invoice` task that fails permanently moves the invoice to `needs_review` (reason: the error).
 
 For a `billing_mismatch` alert, the `find_fuel_transactions` tool does return the billed refuel, and the alert context includes the `details` above.

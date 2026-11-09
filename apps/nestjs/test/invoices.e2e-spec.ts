@@ -220,6 +220,7 @@ describe('Invoices (V2)', () => {
         billedL: 412,
         observedRiseL: 250,
         gapL: 162,
+        cardLiters: 250,
         stationMatched: true,
         stationName: 'AS24 Valence Sud',
       });

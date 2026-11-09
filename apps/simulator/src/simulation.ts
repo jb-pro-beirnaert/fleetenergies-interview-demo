@@ -265,7 +265,12 @@ export class Simulation {
   }
 
   private planWeek(dataset: SimDataset): ReplayStep[] {
-    return planSteps(dataset.live, Date.parse(dataset.liveStart), Date.parse(dataset.liveEnd));
+    return planSteps(
+      dataset.live,
+      Date.parse(dataset.liveStart),
+      Date.parse(dataset.liveEnd),
+      (dataset.invoices ?? []).map(({ file, receivedAt }) => ({ file, receivedAt })),
+    );
   }
 
   // --- Replay ----------------------------------------------------------------------------------
@@ -294,7 +299,9 @@ export class Simulation {
       this.alertsCreated += alerts;
       await this.persist();
       log(
-        `${stamp(step.clock)} │ readings ${String(step.telemetry.length).padStart(3)} · refuels ${step.refuels.length} · messages ${step.messages.length} │ ` +
+        `${stamp(step.clock)} │ readings ${String(step.telemetry.length).padStart(3)} · refuels ${step.refuels.length} · messages ${step.messages.length}` +
+          (step.invoices.length > 0 ? ` · invoices ${step.invoices.map((i) => i.file).join(', ')}` : '') +
+          ' │ ' +
           (alerts > 0 ? `alerts +${alerts} (total ${this.alertsCreated}) 🚨` : `alerts ${this.alertsCreated}`),
       );
       if (index < steps.length - 1) await this.waitNextStep(startedAt);

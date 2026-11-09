@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ControlRoomStore } from '../core/control-room.store';
 import { fmtDateTime, fmtDuration, fmtLiters, fmtTime } from '../core/format';
 import { t } from '../core/i18n/i18n';
@@ -11,7 +12,7 @@ import { VerdictCard } from './verdict-card';
 
 @Component({
   selector: 'app-investigation-panel',
-  imports: [StatusPill, TraceStep, VerdictCard, ReviewForm],
+  imports: [StatusPill, TraceStep, VerdictCard, ReviewForm, RouterLink],
   template: `
     @if (store.detail(); as alert) {
       <section class="head card">
@@ -29,7 +30,9 @@ import { VerdictCard } from './verdict-card';
             <span>{{ fmtDateTime(alert.windowStart) }} → {{ fmtTime(alert.windowEnd) }}</span>
           </div>
           <div>
-            <span class="k">{{ t('inv.drop') }}</span>
+            <span class="k">{{
+              t(alert.type === 'billing_mismatch' ? 'inv.billingGap' : 'inv.drop')
+            }}</span>
             <span class="big">{{ fmtLiters(alert.dropL) }}</span>
           </div>
           <div>
@@ -45,6 +48,11 @@ import { VerdictCard } from './verdict-card';
             <span>{{ toolCalls() }}</span>
           </div>
         </div>
+        @if (invoiceId(); as invoiceId) {
+          <a class="invoice-link" routerLink="/invoices" [queryParams]="{ id: invoiceId }">
+            {{ t('inv.openInvoice') }} →
+          </a>
+        }
       </section>
 
       <section class="trace">
@@ -106,6 +114,12 @@ export class InvestigationPanel {
   protected readonly fmtTime = fmtTime;
   protected readonly fmtLiters = fmtLiters;
   protected readonly anchor = stepAnchor;
+
+  /** V2: invoice behind a billing discrepancy alert */
+  protected readonly invoiceId = computed(() => {
+    const id = this.store.detail()?.details['invoiceId'];
+    return typeof id === 'string' ? id : null;
+  });
 
   protected readonly trace = computed(() =>
     buildTrace(this.store.detail()?.investigation?.steps ?? []),

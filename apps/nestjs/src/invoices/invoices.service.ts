@@ -58,6 +58,7 @@ const emptyReconciliation = (reason: string): InvoiceReconciliation => ({
   stationName: null,
   refuelId: null,
   refuelSource: null,
+  cardLiters: null,
   reason,
 });
 
@@ -264,6 +265,7 @@ export class InvoicesService {
       stationName: station?.name ?? null,
       refuelId: refuel.id,
       refuelSource: refuel.source,
+      cardLiters: refuel.source === 'fuel_card' ? toNum(refuel.liters) : null,
       reason: null,
     };
   }
@@ -340,6 +342,7 @@ export class InvoicesService {
           toleranceL: r.toleranceL,
           stationMatched: r.stationMatched,
           stationName: r.stationName,
+          cardLiters: r.cardLiters,
           invoiceSupplier: extraction.supplier,
           invoiceStation: extraction.stationName,
           refuelAt: r.refuelAt,
@@ -390,6 +393,7 @@ export class InvoicesService {
         receivedAt: iso(invoice.receivedAt),
         supplier: extraction?.supplier ?? null,
         plate: extraction?.plate ?? null,
+        refuelAt: extraction?.refuelAt ?? null,
         liters: extraction?.liters ?? null,
         totalEur: extraction?.totalEur ?? null,
         suspicious: invoice.suspicious,

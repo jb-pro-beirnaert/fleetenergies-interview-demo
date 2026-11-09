@@ -109,6 +109,8 @@ Defined in `billing.ts`; days relative to D, always within the demo week.
 - B1, B3 and B4 are **scripted refuels** (day script of their truck): departure early enough, deliveries if time allows, refuel at the planned station and time (± 10 min), deliveries, back to the depot. The liters planned are a **partial fill**, capped by the room left in the tank: if the tank is fuller than expected, fewer liters are delivered (B1 always bills delivered + 162 L). To keep room, from the day before until the scripted refuel the automatic refuel threshold of the truck drops from 30% to 12%.
 - Every invoice matches a card transaction (`fuel_card`) of the week and is sent 30 simulated minutes after it; a refuel whose invoice would be sent after the end of the week is not invoiced.
 
+A test applies the API reconciliation rules (`apps/nestjs/src/invoices/invoice-rules.ts`) to the generated data, whatever the start instant: every invoice must get its expected status (like the detector rule for S1–S8).
+
 For each invoice, the simulator records in the ground truth (`groundTruth.invoices`) the delivered and billed liters, the expected status and category, and the exact values expected from the extraction (`InvoiceExtraction`). The PDFs are rendered by the simulator itself (spec 10).
 
 ## Dataset
@@ -135,7 +137,7 @@ Reference data (carriers, places, trucks, drivers), then the assignments in batc
   1. the readings (`POST /api/telemetry`, `source = live`, one batch for all trucks);
   2. the card transactions (`POST /api/fuel-card-transactions`);
   3. the messages (`POST /api/driver-messages`);
-  4. (V2) the invoices (`POST /api/invoices`), sent 30 simulated minutes after the matching refuel.
+  4. (V2) the invoices (`POST /api/invoices`, multipart: the PDF rendered at `start`, read from `/data/live-invoices/`, `receivedAt`, `source = live`), sent 30 simulated minutes after the matching refuel. A PDF missing from the volume makes the step fail (the simulation pauses with the message).
 - After each step: `clock` and `alertsCreated` updated and persisted; console log (simulated time, items sent, alerts created).
 - After the last step: `finished`.
 

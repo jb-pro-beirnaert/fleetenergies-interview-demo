@@ -1,6 +1,6 @@
 import type { AlertDetail } from '@fleet/contracts';
 import { setLang } from './i18n/i18n';
-import { decisionReason } from './labels';
+import { decisionReason, invoiceStatusLabel, invoiceStatusTone } from './labels';
 
 const alert = (partial: {
   decision: AlertDetail['decision'];
@@ -49,5 +49,25 @@ describe('decisionReason', () => {
     expect(decisionReason(alert({ decision: 'escalated', category: 'theft_suspected' }))).toBe(
       '« Vol probable » est toujours revu par un analyste',
     );
+  });
+});
+
+describe('decisionReason (V2)', () => {
+  it('a billing discrepancy alert is always escalated', () => {
+    const billing = { ...alert({ decision: 'escalated', category: 'sensor_fault' }), type: 'billing_mismatch' } as AlertDetail;
+    expect(decisionReason(billing)).toBe('A billing discrepancy is always reviewed by an analyst');
+  });
+});
+
+describe('invoice statuses (V2)', () => {
+  afterEach(() => setLang('en'));
+
+  it('labels follow the language; a discrepancy is red, a match green', () => {
+    expect(invoiceStatusLabel('mismatch')).toBe('Discrepancy');
+    setLang('fr');
+    expect(invoiceStatusLabel('needs_review')).toBe('À vérifier');
+    expect(invoiceStatusTone('mismatch')).toBe('bad');
+    expect(invoiceStatusTone('matched')).toBe('ok');
+    expect(invoiceStatusTone('extracting')).toBe('progress');
   });
 });

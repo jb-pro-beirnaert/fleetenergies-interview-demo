@@ -151,8 +151,8 @@ Consistency rules checked in code by the API (422 otherwise): `liters × unitPri
 Other V2 schemas (`invoice.ts`):
 - `InvoiceUploadFields` (`receivedAt`, `source` = `live` by default: multipart fields of `POST /api/invoices`) → `InvoiceUploadResult { invoiceId, status, suspicious, created }`;
 - `InvoiceText { invoiceId, text, receivedAt }` (agent, masked);
-- `InvoiceReconciliation { truckId, plate, refuelAt, billedL, observedRiseL, gapL, toleranceL, stationMatched, stationName, refuelId, refuelSource, reason }`;
+- `InvoiceReconciliation { truckId, plate, refuelAt, billedL, observedRiseL, gapL, toleranceL, stationMatched, stationName, refuelId, refuelSource, cardLiters, reason }`;
 - `InvoiceExtractionOutcome { invoiceId, status, suspicious, reconciliation, alertId, alreadyExtracted }`;
-- screen: `InvoiceListQuery`, `InvoiceListItem` / `InvoiceList`, `InvoiceDetail` (text, extraction, reconciliation, linked alert).
+- screen: `InvoiceListQuery`, `InvoiceListItem` / `InvoiceList` (with the extracted `refuelAt`), `InvoiceDetail` (text, extraction, reconciliation, linked alert).
 
 The extractor imposes on the model a variant of `InvoiceExtraction` (`ModelExtraction`, in `apps/agents`): `refuelAt` is the **local time as printed** (`YYYY-MM-DDTHH:mm`, no time zone), converted to an ISO UTC instant by code (Europe/Paris).
