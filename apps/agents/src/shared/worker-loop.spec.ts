@@ -29,6 +29,8 @@ describe('worker loop', () => {
       getAlertContext: vi.fn(),
       addStep: vi.fn(),
       submitVerdict: vi.fn(),
+      getInvoiceText: vi.fn(),
+      submitExtraction: vi.fn(),
     };
   });
   afterEach(() => vi.restoreAllMocks());

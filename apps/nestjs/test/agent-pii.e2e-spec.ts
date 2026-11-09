@@ -28,6 +28,7 @@ const FORBIDDEN_PHONES = DRIVERS.map((driver) =>
 describe('No personal data on /agent/*', () => {
   let t: TestApp;
   let alertId: string;
+  let invoiceId: string;
 
   beforeAll(async () => {
     t = await createTestApp();
@@ -116,6 +117,20 @@ describe('No personal data on /agent/*', () => {
     ]);
   });
 
+  // V2: invoice whose text mentions a driver (masked on `/agent/invoices/:id/text`)
+  beforeAll(async () => {
+    const invoice = await t.prisma.invoice.create({
+      data: {
+        sha256: 'pii-test',
+        filePath: '/nonexistent.pdf',
+        rawText: `Invoice F1 – driver ${DRIVERS[0].fullName}, tel. ${DRIVERS[0].phone}, mail helene.garnier@durance.fr – 250.00 L`,
+        receivedAt: minutesAfter(150),
+        dataOrigin: 'live',
+      },
+    });
+    invoiceId = invoice.id;
+  });
+
   it('walks every GET /agent/* route of the OpenAPI document', async () => {
     const doc = (await t.http().get('/docs/json').expect(200)).body as {
       paths: Record<string, Record<string, unknown>>;
@@ -131,6 +146,7 @@ describe('No personal data on /agent/*', () => {
     for (const template of agentGets) {
       const path = template
         .replace('{truckId}', IDS.truck)
+        .replace('/agent/invoices/{id}', `/agent/invoices/${invoiceId}`)
         .replace('{id}', alertId)
         .replace('{alertId}', alertId);
       const response = await t

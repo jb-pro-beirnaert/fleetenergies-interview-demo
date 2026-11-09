@@ -69,6 +69,7 @@ SimulationSpeedRequest = { speed: SimulationSpeed }
 ```ts
 ClaimRequest  = { type: TaskType, workerId: string }
 ClaimedTask   = { id: uuid, type: TaskType, payload: { alertId: uuid } | { invoiceId: uuid }, attempts: number }
+// InvestigateAlertPayload = { alertId }, ExtractInvoicePayload = { invoiceId }
 FailRequest   = { error: string, retryable: boolean }
 ```
 
@@ -145,4 +146,13 @@ InvoiceExtraction = {
   confidenceNotes: string | null,  // uncertain fields, ≤ 200 characters
 }
 ```
-Consistency rules checked in code after validation: `liters × unitPriceEur ≈ totalEur` (±2%) when all three are present; liters between 1 and 1,200.
+Consistency rules checked in code by the API (422 otherwise): `liters × unitPriceEur ≈ totalEur` (±2%) when all three are present; liters between 1 and 1,200.
+
+Other V2 schemas (`invoice.ts`):
+- `InvoiceUploadFields` (`receivedAt`, `source` = `live` by default: multipart fields of `POST /api/invoices`) → `InvoiceUploadResult { invoiceId, status, suspicious, created }`;
+- `InvoiceText { invoiceId, text, receivedAt }` (agent, masked);
+- `InvoiceReconciliation { truckId, plate, refuelAt, billedL, observedRiseL, gapL, toleranceL, stationMatched, stationName, refuelId, refuelSource, reason }`;
+- `InvoiceExtractionOutcome { invoiceId, status, suspicious, reconciliation, alertId, alreadyExtracted }`;
+- screen: `InvoiceListQuery`, `InvoiceListItem` / `InvoiceList`, `InvoiceDetail` (text, extraction, reconciliation, linked alert).
+
+The extractor imposes on the model a variant of `InvoiceExtraction` (`ModelExtraction`, in `apps/agents`): `refuelAt` is the **local time as printed** (`YYYY-MM-DDTHH:mm`, no time zone), converted to an ISO UTC instant by code (Europe/Paris).

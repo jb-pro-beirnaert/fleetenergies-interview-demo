@@ -27,8 +27,12 @@ services:
     env_file: .env
     environment:
       PORT: 3000
+      INVOICE_STORAGE_DIR: /data/invoices
     ports:
       - "${NESTJS_PORT}:3000"
+    # V2: received PDF invoices (emptied by /admin/wipe)
+    volumes:
+      - invoices:/data/invoices
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,6 +67,20 @@ services:
       - mcp-server
     deploy:
       replicas: 1
+
+  # V2: invoice extractor (same image as the investigator, other entry point)
+  extractor:
+    build:
+      context: .
+      dockerfile: apps/agents/Dockerfile
+      target: prod
+    restart: unless-stopped
+    command: ["node", "dist/extractor.js"]
+    env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - nestjs
 
   simulator:
     build:
@@ -100,3 +118,4 @@ services:
 volumes:
   pgdata:
   simdata:
+  invoices:

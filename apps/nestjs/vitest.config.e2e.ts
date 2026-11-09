@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 // Integration tests: Postgres database from docker-compose.test.yaml (`npm run test:db:up`)
@@ -24,6 +26,7 @@ export default defineConfig({
       DETECTOR_DEBOUNCE_SECONDS: '0',
       AUTO_CLOSE_MIN_CONFIDENCE: '0.75',
       TASK_SWEEP_INTERVAL_MS: '0',
+      INVOICE_STORAGE_DIR: join(tmpdir(), 'fleet-invoices-e2e'),
     },
   },
 });

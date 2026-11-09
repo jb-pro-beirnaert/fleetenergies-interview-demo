@@ -49,6 +49,7 @@ enum RefuelSource {
 
 enum AlertType {
   fuel_drop
+  billing_mismatch
 
   @@map("alert_type")
 }
@@ -110,8 +111,21 @@ enum ReviewDecision {
 
 enum TaskType {
   investigate_alert
+  extract_invoice
 
   @@map("task_type")
+}
+
+enum InvoiceStatus {
+  received
+  extracting
+  extracted
+  matched
+  mismatch
+  needs_review
+  failed
+
+  @@map("invoice_status")
 }
 
 enum TaskStatus {
@@ -230,8 +244,12 @@ model Refuel {
   totalEur     Decimal?      @map("total_eur") @db.Decimal(8, 2)
   source       RefuelSource
   dataOrigin   ReadingSource @map("data_origin")
+  /// V2: invoice attached to this refuel (card transaction) or that created it
+  invoiceId    String?       @map("invoice_id") @db.Uuid
   truck        Truck         @relation(fields: [truckId], references: [id])
   place        Place?        @relation(fields: [placeId], references: [id])
+  invoice      Invoice?      @relation("RefuelInvoice", fields: [invoiceId], references: [id], onDelete: SetNull)
+  matchedBy    Invoice[]     @relation("InvoiceMatchedRefuel")
 
   @@unique([truckId, occurredAt])
   @@map("refuels")
@@ -268,6 +286,7 @@ model Alert {
   truck         Truck          @relation(fields: [truckId], references: [id])
   investigation Investigation?
   review        HumanReview?
+  invoices      Invoice[]
 
   @@index([truckId, type, windowEnd])
   @@index([detectedAt(sort: Desc)])
@@ -319,6 +338,33 @@ model HumanReview {
   alert      Alert          @relation(fields: [alertId], references: [id], onDelete: Cascade)
 
   @@map("human_reviews")
+}
+
+// ---------- V2: invoices ----------
+
+model Invoice {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status            InvoiceStatus @default(received)
+  /// SHA-256 of the file: natural key of the idempotent reception
+  sha256            String        @unique
+  filePath          String        @map("file_path")
+  originalFilename  String?       @map("original_filename")
+  rawText           String?       @map("raw_text")
+  extraction        Json?
+  suspicious        Boolean       @default(false)
+  suspiciousExcerpt String?       @map("suspicious_excerpt")
+  matchedRefuelId   String?       @map("matched_refuel_id") @db.Uuid
+  matchDetails      Json?         @map("match_details")
+  alertId           String?       @map("alert_id") @db.Uuid
+  receivedAt        DateTime      @map("received_at") @db.Timestamptz(3)
+  dataOrigin        ReadingSource @map("data_origin")
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  matchedRefuel     Refuel?       @relation("InvoiceMatchedRefuel", fields: [matchedRefuelId], references: [id], onDelete: SetNull)
+  alert             Alert?        @relation(fields: [alertId], references: [id], onDelete: SetNull)
+  refuels           Refuel[]      @relation("RefuelInvoice")
+
+  @@index([receivedAt(sort: Desc)])
+  @@map("invoices")
 }
 
 // ---------- Task queue ----------

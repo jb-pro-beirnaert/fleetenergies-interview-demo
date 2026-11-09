@@ -6,6 +6,8 @@
     "build": "tsc -p tsconfig.json",
     "dev:investigator": "tsx watch src/investigator.ts",
     "start:investigator": "node dist/investigator.js",
+    "dev:extractor": "tsx watch src/extractor.ts",
+    "start:extractor": "node dist/extractor.js",
     "smoke:tools": "tsx src/smoke-tools.ts"
   },
   "type": "module",

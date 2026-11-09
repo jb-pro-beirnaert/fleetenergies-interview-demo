@@ -54,6 +54,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
+            "allowedHosts": ["proprietary-meetup-regulated-via.trycloudflare.com"],
             "proxyConfig": "proxy.conf.mjs"
           },
           "configurations": {

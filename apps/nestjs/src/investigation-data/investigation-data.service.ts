@@ -145,7 +145,7 @@ export class InvestigationDataService {
         liters: toNum(refuel.liters),
         totalEur: toNum(refuel.totalEur),
         source: refuel.source,
-        invoiceId: null,
+        invoiceId: refuel.invoiceId,
       })),
     };
   }

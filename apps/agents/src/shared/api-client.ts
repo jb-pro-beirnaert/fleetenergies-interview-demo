@@ -1,8 +1,11 @@
 import {
   AlertContext,
   ClaimedTask,
+  InvoiceExtractionOutcome,
+  InvoiceText,
   VerdictOutcome,
   type FailRequest,
+  type InvoiceExtraction,
   type StepInput,
   type TaskType,
   type VerdictSubmission,
@@ -15,6 +18,11 @@ export type VerdictResult =
   | { ok: true; outcome: VerdictOutcome }
   | { ok: false; unknownToolCallIds: string[] };
 
+// 422: extraction rejected by the API consistency rules, with its message
+export type ExtractionResult =
+  | { ok: true; outcome: InvoiceExtractionOutcome }
+  | { ok: false; message: string };
+
 // Driving calls from the worker to the API (claim, steps, verdict, complete/fail)
 export type ApiClient = {
   claim(type: TaskType, workerId: string): Promise<ClaimedTask | null>;
@@ -23,6 +31,9 @@ export type ApiClient = {
   getAlertContext(alertId: string): Promise<AlertContext>;
   addStep(alertId: string, step: StepInput): Promise<void>;
   submitVerdict(alertId: string, submission: VerdictSubmission): Promise<VerdictResult>;
+  // V2: invoice extractor
+  getInvoiceText(invoiceId: string): Promise<InvoiceText>;
+  submitExtraction(invoiceId: string, extraction: InvoiceExtraction): Promise<ExtractionResult>;
 };
 
 type Options = {
@@ -51,6 +62,7 @@ export function createApiClient({
     method: 'GET' | 'POST',
     path: string,
     payload?: unknown,
+    { allow422 = false } = {},
   ): Promise<{ status: number; body: unknown }> {
     let response: Response;
     let body: unknown;
@@ -77,7 +89,7 @@ export function createApiClient({
     if (status === 404) {
       throw new TaskAbandonedError(`${method} ${path}: ${describe(body, status)}`);
     }
-    if (status === 422 && Array.isArray((body as { unknownToolCallIds?: unknown })?.unknownToolCallIds)) {
+    if (status === 422 && (allow422 || Array.isArray((body as { unknownToolCallIds?: unknown })?.unknownToolCallIds))) {
       return { status, body };
     }
     if (status >= 400) {
@@ -89,6 +101,7 @@ export function createApiClient({
   const tasks = '/agent/tasks';
   const investigation = (alertId: string) =>
     `/agent/investigations/${encodeURIComponent(alertId)}`;
+  const invoice = (invoiceId: string) => `/agent/invoices/${encodeURIComponent(invoiceId)}`;
 
   return {
     async claim(type, workerId) {
@@ -126,6 +139,19 @@ export function createApiClient({
         };
       }
       return { ok: true, outcome: VerdictOutcome.parse(body) };
+    },
+
+    async getInvoiceText(invoiceId) {
+      const { body } = await request('GET', `${invoice(invoiceId)}/text`);
+      return InvoiceText.parse(body);
+    },
+
+    async submitExtraction(invoiceId, extraction) {
+      const { status, body } = await request('POST', `${invoice(invoiceId)}/extraction`, extraction, {
+        allow422: true,
+      });
+      if (status === 422) return { ok: false, message: describe(body, status) };
+      return { ok: true, outcome: InvoiceExtractionOutcome.parse(body) };
     },
   };
 }

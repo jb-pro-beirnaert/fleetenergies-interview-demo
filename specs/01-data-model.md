@@ -82,7 +82,7 @@ Note for the interview: at FleetEnergies this table would live in ClickHouse; he
 | unit_price_eur | numeric(5,3) null | |
 | total_eur | numeric(8,2) null | |
 | source | enum `refuel_source` | `fuel_card` (V1, fuel card data), `invoice` (V2, from an extraction) |
-| invoice_id | uuid FK invoices null | V2 |
+| invoice_id | uuid FK invoices null | V2: invoice attached to this card transaction, or that created this refuel |
 | data_origin | enum `reading_source` | `history`, `live` |
 
 Constraint: `unique (truck_id, occurred_at)` (idempotency of fuel card ingestion).
@@ -202,16 +202,19 @@ An `in_progress` task whose lock has expired and whose `attempts >= max_attempts
 |---|---|---|
 | id | uuid PK | |
 | status | enum `invoice_status` | `received`, `extracting`, `extracted`, `matched`, `mismatch`, `needs_review`, `failed` |
-| file_path | text not null | path in the storage volume |
+| sha256 | text unique not null | SHA-256 of the file: natural key of the idempotent reception |
+| file_path | text not null | path in the storage volume (`INVOICE_STORAGE_DIR/<id>.pdf`) |
 | original_filename | text | |
-| raw_text | text null | text extracted from the PDF by code |
-| extraction | jsonb null | validated extractor result |
-| suspicious | boolean not null default false | content that looks like an instruction |
+| raw_text | text null | text extracted from the PDF by code (unpdf) |
+| extraction | jsonb null | validated extractor result (`InvoiceExtraction`, plate normalised) |
+| suspicious | boolean not null default false | content that looks like an instruction (code OR model) |
 | suspicious_excerpt | text null | passage to highlight on screen |
-| matched_refuel_id | uuid FK refuels null | |
-| match_details | jsonb null | billed liters, observed rise, gap, position |
+| matched_refuel_id | uuid FK refuels null | card transaction the invoice was attached to, or refuel created from it |
+| match_details | jsonb null | `InvoiceReconciliation`: billed liters, observed rise, gap, tolerance, station, or the `reason` of a `needs_review` |
+| alert_id | uuid FK alerts null | `billing_mismatch` alert raised by the reconciliation |
 | received_at | timestamptz | |
 | data_origin | enum `reading_source` | |
+| created_at | timestamptz | |
 
 ## Full reset
-`POST /admin/wipe` empties **all** tables (`TRUNCATE … CASCADE`): reference data, history, demo week, alerts, investigations, steps, reviews, tasks and (V2) invoices. Called by the simulator on every "Start" and "Reset": every simulation starts from an empty database. The simulation state is not stored in the database (see `04-simulator.md`).
+`POST /admin/wipe` empties **all** tables (`TRUNCATE … CASCADE`): reference data, history, demo week, alerts, investigations, steps, reviews, tasks and (V2) invoices, then **deletes the stored PDFs** (`INVOICE_STORAGE_DIR`). Called by the simulator on every "Start" and "Reset": every simulation starts from an empty database. The simulation state is not stored in the database (see `04-simulator.md`).

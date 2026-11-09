@@ -20,7 +20,7 @@ export const RETRY_DELAY_MS_PER_ATTEMPT = 10_000;
 interface ClaimedRow {
   id: string;
   type: TaskType;
-  payload: { alertId: string };
+  payload: { alertId: string } | { invoiceId: string };
   attempts: number;
 }
 
@@ -49,8 +49,14 @@ export class TasksService {
         RETURNING id, type::text AS type, payload, attempts`;
       if (!task) return null;
 
-      if (task.type === 'investigate_alert') {
+      if ('alertId' in task.payload) {
         await this.openInvestigation(tx, task.payload.alertId);
+      } else {
+        // V2: the invoice is being extracted
+        await tx.invoice.updateMany({
+          where: { id: task.payload.invoiceId, status: 'received' },
+          data: { status: 'extracting' },
+        });
       }
       return {
         id: task.id,
@@ -149,7 +155,23 @@ export class TasksService {
         lastError: error,
       },
     });
-    if (task.type !== 'investigate_alert') return;
+    if (task.type === 'extract_invoice') {
+      // V2: extraction impossible → a human reviews the invoice
+      const { invoiceId } = task.payload as { invoiceId: string };
+      await tx.invoice.updateMany({
+        where: { id: invoiceId, status: { in: ['received', 'extracting'] } },
+        data: {
+          status: 'needs_review',
+          matchDetails: {
+            truckId: null, plate: null, refuelAt: null, billedL: null, observedRiseL: null,
+            gapL: null, toleranceL: null, stationMatched: false, stationName: null,
+            refuelId: null, refuelSource: null,
+            reason: `Extraction failed: ${error}`.slice(0, 500),
+          },
+        },
+      });
+      return;
+    }
 
     const { alertId } = task.payload as { alertId: string };
     await tx.investigation.updateMany({

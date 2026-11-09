@@ -31,7 +31,7 @@ export class AdminController {
   @ApiOperation({
     summary: 'Wipe the whole database',
     description:
-      'Reference data, history, demo week, alerts, investigations and tasks. Called by the simulator on every "Start" and "Reset".',
+      'Reference data, history, demo week, alerts, investigations, tasks and invoices (rows and stored PDFs). Called by the simulator on every "Start" and "Reset".',
   })
   @ApiNoContentResponse()
   wipe() {

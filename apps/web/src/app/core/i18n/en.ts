@@ -75,6 +75,7 @@ export const EN = {
   'category.inconclusive': 'Inconclusive',
 
   'alertType.fuel_drop': 'Fuel drop',
+  'alertType.billing_mismatch': 'Billing discrepancy',
 
   'placeType.fuel_station': 'Station',
   'placeType.depot': 'Depot',

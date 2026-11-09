@@ -14,16 +14,17 @@ apps/agents/src/
   shared/
     config.ts              environment variables (Zod)
     llm.ts                 model client (openai SDK → Ollama)
-    api-client.ts          API calls (claim, complete, fail, steps, verdict, data)
+    api-client.ts          API calls (claim, complete, fail, steps, verdict, V2 invoice text and extraction)
     mcp-client.ts          MCP client (tool listing and calls)
     worker-loop.ts         generic loop: claim, process, complete/fail, graceful shutdown
     logger.ts              one-line JSON log
   investigator/
     agent-loop.ts          investigation loop
-    prompt.ts              system prompt (version `investigator-v1`)
+    prompt.ts              system prompt (version `investigator-v2`: V1 + billing_mismatch method)
     verdict-tool.ts        local definition of `submit_verdict`
   extractor/
     extract.ts             model call + validation + retries
+    normalize.ts           schema imposed on the model, normalisation in code
     prompt.ts              prompt (version `extractor-v1`)
 ```
 
@@ -69,7 +70,8 @@ For each model response:
 - Each step is sent to `POST /agent/investigations/:alertId/steps` **before** moving on to the next one (increasing `seq`, `attempt` = number of attempts of the task). The `tool_call` steps are essential (they are used to check the evidence): if sending them fails after 3 tries, the task fails as `retryable`.
 - End: `POST /agent/investigations/:alertId/verdict` with `model`, `promptVersion`, `toolCallsCount`. Then `complete`.
 
-### System prompt (`investigator-v1`, in English)
+### System prompt (`investigator-v2`, in English)
+`investigator-v2` = `investigator-v1` + a suggested method for `billing_mismatch` alerts (the alert details computed by code: `billedL`, `observedRiseL`, `gapL`, `stationMatched`; check the tank curve around the refuel, the refuels with the attached invoice, the presence at the station, the sensor notes; `billing_discrepancy` when the tank rise and the card transaction confirm the overbilling). The investigator never sees the PDF nor its text: only the figures computed by code.
 Expected content, to be written carefully and versioned:
 1. **Role**: fuel analyst for a heavy-truck fleet; an automatic rule has flagged an abnormal decrease (or, in V2, a billing discrepancy); your job is to find the most likely explanation from the data.
 2. **Suggested method, not mandatory**: truck profile; tank curve around the alert window (± 2 h); activity (where, engine off or not); refuels and messages over the period; fuel balance; prior events. Stop as soon as the clues are enough.
@@ -103,9 +105,9 @@ The time windows to use are given in the alert context: the prompt reminds the I
 
 ### Processing an `extract_invoice` task
 1. `GET /agent/invoices/:invoiceId/text`.
-2. Model call **with structured output**: JSON schema derived from the `InvoiceExtraction` Zod schema, `temperature: 0`. Use Ollama's "structured output" mode (`response_format` of type `json_schema` through the OpenAI-compatible API; if the installed version does not support it, go through the native `/api/chat` API with `format`). To be checked at the start of the milestone.
+2. Model call **with structured output**: JSON schema derived from `ModelExtraction` (= `InvoiceExtraction` with `refuelAt` as the local time printed, `YYYY-MM-DDTHH:mm`, and simple date patterns), `temperature: 0`, Ollama's `response_format: json_schema` through the OpenAI-compatible API (checked with Ollama 0.40).
 3. Zod validation. Invalid → new call adding the validation errors to the message, at most **2 retries**.
-4. Normalisation **in code**: number plate in `AB-123-CD` format, amounts rounded to 2 decimals.
+4. Normalisation **in code**: local refuel time (Europe/Paris) → ISO UTC instant (the model never computes a time zone offset), number plate in `AB-123-CD` format, liters and total rounded to 2 decimals, unit price to 3.
 5. `POST /agent/invoices/:invoiceId/extraction`. If the API answers 422 (inconsistency liters × price ≠ total), one retry with the API message; then a non-retryable failure (the invoice moves to `needs_review`).
 6. `complete`.
 
@@ -126,3 +128,5 @@ The time windows to use are given in the alert context: the prompt reminds the I
 2. Invoice B3 is extracted with the **real** liters (not 0) and flagged as suspicious.
 3. A model response outside the schema triggers a retry, visible in the logs.
 4. Unit tests with a fake model: valid output, invalid then valid output, two invalid outputs → failure, API 422 → retry then failure.
+
+Measured in M9 (`fleet-qwen`, 11 invoices of a simulated week, 12 fields each): 131/132 correct fields, ≈ 20 s per invoice; B3 extracted with its real liters and flagged suspicious. The only miss: the station name of B4 (messy invoice), which the reconciliation does not use (it relies on the GPS).

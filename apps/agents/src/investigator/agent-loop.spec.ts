@@ -132,7 +132,7 @@ describe('investigation loop', () => {
     expect(api.steps.map((s) => s.seq)).toEqual([0, 1, 2, 3, 4]);
     expect(api.steps[0]).toMatchObject({ attempt: 1, toolName: 'get_tank_curve', toolCallId: 'E1', payload: { arguments: windowArgs } });
     expect(api.steps[3]).toMatchObject({ toolCallId: 'E2', payload: { result: { tool: 'get_vehicle_activity' } } });
-    expect(api.submissions[0]).toMatchObject({ verdict: VERDICT, model: 'fake-model', promptVersion: 'investigator-v1', toolCallsCount: 2 });
+    expect(api.submissions[0]).toMatchObject({ verdict: VERDICT, model: 'fake-model', promptVersion: 'investigator-v2', toolCallsCount: 2 });
     // Results are wrapped with their evidence reference
     expect(toolMessages(model, 2)).toEqual([
       { ref: 'E1', result: { tool: 'get_tank_curve' } },

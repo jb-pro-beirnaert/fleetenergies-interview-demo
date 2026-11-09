@@ -51,7 +51,7 @@ interface Issuer {
 const ISSUERS: Record<InvoiceTemplate, Issuer> = {
   as24: {
     supplier: 'AS24',
-    lines: ['AS24 – Fuel network for heavy goods vehicles', 'Customer service: 1 rue du Réseau, 44000 Nantes'],
+    lines: ['Fuel network for heavy goods vehicles', 'Customer service: 1 rue du Réseau, 44000 Nantes'],
     vatId: 'FR00 000 000 024',
   },
   totalenergies: {

@@ -9,11 +9,15 @@ export type ClaimRequest = z.infer<typeof ClaimRequest>;
 export const InvestigateAlertPayload = z.object({ alertId: z.uuid() });
 export type InvestigateAlertPayload = z.infer<typeof InvestigateAlertPayload>;
 
+export const ExtractInvoicePayload = z.object({ invoiceId: z.uuid() });
+export type ExtractInvoicePayload = z.infer<typeof ExtractInvoicePayload>;
+
 export const ClaimedTask = z
   .object({
     id: z.uuid(),
     type: TaskType,
-    payload: InvestigateAlertPayload,
+    // `investigate_alert` → { alertId }; `extract_invoice` → { invoiceId }
+    payload: z.union([InvestigateAlertPayload, ExtractInvoicePayload]),
     attempts: z.int(),
   })
   .meta({ id: 'ClaimedTask' });

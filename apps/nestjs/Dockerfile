@@ -36,6 +36,10 @@ COPY apps/nestjs/prisma apps/nestjs/prisma
 COPY apps/nestjs/prisma.config.ts apps/nestjs/
 COPY --from=build /app/apps/nestjs/dist apps/nestjs/dist
 
+# V2: storage of the received PDF invoices (`invoices` volume), writable by the node user
+RUN mkdir -p /data/invoices && chown -R node:node /data
+VOLUME /data/invoices
+
 WORKDIR /app/apps/nestjs
 USER node
 EXPOSE 3000

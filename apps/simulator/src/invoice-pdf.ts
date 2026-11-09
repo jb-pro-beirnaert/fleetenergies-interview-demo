@@ -301,6 +301,7 @@ function dkv(doc: InvoiceDocument): Node[] {
         [s.word('Customer', 'Account holder'), doc.carrier],
         [s.word('Card', 'Card number'), doc.cardNumber],
         [s.word('Vehicle', 'Licence plate'), doc.plate],
+        [s.word('Acceptance point', 'Station'), `${doc.station.name}, ${doc.station.postcode} ${doc.station.city}`],
       ],
       { fontSize: 9 },
     ),

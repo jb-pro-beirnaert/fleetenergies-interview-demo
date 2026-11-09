@@ -72,6 +72,7 @@ export const FR: Messages = {
   'category.inconclusive': 'Indéterminé',
 
   'alertType.fuel_drop': 'Chute de carburant',
+  'alertType.billing_mismatch': 'Écart de facturation',
 
   'placeType.fuel_station': 'Station',
   'placeType.depot': 'Dépôt',

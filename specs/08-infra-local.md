@@ -27,10 +27,10 @@ From the containers, Ollama is reachable at `http://host.docker.internal:11434/v
 | Service | Image / build | Host port | Depends on | Notes |
 |---|---|---|---|---|
 | `postgres` | `postgres:18` | 5432 | — | `pgdata` volume, `pg_isready` healthcheck |
-| `nestjs` | `apps/nestjs` | 3000 | postgres (healthy) | applies the migrations at startup; `invoices` volume (V2); `/api/health` healthcheck |
+| `nestjs` | `apps/nestjs` | 3000 | postgres (healthy) | applies the migrations at startup; `invoices` volume (V2, `/data/invoices`, emptied by `/admin/wipe`); `/api/health` healthcheck |
 | `mcp-server` | `apps/mcp-server` | 3100 | nestjs | |
 | `investigator` | `apps/agents` (command `node dist/investigator.js`) | — | nestjs, mcp-server | `deploy.replicas: 1` (set to 2 or 3 for the parallelism demo) |
-| `extractor` | `apps/agents` (command `node dist/extractor.js`) | — | nestjs | V2 |
+| `extractor` | `apps/agents` (command `node dist/extractor.js`; dev: `npm run dev:extractor`) | — | nestjs | V2; Ollama on the host |
 | `simulator` | `apps/simulator` (command `node src/cli.ts serve`, no build: type stripping) | 3200 | nestjs | `simdata` volume (`/data`: `state.json`, `dataset.json`, V2 `live-invoices/`); `/health` healthcheck |
 | `web` | `apps/web` (Angular build served by nginx) | 4200 | nestjs, simulator | proxy `/api` → nestjs, `/simulation` → simulator (`ng serve` in dev, nginx in prod) |
 
@@ -73,7 +73,7 @@ The tokens above are development values: `.env` is ignored by Git, only `.env.ex
 |---|---|
 | `npm run up` | `docker compose up -d --build` |
 | `npm run sim -- generate` | (debugging) writes the dataset and the PDF invoices to `data/generated/` (ignored by Git) |
-| `npm run dev:db:reset` | deletes the volumes (`pgdata` and `simdata`) and restarts |
+| `npm run dev:db:reset` | deletes the volumes (`pgdata`, `simdata` and, V2, `invoices`) and restarts |
 | `npm test` | tests of all workspaces |
 | `npm run lint` | ESLint + Prettier |
 

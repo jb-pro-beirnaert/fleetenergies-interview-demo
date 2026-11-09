@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import type { HistoryLoadBatch, HistoryLoadResult } from '@fleet/contracts';
 import { PrismaService } from '../database/prisma.service.js';
+import { InvoiceStorage } from '../invoices/invoice-storage.service.js';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly invoiceStorage: InvoiceStorage,
+  ) {}
 
   /**
    * Loads the reference data and the history (simulator, `preparing` state). Idempotent:
@@ -112,8 +116,10 @@ export class AdminService {
   async wipe(): Promise<void> {
     await this.prisma.$executeRawUnsafe(`
       TRUNCATE TABLE investigation_steps, investigations, human_reviews, alerts, tasks,
-        telemetry_readings, refuels, driver_messages, driver_assignments,
+        invoices, telemetry_readings, refuels, driver_messages, driver_assignments,
         drivers, trucks, places, carriers
       RESTART IDENTITY CASCADE`);
+    // The received PDFs go with their rows (the database no longer references them)
+    await this.invoiceStorage.clear();
   }
 }

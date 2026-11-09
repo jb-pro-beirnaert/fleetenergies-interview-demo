@@ -12,6 +12,8 @@ export const ConfigSchema = z.object({
   FUEL_DROP_MIN_L: z.coerce.number().positive().default(40),
   DETECTOR_DEBOUNCE_SECONDS: z.coerce.number().min(0).default(15),
   AUTO_CLOSE_MIN_CONFIDENCE: z.coerce.number().min(0).max(1).default(0.75),
+  // V2: storage of the received PDF invoices (Docker volume)
+  INVOICE_STORAGE_DIR: z.string().min(1).default('/data/invoices'),
   // 0 disables the periodic sweep (tests)
   TASK_SWEEP_INTERVAL_MS: z.coerce.number().int().min(0).default(30_000),
 });

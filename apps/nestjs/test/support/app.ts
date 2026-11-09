@@ -1,3 +1,4 @@
+import { rm } from 'node:fs/promises';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
@@ -39,7 +40,10 @@ export async function createTestApp(): Promise<TestApp> {
 export async function resetDatabase(prisma: PrismaService) {
   await prisma.$executeRawUnsafe(`
     TRUNCATE TABLE investigation_steps, investigations, human_reviews, alerts, tasks,
-      telemetry_readings, refuels, driver_messages, driver_assignments,
+      invoices, telemetry_readings, refuels, driver_messages, driver_assignments,
       drivers, trucks, places, carriers
     RESTART IDENTITY CASCADE`);
+  // V2: the stored PDFs go with the rows
+  const storage = process.env.INVOICE_STORAGE_DIR;
+  if (storage) await rm(storage, { recursive: true, force: true });
 }

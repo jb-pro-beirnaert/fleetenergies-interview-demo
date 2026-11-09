@@ -12,13 +12,13 @@ export const VerdictCategory = z.enum([
 ]);
 export type VerdictCategory = z.infer<typeof VerdictCategory>;
 
-export const TaskType = z.enum(['investigate_alert']);
+export const TaskType = z.enum(['investigate_alert', 'extract_invoice']);
 export type TaskType = z.infer<typeof TaskType>;
 
 export const TaskStatus = z.enum(['pending', 'in_progress', 'done', 'failed']);
 export type TaskStatus = z.infer<typeof TaskStatus>;
 
-export const AlertType = z.enum(['fuel_drop']);
+export const AlertType = z.enum(['fuel_drop', 'billing_mismatch']);
 export type AlertType = z.infer<typeof AlertType>;
 
 export const AlertStatus = z.enum([
@@ -53,8 +53,19 @@ export type ReviewDecision = z.infer<typeof ReviewDecision>;
 export const DataSource = z.enum(['history', 'live']);
 export type DataSource = z.infer<typeof DataSource>;
 
-export const RefuelSource = z.enum(['fuel_card']);
+export const RefuelSource = z.enum(['fuel_card', 'invoice']);
 export type RefuelSource = z.infer<typeof RefuelSource>;
+
+export const InvoiceStatus = z.enum([
+  'received',
+  'extracting',
+  'extracted',
+  'matched',
+  'mismatch',
+  'needs_review',
+  'failed',
+]);
+export type InvoiceStatus = z.infer<typeof InvoiceStatus>;
 
 export const PlaceType = z.enum([
   'fuel_station',
