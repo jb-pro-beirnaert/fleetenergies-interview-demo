@@ -24,7 +24,7 @@ The UI is available in **English (default)** and **French**, switchable from the
 │ feed          │ (header, trace, verdict, review)     │               │
 └───────────────┴──────────────────────────────────────┴───────────────┘
 ```
-Tabs at the top: **Alerts** (V1), **Invoices** (V2).
+Tabs at the top (router links): **Alerts** (`/`, V1), **Fleet** (`/fleet`, V1), **Invoices** (V2, disabled).
 
 ## Header
 Title, simulated time (`stats.simulatedNow`), model used, language switch, green/red dot depending on the API health.
@@ -77,6 +77,13 @@ From `/api/stats`:
 - average investigation time, average tool calls, failed investigations;
 - agreement with humans (consistent reviews / reviews);
 - small histogram of the categories.
+
+## Fleet tab (`/fleet`)
+Overview of the telemetry received, to understand what the fleet is doing while the simulation runs. Fed by `GET /api/fleet?hours=` (2 s polling, only while the tab is open); window selectable: 6 h / 12 h / 24 h (default), sliding with the simulated time.
+- **Indicators**: trucks moving / idling / parked / without recent data; distance and driving time over the window; fuel on board (sum of the latest levels, % of total capacity); refuels (liters, count); fuel drop alerts; readings received.
+- **Map** (Leaflet): latest position of each truck coloured by state, plate as a label, route over the window; clicking a truck (marker or card) highlights its route.
+- **Fleet activity**: stacked areas, number of trucks moving / idling / parked at each 5-min step (computed by the screen from the readings).
+- **One card per truck**: plate, state, carrier and model, reefer badge, speed, fuel gauge; chart of the fuel level (left axis) with the speed faded (right axis), alert periods in red, engine-off periods greyed out, refuels as green points; refuel chips and alert chips (clicking an alert opens it in the Alerts tab).
 
 ## V2 — Invoices tab
 - List: supplier, number plate, refuel date, liters, amount, status (Received, Reading, Read, Matched, **Discrepancy**, To check, Failed), red **"Suspicious content"** badge.

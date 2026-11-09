@@ -1,10 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ControlRoomStore } from '../core/control-room.store';
 import { fmtDateTime } from '../core/format';
 import { LANGS, currentLang, setLang, t } from '../core/i18n/i18n';
 
 @Component({
   selector: 'app-header',
+  imports: [RouterLink, RouterLinkActive],
   template: `
     <div class="brand">
       <span class="logo" aria-hidden="true">⛽</span>
@@ -14,7 +16,17 @@ import { LANGS, currentLang, setLang, t } from '../core/i18n/i18n';
     </div>
 
     <nav class="tabs" [attr.aria-label]="t('header.sections')">
-      <a class="tab active" aria-current="page">{{ t('header.tab.alerts') }}</a>
+      <a
+        class="tab"
+        routerLink="/"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >{{ t('header.tab.alerts') }}</a
+      >
+      <a class="tab" routerLink="/fleet" routerLinkActive="active" ariaCurrentWhenActive="page">{{
+        t('header.tab.fleet')
+      }}</a>
       <span class="tab disabled" [title]="t('header.tab.invoicesSoon')">{{
         t('header.tab.invoices')
       }}</span>
@@ -81,6 +93,10 @@ import { LANGS, currentLang, setLang, t } from '../core/i18n/i18n';
       font-weight: 600;
       color: var(--muted);
       border-bottom: 3px solid transparent;
+      text-decoration: none;
+    }
+    a.tab:hover {
+      color: var(--text);
     }
     .tab.active {
       color: var(--accent);

@@ -7,6 +7,8 @@ import type {
   AlertDetail,
   AlertListItem,
   AlertListQuery,
+  FleetOverview,
+  FleetReading,
   PlaceView,
   Positions,
   ReviewRequest,
@@ -17,6 +19,11 @@ import type {
 } from '@fleet/contracts';
 import { PrismaService } from '../database/prisma.service.js';
 import { iso, toNum } from '../common/serialize.js';
+import {
+  distanceKm,
+  movingMinutes,
+} from '../investigation-data/calculations.js';
+import { truckState } from './fleet.js';
 
 export interface Window {
   from: Date;
@@ -269,6 +276,115 @@ export class ScreenService {
       },
       model: latest?.model ?? null,
       simulatedNow: lastLive ? iso(lastLive.recordedAt) : null,
+    };
+  }
+
+  /** Telemetry of the whole fleet over the `hours` preceding the latest reading received. */
+  async fleet(hours: number): Promise<FleetOverview> {
+    const trucks = await this.prisma.truck.findMany({
+      orderBy: { plate: 'asc' },
+      include: { carrier: { select: { name: true } } },
+    });
+    // Latest reading per truck (index `truck_id, recorded_at desc`), then the fleet's latest
+    const latest = await Promise.all(
+      trucks.map((truck) =>
+        this.prisma.telemetryReading.findFirst({
+          where: { truckId: truck.id },
+          orderBy: { recordedAt: 'desc' },
+          select: { recordedAt: true },
+        }),
+      ),
+    );
+    const endMs = Math.max(
+      ...latest.map((row) => row?.recordedAt.getTime() ?? -Infinity),
+    );
+    const to = Number.isFinite(endMs) ? new Date(endMs) : null;
+    const from = to ? new Date(endMs - hours * 3_600_000) : null;
+    const inWindow = from && to ? { gte: from, lte: to } : undefined;
+
+    const rows = await Promise.all(
+      trucks.map(async (truck) => {
+        if (!inWindow) return { readings: [], refuels: [], alerts: [] };
+        const [readings, refuels, alerts] = await Promise.all([
+          this.prisma.telemetryReading.findMany({
+            where: { truckId: truck.id, recordedAt: inWindow },
+            orderBy: { recordedAt: 'asc' },
+          }),
+          this.prisma.refuel.findMany({
+            where: { truckId: truck.id, occurredAt: inWindow },
+            orderBy: { occurredAt: 'asc' },
+            select: { occurredAt: true, liters: true },
+          }),
+          this.prisma.alert.findMany({
+            where: {
+              truckId: truck.id,
+              windowEnd: { gte: from! },
+              windowStart: { lte: to! },
+            },
+            orderBy: { windowStart: 'asc' },
+            select: {
+              id: true,
+              status: true,
+              windowStart: true,
+              windowEnd: true,
+              dropL: true,
+            },
+          }),
+        ]);
+        return { readings, refuels, alerts };
+      }),
+    );
+
+    return {
+      from: iso(from),
+      to: iso(to),
+      hours,
+      trucks: trucks.map((truck, index) => {
+        const { readings, refuels, alerts } = rows[index];
+        const calc = readings.map((row) => ({
+          at: row.recordedAt,
+          lat: row.lat,
+          lon: row.lon,
+          speedKmh: toNum(row.speedKmh),
+          ignition: row.ignition,
+          fuelLevelL: toNum(row.fuelLevelL),
+          odometerKm: toNum(row.odometerKm),
+        }));
+        const view = calc.map((r): FleetReading => ({
+          at: iso(r.at),
+          lat: r.lat,
+          lon: r.lon,
+          speedKmh: r.speedKmh,
+          ignition: r.ignition,
+          levelL: r.fuelLevelL,
+        }));
+        const last = calc.at(-1) ?? null;
+        return {
+          id: truck.id,
+          plate: truck.plate,
+          carrier: truck.carrier.name,
+          make: truck.make,
+          model: truck.model,
+          hasReefer: truck.hasReefer,
+          tankCapacityL: truck.tankCapacityL,
+          state: truckState(last, to),
+          last: view.at(-1) ?? null,
+          readings: view,
+          distanceKm: distanceKm(calc),
+          movingMinutes: movingMinutes(calc),
+          refuels: refuels.map((refuel) => ({
+            at: iso(refuel.occurredAt),
+            liters: toNum(refuel.liters),
+          })),
+          alerts: alerts.map((alert) => ({
+            id: alert.id,
+            status: alert.status,
+            windowStart: iso(alert.windowStart),
+            windowEnd: iso(alert.windowEnd),
+            dropL: toNum(alert.dropL),
+          })),
+        };
+      }),
     };
   }
 

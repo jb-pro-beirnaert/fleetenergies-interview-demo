@@ -12,6 +12,7 @@ packages/contracts/src/
   verdict.ts        investigator verdict
   steps.ts          investigation steps
   screen.ts         screen route responses
+  fleet.ts          fleet overview (`GET /api/fleet`, Fleet tab)
   admin.ts          history loading
   simulation.ts     simulator control (states, view, commands)
   simulation-constants.ts  speed steps and commands per state, without zod (imported by the screen)

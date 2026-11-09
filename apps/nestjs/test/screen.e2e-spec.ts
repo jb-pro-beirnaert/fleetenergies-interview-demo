@@ -127,6 +127,78 @@ describe('Screen routes', () => {
     });
   });
 
+  it('fleet overview: window ending at the latest reading, state per truck', async () => {
+    const empty = await t.http().get('/api/fleet').expect(200);
+    expect(empty.body).toMatchObject({ from: null, to: null, hours: 24 });
+    expect(empty.body.trucks).toHaveLength(2);
+    expect(empty.body.trucks[0]).toMatchObject({
+      state: 'no_data',
+      last: null,
+      readings: [],
+    });
+
+    await t
+      .http()
+      .post('/api/telemetry')
+      .set(auth('device'))
+      .send({
+        readings: [
+          ...readings([
+            {
+              minute: 0,
+              level: 520,
+              speed: 0,
+              ignition: false,
+              odometer: 1000,
+            },
+            {
+              minute: 120,
+              level: 500,
+              speed: 80,
+              ignition: true,
+              odometer: 1100,
+            },
+            {
+              minute: 180,
+              level: 480,
+              speed: 85,
+              ignition: true,
+              odometer: 1180,
+            },
+          ]),
+          ...readings([{ minute: 60, level: 300 }], {
+            truckId: IDS.otherTruck,
+          }),
+        ],
+        source: 'history',
+      })
+      .expect(202);
+
+    const fleet = await t.http().get('/api/fleet?hours=2').expect(200);
+    expect(fleet.body).toMatchObject({
+      from: minutesAfter(60).toISOString(),
+      to: minutesAfter(180).toISOString(),
+      hours: 2,
+    });
+    const [truck, other] = fleet.body.trucks;
+    expect(truck).toMatchObject({
+      plate: 'AB-123-CD',
+      carrier: 'Transports Durance',
+      state: 'moving',
+      last: { at: minutesAfter(180).toISOString(), levelL: 480, speedKmh: 85 },
+      distanceKm: 80,
+      movingMinutes: 60,
+    });
+    expect(truck.readings).toHaveLength(2); // minute 0 is outside the window
+    // reading at the window start, but 2 h before the end: no recent data
+    expect(other).toMatchObject({
+      state: 'no_data',
+      readings: [expect.any(Object)],
+    });
+
+    await t.http().get('/api/fleet?hours=100').expect(400);
+  });
+
   it('full curve, positions and places', async () => {
     await t
       .http()

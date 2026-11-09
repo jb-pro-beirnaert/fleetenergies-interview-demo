@@ -5,6 +5,7 @@ export * from './tools.ts';
 export * from './verdict.ts';
 export * from './steps.ts';
 export * from './screen.ts';
+export * from './fleet.ts';
 export * from './admin.ts';
 export * from './simulation.ts';
 export * from './simulation-constants.ts';

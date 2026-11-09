@@ -109,6 +109,7 @@ The screen routes return the real names (authenticated human — out of V1 scope
 - `GET /api/trucks/:id/tank-curve?from&to` → full points `{ at, levelL, speedKmh, ignition }[]` for the chart.
 - `GET /api/trucks/:id/positions?from&to` → `{ at, lat, lon, speedKmh, ignition }[]` for the mini-map.
 - `GET /api/places` → places (for the map).
+- `GET /api/fleet?hours=24` (1–72) → fleet overview (Fleet tab): window `[to − hours, to]` where `to` = latest reading received, any source (`from`/`to` = `null` before any reading); per truck (sorted by plate): identity, `state` from the latest reading (`moving` ≥ 3 km/h, `idling` stopped engine on, `parked` engine off, `no_data` if none or older than 30 min before `to`), `last`, every reading of the window `{ at, lat, lon, speedKmh, ignition, levelL }`, `distanceKm`, `movingMinutes` (same functions as the tools), refuels `{ at, liters }`, alerts overlapping the window `{ id, status, windowStart, windowEnd, dropL }`. Per-truck queries on the `(truck_id, recorded_at)` index.
 - `POST /api/alerts/:id/review` — `{ decision: 'confirm' | 'dismiss', comment? }`, only if the alert is `escalated` or `closed`; sets the alert to `confirmed` / `dismissed`.
 - `GET /api/stats` →
   ```

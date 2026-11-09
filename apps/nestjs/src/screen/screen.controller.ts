@@ -20,6 +20,8 @@ import {
   AlertDetail,
   AlertList,
   AlertListQuery,
+  FleetOverview,
+  FleetQuery,
   Health,
   PlaceList,
   Positions,
@@ -101,6 +103,16 @@ export class ScreenController {
   @ApiOkResponse({ standardSchema: PlaceList })
   places() {
     return this.screen.places();
+  }
+
+  @Get('fleet')
+  @ApiOperation({
+    summary:
+      'Fleet overview: telemetry of every truck over the hours preceding the latest reading',
+  })
+  @ApiOkResponse({ standardSchema: FleetOverview })
+  fleet(@Query({ schema: FleetQuery }) query: FleetQuery) {
+    return this.screen.fleet(query.hours);
   }
 
   @Get('stats')

@@ -18,50 +18,16 @@ import {
   LinearScale,
   PointElement,
   Tooltip,
-  type ChartType,
   type Plugin,
 } from 'chart.js';
 import { ApiService } from '../../core/api.service';
+import { type Band, bandsPlugin, cssVar, ignitionOffRanges } from '../../core/chart-bands';
 import { fmtDateTime, fmtLiters, fmtMinutes, fmtTime } from '../../core/format';
 import { currentLang, t } from '../../core/i18n/i18n';
 import { TOOL_STYLES } from './tool-styles';
 import { isRecord, toolWindow } from './tool-window';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Filler, Tooltip);
-
-interface Band {
-  from: number;
-  to: number;
-  color: string;
-}
-
-declare module 'chart.js' {
-  interface PluginOptionsByType<TType extends ChartType> {
-    bands?: { bands: Band[] };
-  }
-}
-
-/** Vertical coloured bands behind the curve (alert, engine off) */
-const bandsPlugin: Plugin<'line', { bands?: Band[] }> = {
-  id: 'bands',
-  beforeDatasetsDraw(chart, _args, options) {
-    const { ctx, chartArea, scales } = chart;
-    const x = scales['x'];
-    if (!x) return;
-    ctx.save();
-    for (const band of options.bands ?? []) {
-      const left = Math.max(x.getPixelForValue(band.from), chartArea.left);
-      const right = Math.min(x.getPixelForValue(band.to), chartArea.right);
-      if (right <= left) continue;
-      ctx.fillStyle = band.color;
-      ctx.fillRect(left, chartArea.top, right - left, chartArea.bottom - chartArea.top);
-    }
-    ctx.restore();
-  },
-};
-
-const cssVar = (name: string) =>
-  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 @Component({
   selector: 'app-tank-curve-view',
@@ -88,9 +54,11 @@ const cssVar = (name: string) =>
         >
         @if (s.biggestDrop; as d) {
           <span>
-            {{ t('tools.tank.biggestDrop') }} <strong class="drop">−{{ fmtLiters(d.liters) }}</strong>
-            {{ fmtTime(d.from) }}–{{ fmtTime(d.to) }} ({{ fmtMinutes(d.durationMin)
-            }}{{ d.ignitionOff ? ', ' + t('common.engineOff') : '' }})
+            {{ t('tools.tank.biggestDrop') }}
+            <strong class="drop">−{{ fmtLiters(d.liters) }}</strong> {{ fmtTime(d.from) }}–{{
+              fmtTime(d.to)
+            }}
+            ({{ fmtMinutes(d.durationMin) }}{{ d.ignitionOff ? ', ' + t('common.engineOff') : '' }})
           </span>
         }
         @if (s.recoveries.length) {
@@ -254,20 +222,4 @@ export class TankCurveView {
       plugins: [bandsPlugin as Plugin<'line'>],
     });
   }
-}
-
-/** Contiguous ranges where the ignition is off */
-function* ignitionOffRanges(points: TankCurvePoints, color: string): Generator<Band> {
-  let start: number | null = null;
-  let previous: number | null = null;
-  for (const p of points) {
-    const t = Date.parse(p.at);
-    if (!p.ignition && start === null) start = t;
-    if (p.ignition && start !== null) {
-      yield { from: start, to: t, color };
-      start = null;
-    }
-    previous = t;
-  }
-  if (start !== null && previous !== null) yield { from: start, to: previous, color };
 }

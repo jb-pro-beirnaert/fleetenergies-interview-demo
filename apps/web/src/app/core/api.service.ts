@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import type {
   AlertDetail,
   AlertList,
+  FleetOverview,
   Health,
   Positions,
   ReviewRequest,
@@ -43,6 +44,10 @@ export class ApiService {
     return this.http.get<Positions>(`/api/trucks/${truckId}/positions`, {
       params: { ...window },
     });
+  }
+
+  fleet(hours: number) {
+    return this.http.get<FleetOverview>('/api/fleet', { params: { hours } });
   }
 
   stats() {

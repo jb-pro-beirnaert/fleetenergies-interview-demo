@@ -4,5 +4,6 @@ import { ControlRoom } from './control-room';
 export const routes: Routes = [
   // No route `title`: the tab title follows the language (`syncDocument` in core/i18n/i18n.ts)
   { path: '', component: ControlRoom },
+  { path: 'fleet', loadComponent: () => import('./fleet/fleet-page').then((m) => m.FleetPage) },
   { path: '**', redirectTo: '' },
 ];
