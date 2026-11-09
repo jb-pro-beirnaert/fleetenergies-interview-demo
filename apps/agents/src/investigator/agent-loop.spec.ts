@@ -117,6 +117,35 @@ describe('investigation loop', () => {
     investigate(ALERT_ID, 1, { api: api.api, tools, model, maxToolCalls });
 
   const kinds = () => api.steps.map((step) => step.kind);
+
+  it('attaches the model time to the first step of each turn, the tool time to tool_result', async () => {
+    let clock = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => clock);
+    tools.callTool.mockImplementation(async (name) => {
+      clock += 30;
+      return { ok: true, result: { tool: name } };
+    });
+    const turns = [
+      call('get_tank_curve', windowArgs),
+      say(''), // empty turn → nudge, its time carries over to the next step
+      call('get_vehicle_activity', windowArgs),
+      call('submit_verdict', VERDICT),
+    ];
+    const complete = vi.fn<ChatModel['complete']>(async () => {
+      clock += 1000;
+      return turns.shift()!;
+    });
+    await run({ name: 'fake-model', complete });
+
+    expect(api.steps.map((s) => [s.kind, s.durationMs])).toEqual([
+      ['tool_call', 1000],
+      ['tool_result', 30],
+      ['tool_call', 2000],
+      ['tool_result', 30],
+      ['verdict', 1000],
+    ]);
+  });
+
   const toolMessages = (model: ReturnType<typeof scriptedModel>, turn: number) =>
     model.seen[turn]!.filter((m) => m.role === 'tool').map((m) => JSON.parse(m.content as string));
 

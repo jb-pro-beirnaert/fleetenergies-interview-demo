@@ -1,6 +1,7 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, input, signal } from '@angular/core';
 import type { AlertDetail } from '@fleet/contracts';
-import { fmtDateTime } from '../core/format';
+import { fmtDateTime, fmtMs } from '../core/format';
 import { t } from '../core/i18n/i18n';
 import { toolPhrase } from '../core/labels';
 import type { TraceItem } from '../core/trace';
@@ -18,6 +19,7 @@ const isIso = (value: unknown): value is string =>
 @Component({
   selector: 'app-trace-step',
   imports: [
+    NgTemplateOutlet,
     TruckProfileView,
     TankCurveView,
     ActivityView,
@@ -38,10 +40,13 @@ const isIso = (value: unknown): value is string =>
                 <span class="period">{{ p }}</span>
               }
               <span class="duration">
+                @if (tool.modelMs !== null) {
+                  <span class="model-time">{{ t('trace.modelTime', { d: fmtMs(tool.modelMs) }) }}</span>
+                }
                 @if (tool.result === undefined) {
                   <span class="dots">…</span>
                 } @else if (tool.durationMs !== null) {
-                  {{ tool.durationMs }} ms
+                  {{ t('trace.toolTime', { d: fmtMs(tool.durationMs) }) }}
                 }
               </span>
             </div>
@@ -101,6 +106,7 @@ const isIso = (value: unknown): value is string =>
       @case ('reasoning') {
         @if (reasoning(); as r) {
           <div class="step reasoning">
+            <div class="line">
             <button
               type="button"
               class="toggle"
@@ -109,6 +115,8 @@ const isIso = (value: unknown): value is string =>
             >
               {{ open() ? '▾' : '▸' }} {{ t('trace.reasoning') }}
             </button>
+            <ng-container *ngTemplateOutlet="modelTime" />
+            </div>
             @if (open()) {
               <p>{{ r.text }}</p>
             }
@@ -116,15 +124,29 @@ const isIso = (value: unknown): value is string =>
         }
       }
       @case ('retry') {
-        <div class="step retry">{{ t('trace.retry', { message: message() }) }}</div>
+        <div class="step retry line">
+          <span>{{ t('trace.retry', { message: message() }) }}</span>
+          <ng-container *ngTemplateOutlet="modelTime" />
+        </div>
       }
       @case ('error') {
-        <div class="step error">{{ t('trace.error', { message: message() }) }}</div>
+        <div class="step error line">
+          <span>{{ t('trace.error', { message: message() }) }}</span>
+          <ng-container *ngTemplateOutlet="modelTime" />
+        </div>
       }
       @case ('verdict') {
-        <div class="step verdict-line">{{ t('trace.verdict') }}</div>
+        <div class="step verdict-line line">
+          <span>{{ t('trace.verdict') }}</span>
+          <ng-container *ngTemplateOutlet="modelTime" />
+        </div>
       }
     }
+    <ng-template #modelTime>
+      @if (item().modelMs !== null) {
+        <span class="duration model-time">{{ t('trace.modelTime', { d: fmtMs(item().modelMs) }) }}</span>
+      }
+    </ng-template>
   `,
   styleUrl: './trace-step.css',
 })
@@ -135,6 +157,7 @@ export class TraceStep {
 
   protected readonly open = signal(false);
   protected readonly t = t;
+  protected readonly fmtMs = fmtMs;
 
   protected readonly tool = computed(() => {
     const item = this.item();

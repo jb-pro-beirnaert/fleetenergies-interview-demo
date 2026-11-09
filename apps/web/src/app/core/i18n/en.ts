@@ -108,6 +108,7 @@ export const EN = {
   'inv.truck': 'Truck',
   'inv.duration': 'Investigation time',
   'inv.toolCalls': 'Tool calls',
+  'inv.timeSplit': 'LLM / tools',
   'inv.traceTitle': 'Agent investigation',
   'inv.waiting': 'Waiting for an investigator agent…',
   'inv.attempt': 'Attempt {n}',
@@ -126,6 +127,8 @@ export const EN = {
   'trace.error': '✕ Error: {message}',
   'trace.verdict': '✓ Verdict submitted',
   'trace.lastDays': 'last {n} days',
+  'trace.modelTime': 'LLM {d}',
+  'trace.toolTime': 'tool {d}',
 
   // Verdict card
   'verdict.title': 'Agent verdict',

@@ -62,7 +62,7 @@ Every tool result sent back to the model is wrapped: `{ "ref": "E3", "result": {
 For each model response:
 - **Tool calls** (handled one by one, in order):
   - `submit_verdict` → Zod validation, then a check that every cited reference matches a tool actually called. Invalid → error tool message explaining the problem precisely, `retry` step, and the loop continues (at most **2 verdict retries**). Valid → end of the loop.
-  - other tool → `tool_call` step (arguments, reference), MCP call, `tool_result` step (result truncated to 20 KB, duration), tool message sent back to the model. An error result is sent back as is to the model, which can correct itself.
+  - other tool → `tool_call` step (arguments, reference), MCP call, `tool_result` step (result truncated to 20 KB, duration), tool message sent back to the model. Each `model.complete` call is timed: its duration goes into the `durationMs` of the first step recorded after it (spec 02), so the screen can show the LLM time apart from the tool time. An error result is sent back as is to the model, which can correct itself.
 - **Text without a tool call** → `reasoning` step, then the nudge message "Finish your investigation by calling submit_verdict." (at most 2 nudges). If the text looks like a tool call written as JSON (a frequent quirk of small models), treat it as a call and log a `retry` step.
 - **Budget**: at most `MAX_TOOL_CALLS` (default 10) data tool calls. Budget reached → message "Budget reached, give your verdict now."; if the model still does not, the worker builds an `inconclusive` verdict itself, confidence 0, summary "Call budget reached without a conclusion", evidence = first call made. If no tool was called, non-retryable failure (the API escalates).
 

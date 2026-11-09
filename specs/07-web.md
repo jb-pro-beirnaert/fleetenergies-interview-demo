@@ -45,7 +45,7 @@ Below the header, full width, fed by `GET /simulation` (2 s polling):
 - Click → selection. By default, the latest alert under investigation is selected automatically.
 
 ## Selected investigation (centre)
-**Header**: number plate, place and time, liters, status, investigation duration, number of tool calls.
+**Header**: number plate, place and time, liters, status, investigation duration, number of tool calls, LLM time / tool time (sums of the steps' `durationMs`). Each trace step shows its LLM time ("LLM 11.2 s") and, for a tool, its call time ("tool 25 ms").
 
 **Trace**: the steps in order, added as polling goes ("Investigation in progress…" while it runs). Each tool call is shown with a readable phrase ("Checks the tank curve") and a **visual rendering of its result**:
 

@@ -1,5 +1,5 @@
 import type { InvestigationStepView } from '@fleet/contracts';
-import { buildTrace } from './trace';
+import { buildTrace, traceTimes } from './trace';
 
 let n = 0;
 const step = (partial: Partial<InvestigationStepView>): InvestigationStepView => ({
@@ -45,6 +45,19 @@ describe('buildTrace', () => {
       result: { ok: true, value: { plate: 'AB-123-CD' } },
       durationMs: 42,
     });
+  });
+
+  it('separates the LLM time (tool_call) from the tool time (tool_result) and sums them', () => {
+    const trace = buildTrace([
+      step({ seq: 0, kind: 'tool_call', toolName: 'get_tank_curve', toolCallId: 'E1', payload: { arguments: {} }, durationMs: 11_000 }),
+      step({ seq: 1, kind: 'tool_result', toolName: 'get_tank_curve', toolCallId: 'E1', payload: { result: {} }, durationMs: 25 }),
+      step({ seq: 2, kind: 'verdict', payload: {}, durationMs: 44_000 }),
+    ]);
+    expect(trace[0]!.items).toMatchObject([
+      { kind: 'tool', modelMs: 11_000, durationMs: 25 },
+      { kind: 'verdict', modelMs: 44_000 },
+    ]);
+    expect(traceTimes(trace)).toEqual({ modelMs: 55_000, toolMs: 25 });
   });
 
   it('leaves the result undefined until the tool has answered', () => {

@@ -126,6 +126,8 @@ Shape of `payload` by `kind` (read by the screen); the `E1`, `E2`… reference i
 - `retry`, `error` → `{ message }`;
 - `verdict` → the `Verdict`.
 
+`durationMs`: on a `tool_result`, the MCP call time; on any other step, the model (LLM) time that produced it — the first step recorded after a model turn carries that turn's time (a turn that records no step, e.g. a nudge, carries over to the next one).
+
 ## V2 — invoice extraction
 ```ts
 InvoiceExtraction = {

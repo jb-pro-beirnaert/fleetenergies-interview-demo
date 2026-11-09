@@ -1,11 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ControlRoomStore } from '../core/control-room.store';
-import { fmtDateTime, fmtDuration, fmtLiters, fmtTime } from '../core/format';
+import { fmtDateTime, fmtDuration, fmtLiters, fmtMs, fmtTime } from '../core/format';
 import { t } from '../core/i18n/i18n';
 import { alertTypeLabel } from '../core/labels';
 import { StatusPill } from '../core/status-pill';
-import { buildTrace, stepAnchor } from '../core/trace';
+import { buildTrace, stepAnchor, traceTimes } from '../core/trace';
 import { ReviewForm } from './review-form';
 import { TraceStep } from './trace-step';
 import { VerdictCard } from './verdict-card';
@@ -46,6 +46,10 @@ import { VerdictCard } from './verdict-card';
           <div>
             <span class="k">{{ t('inv.toolCalls') }}</span>
             <span>{{ toolCalls() }}</span>
+          </div>
+          <div>
+            <span class="k">{{ t('inv.timeSplit') }}</span>
+            <span>{{ timeSplit() }}</span>
           </div>
         </div>
         @if (invoiceId(); as invoiceId) {
@@ -139,6 +143,12 @@ export class InvestigationPanel {
       0,
     );
     return String(Math.max(investigation.toolCallsCount, live));
+  });
+
+  /** Where the time goes: the LLM turns versus the MCP tool calls */
+  protected readonly timeSplit = computed(() => {
+    const { modelMs, toolMs } = traceTimes(this.trace());
+    return modelMs === 0 && toolMs === 0 ? '—' : `${fmtMs(modelMs)} / ${fmtMs(toolMs)}`;
   });
 
   protected readonly duration = computed(() => {

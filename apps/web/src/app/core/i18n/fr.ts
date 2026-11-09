@@ -102,6 +102,7 @@ export const FR: Messages = {
   'inv.truck': 'Camion',
   'inv.duration': 'Durée d’enquête',
   'inv.toolCalls': 'Appels d’outils',
+  'inv.timeSplit': 'LLM / outils',
   'inv.traceTitle': 'Enquête de l’agent',
   'inv.waiting': 'En attente d’un agent enquêteur…',
   'inv.attempt': 'Tentative {n}',
@@ -120,6 +121,8 @@ export const FR: Messages = {
   'trace.error': '✕ Erreur : {message}',
   'trace.verdict': '✓ Verdict soumis',
   'trace.lastDays': '{n} derniers jours',
+  'trace.modelTime': 'LLM {d}',
+  'trace.toolTime': 'outil {d}',
 
   'verdict.title': 'Verdict de l’agent',
   'verdict.confidence': 'Confiance',

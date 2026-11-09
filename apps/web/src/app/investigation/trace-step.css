@@ -40,6 +40,13 @@
 }
 .duration {
   margin-left: auto;
+  display: inline-flex;
+  gap: 8px;
+}
+/* LLM time: what actually makes an investigation slow, next to the tool time */
+.model-time {
+  color: var(--accent);
+  font-weight: 600;
 }
 .dots {
   animation: blink 1s steps(2) infinite;

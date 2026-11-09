@@ -97,11 +97,24 @@ function truncateResult(result: unknown): unknown {
   return `${json.slice(0, STEP_RESULT_MAX_BYTES)}… [truncated]`;
 }
 
-// Steps are sent before moving on; `tool_call` steps back the evidence, so losing one fails the task
-function createRecorder(api: ApiClient, alertId: string, attempt: number) {
+// Steps are sent before moving on; `tool_call` steps back the evidence, so losing one fails the task.
+// `durationMs` of a `tool_result` = MCP call; of any other step = model time spent since the previous
+// such step (`takeModelMs`), so the screen shows where the investigation time really goes.
+function createRecorder(
+  api: ApiClient,
+  alertId: string,
+  attempt: number,
+  takeModelMs: () => number | undefined,
+) {
   let seq = 0;
   return async (fields: StepFields): Promise<void> => {
-    const step: StepInput = { attempt, seq: seq++, ...fields };
+    const modelMs = fields.kind === 'tool_result' ? undefined : takeModelMs();
+    const step: StepInput = {
+      attempt,
+      seq: seq++,
+      ...fields,
+      ...(modelMs !== undefined && fields.durationMs === undefined ? { durationMs: modelMs } : {}),
+    };
     for (let tries = 1; ; tries++) {
       try {
         await api.addStep(alertId, step);
@@ -125,7 +138,15 @@ export async function investigate(
   attempt: number,
   { api, tools, model, maxToolCalls, signal }: InvestigationDeps,
 ): Promise<VerdictOutcome> {
-  const record = createRecorder(api, alertId, attempt);
+  // Model time not yet attached to a step (a turn without any step, e.g. a nudge, carries over)
+  let pendingModelMs = 0;
+  const takeModelMs = () => {
+    if (pendingModelMs === 0) return undefined;
+    const ms = Math.round(pendingModelMs);
+    pendingModelMs = 0;
+    return ms;
+  };
+  const record = createRecorder(api, alertId, attempt, takeModelMs);
   const context = await api.getAlertContext(alertId);
 
   const mcpTools = await tools.listTools();
@@ -207,7 +228,9 @@ export async function investigate(
     signal?.throwIfAborted();
     const afterBudgetNotice = budgetNotified;
     const offered = refs.size < maxToolCalls ? [...dataTools, verdictTool] : [verdictTool];
+    const modelStarted = performance.now();
     const reply = await model.complete(messages, offered, signal);
+    pendingModelMs += performance.now() - modelStarted;
     const text = reply.content?.trim() ?? '';
 
     let calls = toolCallsOf(reply, turn);

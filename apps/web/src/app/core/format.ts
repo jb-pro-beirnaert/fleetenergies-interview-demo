@@ -72,6 +72,14 @@ export const fmtPercent = (ratio: number | null | undefined) => {
   return currentLang() === 'fr' ? `${n} %` : `${n}%`;
 };
 
+/** Short duration: "45 ms" under a second, otherwise seconds with one decimal ("11.2 s"). */
+export function fmtMs(ms: number | null | undefined): string {
+  if (ms === null || ms === undefined) return '—';
+  if (ms < 1000) return `${Math.round(ms)} ms`;
+  if (ms < 60_000) return `${formatters().decimal.format(ms / 1000)} s`;
+  return fmtDuration(ms / 1000);
+}
+
 export function fmtDuration(seconds: number | null | undefined): string {
   if (seconds === null || seconds === undefined) return '—';
   if (seconds < 60) return `${Math.round(seconds)} s`;
