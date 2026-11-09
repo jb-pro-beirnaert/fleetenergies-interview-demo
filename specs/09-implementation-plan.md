@@ -20,7 +20,7 @@ Each milestone ends with: green tests, relevant acceptance criteria checked, com
 
 | Milestone | Content | Specs | Duration |
 |---|---|---|---|
-| **M8** | Simulator: scenarios B1-B4 and `invoices-plan.json`; generator: PDF invoices (4 templates) and messages | 04, 10 | ½ d |
+| **M8** | Simulator: scenarios B1-B4 and `invoices-plan.json`; PDF invoices rendered at each start (pdfmake, 4 templates with variations), `InvoiceExtraction` contract | 02, 04, 10 | ½ d |
 | **M9** | API: invoices, text, injection detection, reconciliation; extractor (structured output, retries); `billing_mismatch` alert handled by the investigator | 03, 06 | ¾ d |
 | **M10** | Invoices tab, invoice replay, end-to-end check of B1-B4 | 07 | ¼ d |
 

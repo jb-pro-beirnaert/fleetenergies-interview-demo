@@ -32,6 +32,7 @@ const tinyDataset = (seed: number, startMs: number): SimDataset => ({
     refuels: [],
     messages: [],
   },
+  invoices: [],
 });
 
 /** Fake backend: records the calls; `gate` makes it possible to suspend a send. */
@@ -120,7 +121,8 @@ describe('Simulation', () => {
     expect(backend.sentClocks).toEqual([...backend.sentClocks].sort((a, b) => a - b));
     const final = simulation.view();
     expect(final).toMatchObject({ demoDate: DEMO_DAY, alertsCreated: 1, clock: iso('02:45'), progress: { done: 10, total: 10 } });
-    expect(await store.readState()).toMatchObject({ status: 'finished', alertsCreated: 1, clock: iso('02:45') });
+    // The state is persisted right after the status changes: wait for the write
+    await expect.poll(() => store.readState()).toMatchObject({ status: 'finished', alertsCreated: 1, clock: iso('02:45') });
   });
 
   it('rejects (409) commands outside the accepted states', async () => {

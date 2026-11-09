@@ -15,8 +15,7 @@ Guiding principle: **code detects and computes, AI investigates and explains, th
 | `investigator` | Worker: investigator agent | V1 | — | api (control), mcp-server (tools), Ollama |
 | `extractor` | Worker: AI invoice extractor | V2 | — | api, Ollama |
 | `web` (Angular) | Control room, including simulation control | V1 | 4200 | api, simulator |
-| `simulator` | Long-running service: simulates the trucks' telematics boxes and the suppliers; generates the data when the simulation starts, loads it, replays the demo week; driven from the screen | V1 | 3200 | api |
-| `generator` | Offline CLI: PDF invoices and driver messages | V2 | — | Ollama, files |
+| `simulator` | Long-running service: simulates the trucks' telematics boxes and the suppliers; generates the data (and, in V2, the PDF invoices) when the simulation starts, loads it, replays the demo week; driven from the screen | V1 | 3200 | api |
 | Ollama (host) | `fleet-qwen` model | V1 | 11434 | — |
 
 ## V1 flow: from alert to verdict
@@ -62,4 +61,4 @@ Guiding principle: **code detects and computes, AI investigates and explains, th
 - `07-web.md` — control room
 - `08-infra-local.md` — Docker Compose, Ollama, variables, scripts
 - `09-implementation-plan.md` — milestones and order of work
-- `10-generator.md` — (V2) PDF invoices and messages
+- `10-generator.md` — (V2) PDF invoices, rendered by the simulator

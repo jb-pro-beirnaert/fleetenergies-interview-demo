@@ -8,9 +8,11 @@ import { STEP_MIN } from './time.ts';
 import type { PlaceDef, TruckDef, World } from './world.ts';
 
 export const REFUEL_THRESHOLD = 0.3;
+export const HOLD_REFUEL_THRESHOLD = 0.12;
 export const REFUEL_TARGET = 0.95;
 const REFUEL_STOP_MIN = 15;
-const REFUEL_AT_OFFSET_MIN = 6;
+/** The pump delivers 6 minutes after the arrival at the station. */
+export const REFUEL_AT_OFFSET_MIN = 6;
 const IDLE_MIN = 3;
 const STOPPED_NOISE_L = 1.5;
 const MOVING_NOISE_L = 4;
@@ -36,6 +38,8 @@ export interface SimRefuel {
   liters: number;
   unitPriceEur: number;
   totalEur: number;
+  /** Billing scenario of a scripted refuel (`B1-overbilled`…). */
+  label?: string;
 }
 
 export interface SimStay {
@@ -89,6 +93,11 @@ export class TruckSim {
   readonly stays: SimStay[] = [];
   readonly drains: Drain[] = [];
   readonly dayStats: DayStats[];
+  /**
+   * Before a scripted refuel (day before and morning), the automatic refuel threshold drops to
+   * `HOLD_REFUEL_THRESHOLD`: the driver waits for the planned stop, which keeps room in the tank.
+   */
+  holdRefuels: { from: number; until: number }[] = [];
 
   constructor(truck: TruckDef, world: World, rng: Rng, start: TruckStart) {
     this.truck = truck;
@@ -198,7 +207,9 @@ export class TruckSim {
     const destination = this.world.place(code);
     const here = { lat: this.lat, lon: this.lon };
     const estimateL = (roadKm(here, destination) * this.truck.baselineLPer100km * 1.08) / 100;
-    const low = this.levelL - estimateL < REFUEL_THRESHOLD * this.truck.tankCapacityL;
+    const held = this.holdRefuels.some((hold) => this.t >= hold.from && this.t < hold.until);
+    const threshold = held ? HOLD_REFUEL_THRESHOLD : REFUEL_THRESHOLD;
+    const low = this.levelL - estimateL < threshold * this.truck.tankCapacityL;
     if (low && destination.type !== 'fuel_station') {
       if (this.place?.type === 'fuel_station') {
         this.refuelHere();
@@ -243,15 +254,19 @@ export class TruckSim {
     this.placeCode = destination.code;
   }
 
-  /** 15-min stop at a fuel station, refuel to 95% of capacity, fuel card transaction. */
-  private refuelHere(): void {
+  /**
+   * 15-min stop at a fuel station, refuel to 95% of capacity (or `liters`, capped by the room
+   * left in the tank), fuel card transaction.
+   */
+  private refuelHere(planned?: { liters: number; label: string }): void {
     const station = this.place;
     if (station?.type !== 'fuel_station') this.fail('refuel outside a fuel station');
     const start = this.t;
     this.recordStay(start, start + REFUEL_STOP_MIN);
     for (let offset = 0; offset < REFUEL_STOP_MIN; offset++) {
       if (offset === REFUEL_AT_OFFSET_MIN) {
-        const liters = round(REFUEL_TARGET * this.truck.tankCapacityL - this.levelL, 1);
+        const room = REFUEL_TARGET * this.truck.tankCapacityL - this.levelL;
+        const liters = round(planned ? Math.min(planned.liters, room) : room, 1);
         if (liters > 0) {
           const unitPriceEur = round(this.rng.float(1.62, 1.78), 3);
           this.levelL += liters;
@@ -261,11 +276,26 @@ export class TruckSim {
             liters,
             unitPriceEur,
             totalEur: round(liters * unitPriceEur, 2),
+            ...(planned ? { label: planned.label } : {}),
           });
+        } else if (planned) {
+          this.fail(`tank already full for the scripted refuel "${planned.label}"`);
         }
       }
       this.tick(this.stopped(offset < 2 || offset >= REFUEL_STOP_MIN - 2));
     }
+  }
+
+  /**
+   * Scripted refuel (billing scenarios): direct trip to the station, wait, then partial fill
+   * of `liters` at `minute` (or as soon as the truck arrives, if it arrives late).
+   */
+  plannedRefuel(code: string, minute: number, liters: number, label: string): void {
+    const station = this.world.place(code);
+    if (station.type !== 'fuel_station') this.fail(`"${code}" is not a fuel station`);
+    if (this.placeCode !== code) this.driveLeg(station);
+    this.stayUntil(minute - REFUEL_AT_OFFSET_MIN, { start: IDLE_MIN, end: 0 });
+    this.refuelHere({ liters, label });
   }
 
   /** Preventive refuel at the nearest fuel station if the level is below `fraction`. */

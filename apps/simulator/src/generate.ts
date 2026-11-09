@@ -3,9 +3,12 @@
 import type {
   DriverMessageInput,
   FuelCardTransaction,
+  InvoiceExtraction,
   TelemetryReading,
   VerdictCategory,
 } from '@fleet/contracts';
+import { BILLING_SCENARIOS, type BillingScenarioId } from './billing.ts';
+import { buildInvoicePlan, type InvoicePlan, type InvoiceTemplate } from './invoices.ts';
 import { MESSAGE_TEMPLATES } from './messages.ts';
 import { simulateTruck } from './plans.ts';
 import { createRng } from './rng.ts';
@@ -45,6 +48,26 @@ export interface GroundTruthEvent {
   messageAt: string | null;
 }
 
+/** V2: invoice of the demo week and what the extraction and the reconciliation must find. */
+export interface InvoiceTruth {
+  id: string;
+  scenario: BillingScenarioId;
+  file: string;
+  template: InvoiceTemplate;
+  truck: string;
+  truckId: string;
+  plate: string;
+  refuelAt: string;
+  receivedAt: string;
+  /** Liters actually delivered (card transaction, tank rise). */
+  deliveredL: number;
+  /** Liters billed (different from `deliveredL` for B1 only). */
+  billedL: number;
+  expected: InvoiceExtraction;
+  expectedStatus: 'matched' | 'mismatch';
+  expectedCategory: VerdictCategory | null;
+}
+
 export interface GroundTruth {
   seed: number;
   timeZone: string;
@@ -55,6 +78,8 @@ export interface GroundTruth {
   trucks: Record<string, { id: string; plate: string }>;
   scenarios: GroundTruthEvent[];
   historyEvents: GroundTruthEvent[];
+  /** V2: invoices sent during the demo week (B1 to B4). */
+  invoices: InvoiceTruth[];
 }
 
 export interface Dataset {
@@ -64,6 +89,8 @@ export interface Dataset {
   reference: Reference;
   history: ActivityData;
   live: ActivityData;
+  /** V2: invoices to produce and send during the demo week. */
+  invoices: InvoicePlan[];
   groundTruth: GroundTruth;
   /** Raw simulation (real levels, daily statistics), for the tests. */
   sims: TruckSim[];
@@ -77,6 +104,7 @@ export const FILES = {
   liveTelemetry: 'live-telemetry.ndjson',
   liveRefuels: 'live-refuels.json',
   liveMessages: 'live-messages.json',
+  invoicesPlan: 'invoices-plan.json',
   groundTruth: 'ground-truth.json',
 } as const;
 
@@ -243,6 +271,16 @@ export function generate(seed: number, startMs: number): Dataset {
     messages: messages.filter((x) => periodOf(x) === period).map((x) => x.message),
   });
 
+  const liveStartIso = cal.toIso(cal.liveStartMin);
+  const invoices = buildInvoicePlan(world, sims, liveStartIso);
+  for (const event of BILLING_SCENARIOS) {
+    const refuel = invoices.find((invoice) => invoice.id === event.id)!.refuel;
+    const planned = cal.toIso(cal.at(cal.liveDay + event.dayOffset, event.time));
+    if (Math.abs(Date.parse(refuel.occurredAt) - Date.parse(planned)) > 15 * 60_000) {
+      throw new Error(`${event.id}: refuel at ${refuel.occurredAt} instead of ${planned}`);
+    }
+  }
+
   return {
     seed,
     calendar: cal,
@@ -250,16 +288,33 @@ export function generate(seed: number, startMs: number): Dataset {
     reference: buildReference(world),
     history: split('history'),
     live: split('live'),
+    invoices,
     groundTruth: {
       seed,
       timeZone: TIME_ZONE,
       period: { start: cal.startDate, end: cal.endDate },
-      live: { start: cal.toIso(cal.liveStartMin), end: cal.toIso(cal.liveEndMin) },
+      live: { start: liveStartIso, end: cal.toIso(cal.liveEndMin) },
       trucks: Object.fromEntries(
         world.trucks.map((t) => [t.code, { id: world.id('truck', t.code), plate: t.plate }]),
       ),
       scenarios: SCENARIOS.map(truthOf),
       historyEvents: HISTORY_EVENTS.map(truthOf),
+      invoices: invoices.map((invoice) => ({
+        id: invoice.id,
+        scenario: invoice.scenario,
+        file: invoice.file,
+        template: invoice.document.template,
+        truck: invoice.truck,
+        truckId: invoice.truckId,
+        plate: invoice.plate,
+        refuelAt: invoice.refuel.occurredAt,
+        receivedAt: invoice.receivedAt,
+        deliveredL: invoice.refuel.liters,
+        billedL: invoice.document.liters,
+        expected: invoice.expected,
+        expectedStatus: invoice.expectedStatus,
+        expectedCategory: invoice.expectedCategory,
+      })),
     },
     sims,
   };
@@ -278,6 +333,7 @@ export function serialize(dataset: Dataset): Record<string, string> {
     [FILES.liveTelemetry]: ndjson(dataset.live.telemetry),
     [FILES.liveRefuels]: json(dataset.live.refuels),
     [FILES.liveMessages]: json(dataset.live.messages),
+    [FILES.invoicesPlan]: json(dataset.invoices),
     [FILES.groundTruth]: json(dataset.groundTruth),
   };
 }

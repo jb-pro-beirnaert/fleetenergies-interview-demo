@@ -128,7 +128,7 @@ The screen routes return the real names (authenticated human — out of V1 scope
 ## V2 — Invoices
 - `POST /api/invoices` (device token, multipart `file` + `receivedAt`):
   1. stores the PDF in `INVOICE_STORAGE_DIR` (Docker volume);
-  2. extracts the text in code (PDF library to be proposed); if there is no text → `failed`;
+  2. extracts the text in code (**unpdf**, the library the simulator tests already use to re-read the PDFs); if there is no text → `failed`;
   3. **injection detection in code** on the raw text (patterns: "ignore … instructions", "system instruction(s)", "system prompt", "you are an assistant", "you are", "assistant:") → `suspicious = true` + excerpt;
   4. creates an `extract_invoice` task. Status `received`.
 - `GET /agent/invoices/:id/text` (agent) → `{ invoiceId, text, receivedAt }`, text masked by the `pii` module.

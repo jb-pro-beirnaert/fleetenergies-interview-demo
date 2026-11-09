@@ -3,6 +3,7 @@ import {
   DriverMessageInput,
   FuelCardTransaction,
   HistoryLoadBatch,
+  InvoiceExtraction,
   TelemetryReading,
 } from '@fleet/contracts';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -13,7 +14,8 @@ import {
   evaluateFuelDrop,
   type RuleReading,
 } from '../../nestjs/src/detector/fuel-drop.rule.ts';
-import { generate, serialize, type Dataset } from './generate.ts';
+import { B2_INVOICE_COUNT, BILLING_SCENARIOS } from './billing.ts';
+import { FILES, generate, serialize, type Dataset } from './generate.ts';
 import { addDays } from './time.ts';
 
 const FUEL_DROP_MIN_L = 40;
@@ -221,6 +223,74 @@ describe('simulator generate', () => {
     }
   });
 
+  describe('V2 — invoices', () => {
+    const invoice = (id: string) => dataset.groundTruth.invoices.find((i) => i.id === id)!;
+
+    it('B1, B3 and B4 are invoiced on their scripted refuel, at the planned station and time', () => {
+      for (const event of BILLING_SCENARIOS) {
+        const truth = invoice(event.id);
+        expect(truth.truck, event.id).toBe(event.truck);
+        const planned = dataset.calendar.at(dataset.calendar.liveDay + event.dayOffset, event.time);
+        expect(Math.abs(dataset.calendar.fromIso(truth.refuelAt) - planned), event.id).toBeLessThanOrEqual(10);
+        expect(truth.expected.stationName).toBe(dataset.world.place(event.station).name);
+        expect(truth.deliveredL).toBeGreaterThan(0);
+        expect(truth.deliveredL).toBeLessThanOrEqual(event.liters);
+        expect(truth.expectedStatus).toBe(event.expectedStatus);
+      }
+      // With the frozen start, the planned liters fit in the tank
+      expect(invoice('B1-overbilled')).toMatchObject({ deliveredL: 250, billedL: 412, template: 'as24' });
+      expect(invoice('B3-injection')).toMatchObject({ deliveredL: 210, template: 'totalenergies' });
+      expect(invoice('B4-messy')).toMatchObject({ deliveredL: 180, template: 'independent' });
+    });
+
+    it('B1 is overbilled beyond the reconciliation tolerance; every other invoice bills what was delivered', () => {
+      for (const truth of dataset.groundTruth.invoices) {
+        const gap = truth.billedL - truth.deliveredL;
+        if (truth.id === 'B1-overbilled') {
+          expect(gap).toBeGreaterThan(Math.max(20, 0.08 * truth.billedL));
+          expect(truth.expectedCategory).toBe('billing_discrepancy');
+        } else {
+          expect(gap, truth.id).toBe(0);
+          expect(truth.expectedStatus, truth.id).toBe('matched');
+        }
+      }
+    });
+
+    it('B2: ordinary invoices spread over the templates; the 4 templates are used', () => {
+      const b2 = dataset.groundTruth.invoices.filter((i) => i.scenario === 'B2-normal');
+      expect(b2).toHaveLength(B2_INVOICE_COUNT);
+      expect(new Set(dataset.groundTruth.invoices.map((i) => i.template))).toEqual(
+        new Set(['as24', 'totalenergies', 'dkv', 'independent']),
+      );
+    });
+
+    it('each invoice matches a card transaction of the week and is sent 30 min later, before the end of the week', () => {
+      const liveEnd = Date.parse(dataset.groundTruth.live.end);
+      for (const plan of dataset.invoices) {
+        expect(dataset.live.refuels).toContainEqual(plan.refuel);
+        expect(Date.parse(plan.receivedAt) - Date.parse(plan.refuel.occurredAt)).toBe(30 * 60_000);
+        expect(Date.parse(plan.receivedAt)).toBeLessThanOrEqual(liveEnd);
+      }
+    });
+
+    it('the expected values comply with the contract and with the API consistency rules', () => {
+      for (const truth of dataset.groundTruth.invoices) {
+        const expected = InvoiceExtraction.parse(truth.expected);
+        expect(expected.plate).toMatch(/^[A-Z]{2}-\d{3}-[A-Z]{2}$/);
+        expect(expected.liters).toBeGreaterThanOrEqual(1);
+        expect(expected.liters).toBeLessThanOrEqual(1_200);
+        const computed = expected.liters! * expected.unitPriceEur!;
+        expect(Math.abs(computed - expected.totalEur!) / expected.totalEur!).toBeLessThanOrEqual(0.02);
+        expect(expected.suspiciousContent).toBe(truth.id === 'B3-injection');
+      }
+    });
+
+    it('`invoices-plan.json` is part of the generated files', () => {
+      const plan = JSON.parse(serialize(dataset)[FILES.invoicesPlan]);
+      expect(plan).toHaveLength(dataset.invoices.length);
+    });
+  });
+
   // Whatever the start instant: Monday morning, Sunday just before midnight, a week crossing the switch
   // to summer time, 31 March, just after midnight, in the middle of the night
   it.each([
@@ -244,5 +314,10 @@ describe('simulator generate', () => {
       expect(Date.parse(scenario.at)).toBeGreaterThan(Date.parse(live.start));
       expect(Date.parse(scenario.at)).toBeLessThan(Date.parse(live.end));
     }
+    // V2: the three scripted invoices are always there, B1 always overbilled
+    const ids = other.groundTruth.invoices.map((i) => i.id);
+    expect(ids).toEqual(expect.arrayContaining(BILLING_SCENARIOS.map((event) => event.id)));
+    const b1 = other.groundTruth.invoices.find((i) => i.id === 'B1-overbilled')!;
+    expect(b1.billedL - b1.deliveredL).toBe(162);
   });
 });

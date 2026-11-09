@@ -9,3 +9,4 @@ export * from './fleet.ts';
 export * from './admin.ts';
 export * from './simulation.ts';
 export * from './simulation-constants.ts';
+export * from './invoice.ts';

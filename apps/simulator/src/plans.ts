@@ -1,10 +1,11 @@
 // Day plans: random typical day, and scripted days for the scenario trucks
 // on the day of their scenario (the truck must be stopped at the right place type at the planned time).
 
+import { BILLING_SCENARIOS, type BillingScenarioDef } from './billing.ts';
 import { roadKm } from './geo.ts';
 import { createRng, round, type Rng } from './rng.ts';
 import { HISTORY_EVENTS, SCENARIOS } from './scenarios.ts';
-import { TruckSim } from './simulate.ts';
+import { REFUEL_AT_OFFSET_MIN, TruckSim } from './simulate.ts';
 import type { TruckDef, World } from './world.ts';
 
 type DayPlan = (sim: TruckSim, rng: Rng, day: number) => void;
@@ -138,6 +139,29 @@ const SCENARIO_SCRIPTS: Record<string, DayPlan> = {
 };
 
 /**
+ * Day of a billing scenario truck: departure early enough, deliveries if time allows,
+ * scripted refuel at the planned station and time, deliveries, back to the depot.
+ */
+const billingDay =
+  (event: BillingScenarioDef): DayPlan =>
+  (sim, rng, day) => {
+    const refuelAt = at(sim, day, event.time);
+    const here = sim.placeCode ?? sim.truck.homeDepot;
+    const lead = REFUEL_AT_OFFSET_MIN + 15;
+    const directDeparture = refuelAt - lead - Math.ceil(sim.driveMinutes(here, event.station) * 1.15);
+    sim.stayUntil(Math.min(at(sim, day, '06:30'), directDeparture));
+    runTrips(sim, rng, { until: refuelAt - lead, next: event.station, maxVisits: 2 });
+    sim.plannedRefuel(event.station, refuelAt, event.liters, event.id);
+    runTrips(sim, rng, { until: at(sim, day, '19:30'), next: sim.truck.homeDepot, maxVisits: 2 });
+    sim.driveTo(sim.truck.homeDepot);
+  };
+
+for (const event of BILLING_SCENARIOS) {
+  if (SCENARIO_SCRIPTS[event.truck]) throw new Error(`${event.truck} already has a scenario script`);
+  SCENARIO_SCRIPTS[event.truck] = billingDay(event);
+}
+
+/**
  * Simulates a truck over the whole period. On Sunday, the truck stays put, except
  * on the day of its scenario (always a working day) and the day before a night-time episode at a rest area.
  */
@@ -151,7 +175,9 @@ export function simulateTruck(world: World, truck: TruckDef): TruckSim {
   });
   const restAreaNights = new Set<number>();
   const scriptDays = new Set(
-    SCENARIOS.filter((event) => event.truck === truck.code).map((event) => cal.liveDay + event.dayOffset),
+    [...SCENARIOS, ...BILLING_SCENARIOS]
+      .filter((event) => event.truck === truck.code)
+      .map((event) => cal.liveDay + event.dayOffset),
   );
   for (const event of [...SCENARIOS, ...HISTORY_EVENTS]) {
     const day = cal.liveDay + event.dayOffset;
@@ -164,6 +190,12 @@ export function simulateTruck(world: World, truck: TruckDef): TruckSim {
         liters: event.amountL,
         label: event.id,
       });
+    }
+  }
+  for (const event of BILLING_SCENARIOS) {
+    const day = cal.liveDay + event.dayOffset;
+    if (event.truck === truck.code) {
+      sim.holdRefuels.push({ from: cal.dayStart(day - 1), until: cal.at(day, event.time) });
     }
   }
   for (let day = 0; day < cal.days; day++) {

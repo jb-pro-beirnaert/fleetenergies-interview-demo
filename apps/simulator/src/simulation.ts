@@ -10,6 +10,8 @@ import {
   type SimulationView,
 } from '@fleet/contracts';
 import { generate } from './generate.ts';
+import { renderInvoices } from './invoice-pdf.ts';
+import type { InvoicePlan } from './invoices.ts';
 import { historyBatches } from './load.ts';
 import { planSteps, type ReplayStep } from './replay.ts';
 import type { SimDataset, SimStore } from './store.ts';
@@ -35,6 +37,8 @@ export interface SimulationOptions {
   /** Start instant of the simulated week (UTC ms); `Date.now()` by default. */
   now?: () => number;
   generateDataset?: (seed: number, startMs: number) => SimDataset;
+  /** V2: renders the invoices of the week as PDFs (file name → content). */
+  renderInvoicePdfs?: (invoices: readonly InvoicePlan[]) => Promise<ReadonlyMap<string, Uint8Array>>;
   /** Real duration of a step of 5 simulated minutes. */
   stepDelayMs?: (speed: SimulationSpeed) => number;
   log?: (line: string) => void;
@@ -43,7 +47,7 @@ export interface SimulationOptions {
 export class CommandRejected extends Error {}
 
 export function datasetOf(seed: number, startMs: number): SimDataset {
-  const { calendar, reference, history, live } = generate(seed, startMs);
+  const { calendar, reference, history, live, invoices } = generate(seed, startMs);
   return {
     seed,
     demoDate: calendar.demoDate,
@@ -52,6 +56,7 @@ export function datasetOf(seed: number, startMs: number): SimDataset {
     reference,
     history,
     live,
+    invoices,
   };
 }
 
@@ -87,6 +92,7 @@ export class Simulation {
     this.options = {
       now: () => Date.now(),
       generateDataset: datasetOf,
+      renderInvoicePdfs: renderInvoices,
       stepDelayMs: (speed) => STEP_MS / speed,
       log: (line) => console.log(line),
       ...options,
@@ -225,6 +231,10 @@ export class Simulation {
         log(`Preparing the week from ${new Date(startMs).toISOString()} (seed ${this.options.seed})…`);
         this.dataset = this.options.generateDataset(this.options.seed, startMs);
         await store.writeDataset(this.dataset);
+        // V2: the invoices of the week are rendered once, at start (sent during the replay)
+        const pdfs = await this.options.renderInvoicePdfs(this.dataset.invoices ?? []);
+        await store.writeInvoices(pdfs);
+        log(`${pdfs.size} PDF invoices rendered`);
         this.demoDate = this.dataset.demoDate;
         await this.persist();
       }

@@ -31,10 +31,10 @@ From the containers, Ollama is reachable at `http://host.docker.internal:11434/v
 | `mcp-server` | `apps/mcp-server` | 3100 | nestjs | |
 | `investigator` | `apps/agents` (command `node dist/investigator.js`) | — | nestjs, mcp-server | `deploy.replicas: 1` (set to 2 or 3 for the parallelism demo) |
 | `extractor` | `apps/agents` (command `node dist/extractor.js`) | — | nestjs | V2 |
-| `simulator` | `apps/simulator` (command `node src/cli.ts serve`, no build: type stripping) | 3200 | nestjs | `simdata` volume (`/data`: `state.json`, `dataset.json`); `/health` healthcheck |
+| `simulator` | `apps/simulator` (command `node src/cli.ts serve`, no build: type stripping) | 3200 | nestjs | `simdata` volume (`/data`: `state.json`, `dataset.json`, V2 `live-invoices/`); `/health` healthcheck |
 | `web` | `apps/web` (Angular build served by nginx) | 4200 | nestjs, simulator | proxy `/api` → nestjs, `/simulation` → simulator (`ng serve` in dev, nginx in prod) |
 
-The simulator is a long-running service, driven from the control room. Only the generator (V2) is run from the host. `simulator generate --out` remains available from the host for debugging (`npm run sim -- generate`).
+The simulator is a long-running service, driven from the control room; it also renders the V2 PDF invoices (spec 10). `simulator generate --out` remains available from the host for debugging (`npm run sim -- generate`).
 
 ## Images
 - One multi-stage Dockerfile per application (`node:24-alpine`), built from the monorepo root to include `packages/contracts`.
@@ -51,9 +51,9 @@ The simulator is a long-running service, driven from the control room. Only the 
 | `MCP_CLIENT_TOKEN` | mcp-server, agents | `dev-mcp-token` |
 | `API_URL` | mcp-server, agents, simulator | `http://nestjs:3000` (containers), `http://localhost:3000` (host) |
 | `MCP_URL` | agents | `http://mcp-server:3100/mcp` |
-| `LLM_BASE_URL` | agents, generator | `http://host.docker.internal:11434/v1` |
-| `LLM_API_KEY` | agents, generator | `ollama` |
-| `LLM_MODEL` | agents, generator | `fleet-qwen` |
+| `LLM_BASE_URL` | agents | `http://host.docker.internal:11434/v1` |
+| `LLM_API_KEY` | agents | `ollama` |
+| `LLM_MODEL` | agents | `fleet-qwen` |
 | `FUEL_DROP_MIN_L` | api | `40` |
 | `DETECTOR_DEBOUNCE_SECONDS` | api | `15` |
 | `AUTO_CLOSE_MIN_CONFIDENCE` | api | `0.75` |
@@ -72,11 +72,10 @@ The tokens above are development values: `.env` is ignored by Git, only `.env.ex
 | Script | Effect |
 |---|---|
 | `npm run up` | `docker compose up -d --build` |
-| `npm run sim -- generate` | (debugging) writes the dataset to `data/generated/` (ignored by Git) |
+| `npm run sim -- generate` | (debugging) writes the dataset and the PDF invoices to `data/generated/` (ignored by Git) |
 | `npm run dev:db:reset` | deletes the volumes (`pgdata` and `simdata`) and restarts |
 | `npm test` | tests of all workspaces |
 | `npm run lint` | ESLint + Prettier |
-| `npm run generate:docs` | (V2) invoice and message generator |
 
 ## Continuous integration (from V1 on)
 GitHub Actions on every push: install, lint, TypeScript compilation, unit tests of all workspaces, API integration tests with a Postgres service. No model call in CI (the worker tests use a fake model).

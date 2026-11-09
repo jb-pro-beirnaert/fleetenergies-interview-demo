@@ -10,7 +10,7 @@ The specs in `specs/` are authoritative and carry the project memory. Start with
 
 Language: everything in the repository (code, comments, tests, specs, docs, log and error messages, LLM prompts and tool descriptions) is written in **English**. Only the web UI is bilingual: English (default) and French, through the dictionaries in `apps/web/src/app/core/i18n/` (see `specs/07-web.md`, "Languages").
 
-Current state: API V1 (M2 + M3) implemented in `apps/nestjs` with its contracts in `packages/contracts`; driven simulator (M6b) in `apps/simulator`: permanent Compose service, state machine (`idle` → `preparing` → `running` ⇄ `paused` → `finished`), dataset generated in memory on every "Start", state resumed from the `simdata` volume; MCP server V1 (M4, 7 tools, Express + stateless Streamable HTTP) in `apps/mcp-server`; control room (M6) in `apps/web`, with the simulation bar and the EN/FR switch; `investigator` is a stub.
+Current state: API V1 (M2 + M3) implemented in `apps/nestjs` with its contracts in `packages/contracts`; driven simulator (M6b) in `apps/simulator`: permanent Compose service, state machine (`idle` → `preparing` → `running` ⇄ `paused` → `finished`), dataset generated in memory on every "Start", state resumed from the `simdata` volume; MCP server V1 (M4, 7 tools, Express + stateless Streamable HTTP) in `apps/mcp-server`; control room (M6) in `apps/web`, with the simulation bar and the EN/FR switch; `investigator` is a stub. V2 in progress: M8 done — billing scenarios B1–B4 and PDF invoices rendered by the simulator at each "Start" (pdfmake, 4 hard-coded templates with variations, `apps/simulator/src/{billing,invoices,invoice-pdf}.ts`, spec 10), `InvoiceExtraction` contract; the API side (M9) and the invoice replay (M10) are not done yet.
 
 ## Commands
 
@@ -47,7 +47,7 @@ Simulation: driven from the control room (`http://localhost:4200`, "Simulation" 
 curl -X POST localhost:3200/simulation/start             # same as the "Start" button
 npm run sim -- generate                                  # debugging: writes the dataset to data/generated/ (ignored by Git)
 ```
-`apps/simulator` is run directly by Node 24 (type stripping, relative imports in `.ts`, no build; `node --watch` in dev). The `generate.spec.ts` test applies the API detector rule (`apps/nestjs/src/detector/fuel-drop.rule.ts`) to the generated data: any change to the rule or to the physics must keep it green. `simulation.spec.ts` covers the state machine with a fake backend.
+`apps/simulator` is run directly by Node 24 (type stripping, relative imports in `.ts`, no build; `node --watch` in dev). The `generate.spec.ts` test applies the API detector rule (`apps/nestjs/src/detector/fuel-drop.rule.ts`) to the generated data: any change to the rule or to the physics must keep it green. `simulation.spec.ts` covers the state machine with a fake backend. `invoice-pdf.spec.ts` re-reads the rendered PDFs with unpdf.
 
 Script planned by the specs but not created yet: `npm run smoke:tools -w apps/agents`.
 

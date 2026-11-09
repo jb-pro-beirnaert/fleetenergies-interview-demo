@@ -1,10 +1,12 @@
 // Simulator CLI (spec 04): serve | generate.
 
+import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { SIMULATION_SPEEDS, SimulationSpeed } from '@fleet/contracts';
 import { ApiClient, apiBackend, configFromEnv } from './api.ts';
-import { DEFAULT_DATA_DIR, writeFiles } from './files.ts';
+import { DEFAULT_DATA_DIR, INVOICES_DIR, writeFiles } from './files.ts';
 import { generate, serialize } from './generate.ts';
+import { renderInvoices } from './invoice-pdf.ts';
 import { createControlServer } from './server.ts';
 import { Simulation } from './simulation.ts';
 import { fileStore } from './store.ts';
@@ -89,6 +91,11 @@ async function main(argv: string[]): Promise<number> {
       const seed = parseSeed(values.seed);
       const dataset = generate(seed, parseStart(values.start));
       await writeFiles(values.out, serialize(dataset));
+      const pdfs = await renderInvoices(dataset.invoices);
+      await writeFiles(join(values.out, INVOICES_DIR), {
+        ...Object.fromEntries(pdfs),
+        'manifest.json': `${JSON.stringify(dataset.groundTruth.invoices, null, 2)}\n`,
+      });
       const cal = dataset.calendar;
       const at = (minute: number) => stamp(Date.parse(cal.toIso(minute)));
       console.log(`Seed ${seed}, from ${cal.startDate} to ${cal.endDate} (${cal.days} days, Paris time) → ${values.out}`);
@@ -100,6 +107,10 @@ async function main(argv: string[]): Promise<number> {
       }
       for (const s of dataset.groundTruth.scenarios) {
         console.log(`  ${s.id.padEnd(13)} ${s.truck} ${s.plate} ${s.localDate} ${s.localTime}  ${s.place.name}`);
+      }
+      console.log(`  ${pdfs.size} PDF invoices → ${join(values.out, INVOICES_DIR)}`);
+      for (const i of dataset.groundTruth.invoices) {
+        console.log(`  ${i.id.padEnd(13)} ${i.truck} ${i.plate} ${i.refuelAt}  ${i.template.padEnd(13)} ${i.deliveredL} L → billed ${i.billedL} L`);
       }
       return 0;
     }

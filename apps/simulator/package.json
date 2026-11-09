@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@fleet/contracts": "*",
+    "pdfmake": "0.3.13",
     "uuid": "^14.0.3",
     "zod": "^4.6.7"
   },
@@ -19,6 +20,7 @@
     "@types/node": "^24.19.2",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
+    "unpdf": "1.9.1",
     "vitest": "^4.1.12"
   }
 }

@@ -1,9 +1,11 @@
 // Simulation persistence on the simulator volume (spec 04): `state.json` and `dataset.json`.
 
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { SimulationSpeed, SimulationStatus } from '@fleet/contracts';
+import { INVOICES_DIR } from './files.ts';
 import type { ActivityData } from './generate.ts';
+import type { InvoicePlan } from './invoices.ts';
 import type { Reference } from './world.ts';
 
 /** What the replay sends: computed once at `start`, never regenerated during the simulation. */
@@ -17,6 +19,8 @@ export interface SimDataset {
   reference: Reference;
   history: ActivityData;
   live: ActivityData;
+  /** V2: invoices of the week; their PDFs are rendered at `start` into the store. */
+  invoices: InvoicePlan[];
 }
 
 export interface SimState {
@@ -34,6 +38,9 @@ export interface SimStore {
   writeState(state: SimState): Promise<void>;
   readDataset(): Promise<SimDataset | null>;
   writeDataset(dataset: SimDataset): Promise<void>;
+  /** Replaces the rendered invoices (file name → PDF). */
+  writeInvoices(files: ReadonlyMap<string, Uint8Array>): Promise<void>;
+  readInvoice(file: string): Promise<Uint8Array | null>;
   clear(): Promise<void>;
 }
 
@@ -68,18 +75,39 @@ export function fileStore(dir: string): SimStore {
     return result;
   }
 
+  /** Serialised on the same queue as the JSON writes. */
+  function enqueue(action: () => Promise<void>): Promise<void> {
+    const result = writes.then(action);
+    writes = result.catch(() => undefined);
+    return result;
+  }
+
+  const invoicesDir = path(INVOICES_DIR);
+
   return {
     readState: () => read<SimState>(STATE),
     writeState: (state) => write(STATE, state),
     readDataset: () => read<SimDataset>(DATASET),
     writeDataset: (dataset) => write(DATASET, dataset),
-    clear() {
-      const result = writes.then(async () => {
+    writeInvoices: (files) =>
+      enqueue(async () => {
+        await rm(invoicesDir, { recursive: true, force: true });
+        await mkdir(invoicesDir, { recursive: true });
+        for (const [name, content] of files) await writeFile(join(invoicesDir, basename(name)), content);
+      }),
+    async readInvoice(file) {
+      try {
+        return new Uint8Array(await readFile(join(invoicesDir, basename(file))));
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+        throw error;
+      }
+    },
+    clear: () =>
+      enqueue(async () => {
         await rm(path(STATE), { force: true });
         await rm(path(DATASET), { force: true });
-      });
-      writes = result.catch(() => undefined);
-      return result;
-    },
+        await rm(invoicesDir, { recursive: true, force: true });
+      }),
   };
 }
