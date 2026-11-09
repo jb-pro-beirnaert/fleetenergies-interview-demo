@@ -1,7 +1,7 @@
 // Simulator control API (spec 04), proxied by the control room under `/simulation`.
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import { SimulationCommand, SimulationSpeedRequest } from '@fleet/contracts';
+import { SIMULATION_SPEEDS, SimulationCommand, SimulationSpeedRequest } from '@fleet/contracts';
 import { CommandRejected, type Simulation } from './simulation.ts';
 
 const MAX_BODY_BYTES = 1_000;
@@ -18,7 +18,7 @@ async function readJson(req: IncomingMessage): Promise<unknown> {
   let raw = '';
   for await (const chunk of req) {
     raw += chunk;
-    if (raw.length > MAX_BODY_BYTES) throw new SyntaxError('Corps trop volumineux');
+    if (raw.length > MAX_BODY_BYTES) throw new SyntaxError('Body too large');
   }
   return raw === '' ? undefined : JSON.parse(raw);
 }
@@ -32,7 +32,7 @@ export function createControlServer(simulation: Simulation): Server {
 
       if (req.method === 'PUT' && path === '/simulation/speed') {
         const parsed = SimulationSpeedRequest.safeParse(await readJson(req).catch(() => null));
-        if (!parsed.success) return problem(res, 400, 'Vitesse invalide (paliers : 30, 60, 120, 300, 600)');
+        if (!parsed.success) return problem(res, 400, `Invalid speed (steps: ${SIMULATION_SPEEDS.join(', ')})`);
         return send(res, 200, await simulation.setSpeed(parsed.data.speed));
       }
 

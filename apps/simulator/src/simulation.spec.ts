@@ -15,10 +15,12 @@ const reading = (recordedAt: string) => ({
   truckId: TRUCK, recordedAt, lat: 44, lon: 4.8, speedKmh: 0, ignition: false, fuelLevelL: 300, odometerKm: 1000,
 });
 
-/** Minimal dataset: day replayed from 02:00 to 02:45 (10 steps), one alert at the 02:20 step. */
-const tinyDataset = (seed: number, today: string): SimDataset => ({
+/** Minimal dataset: replayed from 02:00 to 02:45 (10 steps), one alert at the 02:20 step. */
+const tinyDataset = (seed: number, startMs: number): SimDataset => ({
   seed,
-  demoDate: today,
+  demoDate: new Date(startMs).toISOString().slice(0, 10),
+  liveStart: new Date(startMs).toISOString(),
+  liveEnd: iso('02:45'),
   reference: { carriers: [], places: [], trucks: [], drivers: [], assignments: [] },
   history: {
     telemetry: Array.from({ length: 1_200 }, (_, i) => reading(new Date(Date.UTC(2026, 9, 10) + i * 300_000).toISOString())),
@@ -77,17 +79,15 @@ describe('Simulation', () => {
   let dir: string;
   let store: SimStore;
   let backend: FakeBackend;
-  const delays: Record<number, number> = { 30: 10_000, 60: 20, 120: 0, 300: 0, 600: 0 };
+  const delays: Record<number, number> = { 60: 10_000, 120: 20, 300: 0, 600: 0, 1000: 0, 2000: 0, 4000: 0 };
 
   const create = (overrides: Partial<SimulationOptions> = {}) =>
     new Simulation({
       backend,
       store,
       seed: 42,
-      speed: 60,
-      fromMin: parseHHMM('02:00'),
-      toMin: parseHHMM('02:45'),
-      today: () => DEMO_DAY,
+      speed: 120,
+      now: () => Date.parse(iso('02:00')),
       generateDataset: tinyDataset,
       stepDelayMs: (speed: SimulationSpeed) => delays[speed],
       log: () => {},
@@ -108,8 +108,8 @@ describe('Simulation', () => {
     backend = new FakeBackend();
   });
 
-  it('start: wipes the database, loads the history, replays the whole day then finishes', async () => {
-    const simulation = create({ speed: 120 });
+  it('start: wipes the database, loads the history, replays the whole period then finishes', async () => {
+    const simulation = create({ speed: 300 });
     const view = await simulation.command('start');
     expect(view.status).toBe('preparing');
     await until(() => statusOf(simulation) === 'finished');
@@ -177,7 +177,7 @@ describe('Simulation', () => {
   });
 
   it('a speed change applies without waiting for the end of the step', async () => {
-    const simulation = create({ speed: 30 }); // 10 s per step
+    const simulation = create({ speed: 60 }); // 10 s per step
     await simulation.command('start');
     await until(() => backend.sentClocks.length === 1);
     await simulation.setSpeed(600);
@@ -199,7 +199,7 @@ describe('Simulation', () => {
     expect(new Set(backend.sentClocks).size).toBe(10);
   });
 
-  it('resume after a restart: paused at the same time, then end of day without duplicates', async () => {
+  it('resume after a restart: paused at the same time, then end of the replay without duplicates', async () => {
     const first = create();
     await first.command('start');
     await until(() => backend.sentClocks.length >= 4);
@@ -207,9 +207,9 @@ describe('Simulation', () => {
     const clock = first.view().clock;
     const sent = [...backend.sentClocks];
 
-    const second = create({ speed: 120 });
+    const second = create({ speed: 300 });
     const view = await second.recover();
-    expect(view).toMatchObject({ status: 'paused', clock, speed: 60, demoDate: DEMO_DAY, progress: { done: sent.length, total: 10 } });
+    expect(view).toMatchObject({ status: 'paused', clock, speed: 120, demoDate: DEMO_DAY, progress: { done: sent.length, total: 10 } });
 
     await second.command('resume');
     await until(() => statusOf(second) === 'finished');
@@ -220,8 +220,8 @@ describe('Simulation', () => {
 
   it('resume of an interrupted loading: reloads the history then pauses at the start', async () => {
     // state left on the volume by a process stopped in the middle of loading
-    await store.writeDataset(tinyDataset(42, DEMO_DAY));
-    await store.writeState({ status: 'preparing', seed: 42, demoDate: DEMO_DAY, clock: null, speed: 60, alertsCreated: 0 });
+    await store.writeDataset(tinyDataset(42, Date.parse(iso('02:00'))));
+    await store.writeState({ status: 'preparing', seed: 42, demoDate: DEMO_DAY, clock: null, speed: 120, alertsCreated: 0 });
 
     const simulation = create();
     expect((await simulation.recover()).status).toBe('preparing');

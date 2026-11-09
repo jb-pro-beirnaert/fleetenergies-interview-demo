@@ -17,8 +17,11 @@ import { generate, serialize, type Dataset } from './generate.ts';
 import { addDays } from './time.ts';
 
 const FUEL_DROP_MIN_L = 40;
-/** Frozen run date: the period (06/10 → 06/11/2026) contains the switch to winter time on 25/10. */
+/** Frozen run date (Friday 06/11/2026); the history (from 06/10) contains the switch to winter time on 25/10. */
 const TODAY = '2026-11-06';
+/** Frozen start instant: 10:02 Paris time → demo week from 10:05 on 06/11 to 10:05 on 13/11. */
+const START = Date.parse('2026-11-06T09:02:00Z');
+const WEEK_MS = 7 * 24 * 3_600_000;
 
 const fingerprint = (files: Record<string, string>) =>
   createHash('sha256').update(JSON.stringify(files)).digest('hex');
@@ -64,25 +67,30 @@ function detect(dataset: Dataset): DetectedAlert[] {
 describe('simulator generate', () => {
   let dataset: Dataset;
   beforeAll(() => {
-    dataset = generate(42, TODAY);
+    dataset = generate(42, START);
   });
 
-  it('1. same seed and same date → identical files; other seed → different files', () => {
+  it('1. same seed and same start instant → identical files; other seed → different files', () => {
     const first = fingerprint(serialize(dataset));
-    expect(fingerprint(serialize(generate(42, TODAY)))).toBe(first);
-    expect(fingerprint(serialize(generate(43, TODAY)))).not.toBe(first);
+    expect(fingerprint(serialize(generate(42, START)))).toBe(first);
+    expect(fingerprint(serialize(generate(43, START)))).not.toBe(first);
   });
 
-  it('simulates one month up to the run date, the demo day being that day', () => {
+  it('simulates one month of history, then one week from the start instant', () => {
     const { groundTruth, calendar } = dataset;
-    expect(groundTruth.period).toEqual({ start: '2026-10-06', end: TODAY });
-    expect(groundTruth.demoDay).toBe(TODAY);
-    expect(calendar.days).toBe(32);
-    // First reading at midnight Paris time (UTC+2), last one at 23:55 on day D (UTC+1)
+    expect(groundTruth.period).toEqual({ start: '2026-10-06', end: '2026-11-13' });
+    expect(groundTruth.live).toEqual({ start: '2026-11-06T09:05:00.000Z', end: '2026-11-13T09:05:00.000Z' });
+    expect(calendar.demoDate).toBe(TODAY);
+    expect(calendar.days).toBe(39);
+    // First reading at midnight Paris time (UTC+2); the history stops right before the start
     expect(dataset.history.telemetry[0].recordedAt).toBe('2026-10-05T22:00:00.000Z');
-    expect(dataset.live.telemetry[0].recordedAt).toBe('2026-11-05T23:00:00.000Z');
-    expect(dataset.live.telemetry.at(-1)!.recordedAt).toBe('2026-11-06T22:55:00.000Z');
-    for (const scenario of groundTruth.scenarios) expect(scenario.localDate).toBe(TODAY);
+    expect(dataset.history.telemetry.at(-1)!.recordedAt).toBe('2026-11-06T09:00:00.000Z');
+    expect(dataset.live.telemetry[0].recordedAt).toBe('2026-11-06T09:05:00.000Z');
+    expect(dataset.live.telemetry.at(-1)!.recordedAt).toBe('2026-11-13T09:05:00.000Z');
+    // Scenarios spread over D + 1 … D + 6, all within the demo week
+    expect(groundTruth.scenarios.map((s) => s.localDate).sort()).toEqual(
+      [1, 1, 2, 3, 4, 5, 5, 6].map((offset) => addDays(TODAY, offset)),
+    );
   });
 
   it('the data complies with the contracts', () => {
@@ -99,9 +107,9 @@ describe('simulator generate', () => {
   });
 
   it('one reading every 5 minutes per truck, without gap or duplicate at the time change', () => {
-    // 31 days of history including the 25-hour 25/10
-    expect(dataset.history.telemetry).toHaveLength(12 * (31 * 288 + 12));
-    expect(dataset.live.telemetry).toHaveLength(12 * 288);
+    // 31 days of history including the 25-hour 25/10, plus 00:00 → 10:00 on D; then one week inclusive
+    expect(dataset.history.telemetry).toHaveLength(12 * (31 * 288 + 12 + 121));
+    expect(dataset.live.telemetry).toHaveLength(12 * (7 * 288 + 1));
     const instants = dataset.history.telemetry.map((r) => Date.parse(r.recordedAt));
     for (let i = 12; i < instants.length; i += 12) expect(instants[i] - instants[i - 12]).toBe(5 * 60_000);
   });
@@ -184,9 +192,12 @@ describe('simulator generate', () => {
   it('the history contains the two night-time drops of T07 at rest areas', () => {
     const events = dataset.groundTruth.historyEvents;
     expect(events.map((e) => [e.truck, e.localDate, e.amountL, e.place.type])).toEqual([
-      ['T07', addDays(TODAY, -11), 55, 'rest_area'],
-      ['T07', addDays(TODAY, -5), 60, 'rest_area'],
+      ['T07', addDays(TODAY, -9), 55, 'rest_area'],
+      ['T07', addDays(TODAY, -3), 60, 'rest_area'],
     ]);
+    // 11 and 5 days before S1 (D + 2)
+    const s1 = dataset.groundTruth.scenarios.find((s) => s.id === 'S1-theft')!;
+    expect(s1.localDate).toBe(addDays(TODAY, 2));
   });
 
   it('the scenario messages are present; S4 contains a mechanic name and phone number', () => {
@@ -210,18 +221,28 @@ describe('simulator generate', () => {
     }
   });
 
-  // Whatever the run date: Monday (day before = Sunday), Sunday, switch to summer time, 31 March
+  // Whatever the start instant: Monday morning, Sunday just before midnight, a week crossing the switch
+  // to summer time, 31 March, just after midnight, in the middle of the night
   it.each([
-    [42, '2026-11-09'],
-    [42, '2026-11-08'],
-    [42, '2026-03-31'],
-    [1, '2027-01-15'],
-    [7, '2026-11-06'],
-    [2026, '2026-06-20'],
-  ])('the generation stays valid (seed %i, run on %s)', (seed, today) => {
-    const other = generate(seed, today);
+    [42, '2026-11-09T07:00:00Z'],
+    [42, '2026-11-08T22:58:00Z'],
+    [42, '2026-03-26T13:37:00Z'],
+    [42, '2026-03-31T09:00:00Z'],
+    [1, '2027-01-15T23:01:00Z'],
+    [7, '2026-11-06T16:44:00Z'],
+    [2026, '2026-06-20T01:30:00Z'],
+  ])('the generation stays valid (seed %i, start at %s)', (seed, startIso) => {
+    const start = Date.parse(startIso);
+    const other = generate(seed, start);
     const alerts = detect(other);
     expect(alerts).toHaveLength(other.groundTruth.scenarios.length);
-    expect(other.groundTruth.scenarios.every((s) => s.localDate === today)).toBe(true);
+    const live = other.groundTruth.live;
+    expect(Date.parse(live.end) - Date.parse(live.start)).toBe(WEEK_MS);
+    expect(Date.parse(live.start) - start).toBeGreaterThanOrEqual(0);
+    expect(Date.parse(live.start) - start).toBeLessThan(5 * 60_000);
+    for (const scenario of other.groundTruth.scenarios) {
+      expect(Date.parse(scenario.at)).toBeGreaterThan(Date.parse(live.start));
+      expect(Date.parse(scenario.at)).toBeLessThan(Date.parse(live.end));
+    }
   });
 });

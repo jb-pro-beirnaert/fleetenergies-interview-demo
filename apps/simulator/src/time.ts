@@ -1,5 +1,6 @@
-// Simulated calendar, in Paris time: from day D − 1 month to day D (run date).
-// The last day (D) is the demo day (`live`); the previous ones form the history.
+// Simulated calendar, in Paris time: from D − 1 month to the end of the demo week,
+// D being the date of the simulation start. The demo week (`live`) runs from the start
+// instant (rounded up to the next 5-min step) to exactly 7 days later; what precedes is the history.
 // Internal time is a number of minutes since midnight (Paris time) of the first day.
 // Daylight saving changes are handled: a day can last 23 h or 25 h.
 
@@ -7,6 +8,8 @@ export const TIME_ZONE = 'Europe/Paris';
 /** One telematics reading every 5 minutes. */
 export const STEP_MIN = 5;
 export const STEP_MS = STEP_MIN * 60_000;
+/** Length of the demo week (`live`), in minutes. */
+export const LIVE_DURATION_MIN = 7 * 24 * 60;
 
 const wallClockFormat = new Intl.DateTimeFormat('en-CA', {
   timeZone: TIME_ZONE,
@@ -90,14 +93,18 @@ export function parseHHMM(value: string): number {
 export interface Calendar {
   /** First simulated day (D − 1 month). */
   startDate: string;
-  /** Demo day (D). */
+  /** Date of the simulation start (D, first day of the demo week). */
   demoDate: string;
+  /** Last day of the demo week (date of the `live` end). */
+  endDate: string;
   days: number;
-  /** Index of the demo day (the last day). */
+  /** Index of the day D. */
   liveDay: number;
-  /** Start minute of the demo day. */
+  /** Start minute of the demo week (start instant rounded up to the next 5-min step). */
   liveStartMin: number;
-  /** End of the period (midnight at the end of D). */
+  /** End minute of the demo week (`liveStartMin` + 7 days, included). */
+  liveEndMin: number;
+  /** End of the period (midnight at the end of the last day). */
   endMin: number;
   /** Minute of midnight (Paris time) of a day; `dayStart(days)` = end of the period. */
   dayStart(day: number): number;
@@ -105,29 +112,36 @@ export interface Calendar {
   /** Minute of a local time `HH:MM` on a given day. */
   at(day: number, hhmm: string): number;
   date(day: number): string;
-  /** 0 = dimanche … 6 = samedi. */
+  /** 0 = Sunday … 6 = Saturday. */
   weekday(day: number): number;
   toIso(minute: number): string;
   fromIso(iso: string): number;
   hhmm(minute: number): string;
 }
 
-export function buildCalendar(today: string): Calendar {
-  const demoDate = assertDate(today);
+/** `startMs`: simulation start instant (UTC ms), usually `Date.now()`. */
+export function buildCalendar(startMs: number): Calendar {
+  if (!Number.isFinite(startMs)) throw new Error(`Invalid start instant: ${startMs}`);
+  const demoDate = localDateOf(startMs);
   const startDate = minusOneMonth(demoDate);
-  const dates: string[] = [];
-  for (let date = startDate; date <= demoDate; date = addDays(date, 1)) dates.push(date);
   const startUtcMs = localToUtcMs(startDate, 0);
   const toMin = (utcMs: number) => Math.round((utcMs - startUtcMs) / 60_000);
-  const dayStarts = [...dates, addDays(demoDate, 1)].map((date) => toMin(localToUtcMs(date, 0)));
+  const liveStartMin = Math.ceil((startMs - startUtcMs) / STEP_MS) * STEP_MIN;
+  const liveEndMin = liveStartMin + LIVE_DURATION_MIN;
+  const endDate = localDateOf(startUtcMs + liveEndMin * 60_000);
+  const dates: string[] = [];
+  for (let date = startDate; date <= endDate; date = addDays(date, 1)) dates.push(date);
+  const dayStarts = [...dates, addDays(endDate, 1)].map((date) => toMin(localToUtcMs(date, 0)));
   const days = dates.length;
 
   const calendar: Calendar = {
     startDate,
     demoDate,
+    endDate,
     days,
-    liveDay: days - 1,
-    liveStartMin: dayStarts[days - 1],
+    liveDay: dates.indexOf(demoDate),
+    liveStartMin,
+    liveEndMin,
     endMin: dayStarts[days],
     dayStart: (day) => dayStarts[day],
     dayOf(minute) {

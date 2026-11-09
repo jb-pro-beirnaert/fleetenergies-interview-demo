@@ -17,7 +17,7 @@ export const EN = {
   'header.tab.invoices': 'Invoices',
   'header.tab.invoicesSoon': 'Available in V2',
   'header.clock.label': 'Simulated time',
-  'header.clock.title': 'Latest reading received for the demo day',
+  'header.clock.title': 'Latest reading received for the demo week',
   'header.model.title': 'Model used by the agents',
   'header.model.none': 'model —',
   'header.health.ok': 'API available',
@@ -44,7 +44,7 @@ export const EN = {
   'sim.status.preparing': 'Preparing…',
   'sim.status.preparingProgress': 'Preparing… {done} / {total} batches',
   'sim.status.running': 'Running',
-  'sim.status.runningDay': 'Running · day of {day}',
+  'sim.status.runningWeek': 'Running · week from {day}',
   'sim.status.paused': 'Paused',
   'sim.status.finished': 'Finished',
 

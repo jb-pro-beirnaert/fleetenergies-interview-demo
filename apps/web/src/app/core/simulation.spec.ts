@@ -28,10 +28,10 @@ describe('simulation', () => {
   });
 
   it('moves to the neighbouring speed step, without going past the bounds', () => {
-    expect(neighbourSpeed(120, 1)).toBe(300);
-    expect(neighbourSpeed(120, -1)).toBe(60);
-    expect(neighbourSpeed(600, 1)).toBeNull();
-    expect(neighbourSpeed(30, -1)).toBeNull();
+    expect(neighbourSpeed(1000, 1)).toBe(2000);
+    expect(neighbourSpeed(1000, -1)).toBe(600);
+    expect(neighbourSpeed(4000, 1)).toBeNull();
+    expect(neighbourSpeed(60, -1)).toBeNull();
   });
 
   it('describes the state in English by default', () => {
@@ -39,7 +39,7 @@ describe('simulation', () => {
       'Preparing… 42 / 216 batches',
     );
     expect(simulationLabel(view({ status: 'running', demoDate: '2026-11-06' }))).toBe(
-      'Running · day of 06/11',
+      'Running · week from 06/11',
     );
     expect(simulationLabel(view({ status: 'finished' }))).toBe('Finished');
   });
@@ -50,7 +50,7 @@ describe('simulation', () => {
       'Préparation… 42 / 216 lots',
     );
     expect(simulationLabel(view({ status: 'running', demoDate: '2026-11-06' }))).toBe(
-      'En cours · journée du 06/11',
+      'En cours · semaine du 06/11',
     );
     expect(simulationLabel(view({ status: 'finished' }))).toBe('Terminée');
   });

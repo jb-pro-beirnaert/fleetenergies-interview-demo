@@ -66,7 +66,7 @@ Two carriers from V1 on: V3 will be able to demonstrate multi-tenant isolation w
 | ignition | boolean | engine ignition |
 | fuel_level_l | numeric(6,1) | level measured by the sensor |
 | odometer_km | numeric(9,1) | |
-| source | enum `reading_source` | `history`, `live` — makes it possible to reset the demo day |
+| source | enum `reading_source` | `history`, `live` — makes it possible to reset the demo week |
 
 Constraints and indexes: `unique (truck_id, recorded_at)` (ingestion idempotency); index `(truck_id, recorded_at desc)`.
 Note for the interview: at FleetEnergies this table would live in ClickHouse; here ~50,000 rows are plenty for Postgres. Monthly partitioning is a possible evolution, not a need.
@@ -214,4 +214,4 @@ An `in_progress` task whose lock has expired and whose `attempts >= max_attempts
 | data_origin | enum `reading_source` | |
 
 ## Full reset
-`POST /admin/wipe` empties **all** tables (`TRUNCATE … CASCADE`): reference data, history, demo day, alerts, investigations, steps, reviews, tasks and (V2) invoices. Called by the simulator on every "Start" and "Reset": every simulation starts from an empty database. The simulation state is not stored in the database (see `04-simulator.md`).
+`POST /admin/wipe` empties **all** tables (`TRUNCATE … CASCADE`): reference data, history, demo week, alerts, investigations, steps, reviews, tasks and (V2) invoices. Called by the simulator on every "Start" and "Reset": every simulation starts from an empty database. The simulation state is not stored in the database (see `04-simulator.md`).

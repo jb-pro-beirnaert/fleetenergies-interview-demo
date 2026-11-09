@@ -1,4 +1,4 @@
-// Replay of the demo day (spec 04, "Replay"): splitting into steps and sending one step.
+// Replay of the demo week (spec 04, "Replay"): splitting into steps and sending one step.
 // The pace (speed, pause, stop) is driven by the simulation (`simulation.ts`).
 
 import type {

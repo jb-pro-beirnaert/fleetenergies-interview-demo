@@ -48,15 +48,15 @@ TelemetryBatch = { readings: TelemetryReading[1..500], source: 'history' | 'live
 ## Simulation (simulator control API)
 ```ts
 SimulationStatus  = 'idle' | 'preparing' | 'running' | 'paused' | 'finished'
-SIMULATION_SPEEDS = [30, 60, 120, 300, 600]           // steps; SimulationSpeed = one of them
+SIMULATION_SPEEDS = [60, 120, 300, 600, 1000, 2000, 4000]   // steps; SimulationSpeed = one of them
 SimulationCommand = 'start' | 'pause' | 'resume' | 'stop' | 'reset'
 SIMULATION_COMMANDS: Record<SimulationStatus, SimulationCommand[]>   // commands accepted per state
 SimulationView = {
   status: SimulationStatus,
-  demoDate: 'YYYY-MM-DD' | null,
+  demoDate: 'YYYY-MM-DD' | null,        // D: date of the start, first day of the demo week
   clock: ISO datetime | null,            // simulated time of the last step sent
   speed: SimulationSpeed,
-  progress: { done: int, total: int } | null,   // history batches (preparing) or steps of the day
+  progress: { done: int, total: int } | null,   // history batches (preparing) or steps of the week
   alertsCreated: int,
   error: string | null,
 }

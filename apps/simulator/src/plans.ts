@@ -1,5 +1,5 @@
 // Day plans: random typical day, and scripted days for the scenario trucks
-// on 14/10 (the truck must be stopped at the right place type at the planned time).
+// on the day of their scenario (the truck must be stopped at the right place type at the planned time).
 
 import { roadKm } from './geo.ts';
 import { createRng, round, type Rng } from './rng.ts';
@@ -73,8 +73,8 @@ export const workday = (
   sim.driveTo(restArea ? nearestRestArea(sim) : sim.truck.homeDepot);
 };
 
-/** Scripted days of 14/10 (one script per scenario truck). */
-const LIVE_SCRIPTS: Record<string, DayPlan> = {
+/** Scripted day of each scenario truck, played on the day of its scenario. */
+const SCENARIO_SCRIPTS: Record<string, DayPlan> = {
   // S6: artefact at the depot at 05:50, departure afterwards
   T01: (sim, rng, day) => workday(sim, rng, day, { departAt: at(sim, day, '06:35') }),
 
@@ -139,7 +139,7 @@ const LIVE_SCRIPTS: Record<string, DayPlan> = {
 
 /**
  * Simulates a truck over the whole period. On Sunday, the truck stays put, except
- * on the demo day (always a working day) and the day before a night-time episode at a rest area.
+ * on the day of its scenario (always a working day) and the day before a night-time episode at a rest area.
  */
 export function simulateTruck(world: World, truck: TruckDef): TruckSim {
   const { cal } = world;
@@ -150,6 +150,9 @@ export function simulateTruck(world: World, truck: TruckDef): TruckSim {
     odometerKm: round(rng.float(90_000, 650_000), 1),
   });
   const restAreaNights = new Set<number>();
+  const scriptDays = new Set(
+    SCENARIOS.filter((event) => event.truck === truck.code).map((event) => cal.liveDay + event.dayOffset),
+  );
   for (const event of [...SCENARIOS, ...HISTORY_EVENTS]) {
     const day = cal.liveDay + event.dayOffset;
     if (event.truck !== truck.code || day < 1) continue;
@@ -164,10 +167,10 @@ export function simulateTruck(world: World, truck: TruckDef): TruckSim {
     }
   }
   for (let day = 0; day < cal.days; day++) {
-    const live = day === cal.liveDay;
+    const scripted = scriptDays.has(day);
     const forced = restAreaNights.has(day);
-    if (cal.weekday(day) === 0 && !live && !forced) continue;
-    const script = live ? LIVE_SCRIPTS[truck.code] : undefined;
+    if (cal.weekday(day) === 0 && !scripted && !forced) continue;
+    const script = scripted ? SCENARIO_SCRIPTS[truck.code] : undefined;
     if (script) script(sim, rng, day);
     else workday(sim, rng, day, forced ? { nightOnRestArea: true } : {});
     if (sim.t >= cal.dayStart(day + 1) - 60) {

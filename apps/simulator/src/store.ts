@@ -9,8 +9,11 @@ import type { Reference } from './world.ts';
 /** What the replay sends: computed once at `start`, never regenerated during the simulation. */
 export interface SimDataset {
   seed: number;
-  /** Demo day (D, Paris date). */
+  /** Date of the simulation start (D, Paris date). */
   demoDate: string;
+  /** Demo week replayed: start (start instant rounded up to 5 min) and end (+7 days), ISO UTC. */
+  liveStart: string;
+  liveEnd: string;
   reference: Reference;
   history: ActivityData;
   live: ActivityData;

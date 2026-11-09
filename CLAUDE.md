@@ -42,7 +42,7 @@ Ollama runs **on the host**, outside Docker (Metal GPU); the containers reach it
 ollama pull qwen2.5:7b-instruct && ollama create fleet-qwen -f infra/ollama/Modelfile
 ```
 
-Simulation: driven from the control room (`http://localhost:4200`, "Simulation" bar: Start, Pause / Resume, Finish, speed ×30 → ×600, Reset). "Start" calls `POST /admin/wipe`, generates the dataset (seed `SIM_SEED`, D = today in Paris), loads the history then replays the day from `SIM_FROM`. Control API without authentication on port 3200 (`GET /simulation`, `POST /simulation/{start,pause,resume,stop,reset}`, `PUT /simulation/speed`), proxied under `/simulation` by `ng serve` / nginx.
+Simulation: driven from the control room (`http://localhost:4200`, "Simulation" bar: Start, Pause / Resume, Finish, speed ×60 → ×4000, Reset). "Start" calls `POST /admin/wipe`, generates the dataset (seed `SIM_SEED`, start = `Date.now()`), loads the history (D − 1 month → start) then replays the demo week (start → start + 7 days; ≈ 5 min at ×2000, the default `SIM_SPEED`). Control API without authentication on port 3200 (`GET /simulation`, `POST /simulation/{start,pause,resume,stop,reset}`, `PUT /simulation/speed`), proxied under `/simulation` by `ng serve` / nginx.
 ```bash
 curl -X POST localhost:3200/simulation/start             # same as the "Start" button
 npm run sim -- generate                                  # debugging: writes the dataset to data/generated/ (ignored by Git)

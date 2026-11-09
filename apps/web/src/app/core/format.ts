@@ -1,6 +1,6 @@
 import { currentLang, currentLocale } from './i18n/i18n';
 
-// The demo day is in Paris time, whatever the browser's time zone
+// The demo week is in Paris time, whatever the browser's time zone
 const TZ = 'Europe/Paris';
 
 interface Formatters {

@@ -50,8 +50,8 @@ export interface GroundTruth {
   timeZone: string;
   /** Simulated period (Paris local dates, bounds included). */
   period: { start: string; end: string };
-  /** Demo day (`live`) = last day of the period. */
-  demoDay: string;
+  /** Demo week (`live`): from the start instant to 7 days later (ISO UTC instants). */
+  live: { start: string; end: string };
   trucks: Record<string, { id: string; plate: string }>;
   scenarios: GroundTruthEvent[];
   historyEvents: GroundTruthEvent[];
@@ -137,8 +137,11 @@ function buildMessages(world: World, sims: TruckSim[]): { minute: number; messag
   // 1 or 2 everyday messages per working day and per driver, depending on the truck's situation
   for (const sim of sims) {
     const rng = createRng(world.seed, 'messages', sim.truck.code);
+    const scenarioDays = new Set(
+      SCENARIOS.filter((event) => event.truck === sim.truck.code).map((event) => eventDay(cal, event)),
+    );
     for (let day = 0; day < cal.days; day++) {
-      if (cal.weekday(day) === 0 && day !== cal.liveDay) continue;
+      if (cal.weekday(day) === 0 && !scenarioDays.has(day)) continue;
       const count = rng.int(1, 2);
       for (let i = 0; i < count; i++) {
         const minute = cal.at(day, '07:00') + rng.int(0, 12 * 60);
@@ -152,11 +155,12 @@ function buildMessages(world: World, sims: TruckSim[]): { minute: number; messag
 }
 
 /**
- * Generates the period [today − 1 month; today] (Paris dates), `today` being the demo day.
- * Deterministic: same seed and same date → same files.
+ * Generates the period [D − 1 month; start + 7 days] (Paris dates), D being the date of `startMs`.
+ * The demo week (`live`) runs from `startMs` (rounded up to the next 5-min step) to 7 days later.
+ * Deterministic: same seed and same start instant → same files.
  */
-export function generate(seed: number, today: string): Dataset {
-  const cal = buildCalendar(today);
+export function generate(seed: number, startMs: number): Dataset {
+  const cal = buildCalendar(startMs);
   const world = buildWorld(seed, cal);
   const sims = world.trucks.map((truck) => simulateTruck(world, truck));
   const simOf = (code: string) => sims.find((sim) => sim.truck.code === code)!;
@@ -230,11 +234,13 @@ export function generate(seed: number, today: string): Dataset {
     .sort((a, b) => a.minute - b.minute || a.refuel.truckId.localeCompare(b.refuel.truckId));
 
   const messages = buildMessages(world, sims);
-  const isLive = (item: { minute: number }) => item.minute >= cal.liveStartMin;
-  const split = (live: boolean): ActivityData => ({
-    telemetry: telemetry.filter((x) => isLive(x) === live).map((x) => x.reading),
-    refuels: refuels.filter((x) => isLive(x) === live).map((x) => x.refuel),
-    messages: messages.filter((x) => isLive(x) === live).map((x) => x.message),
+  // After the end of the demo week: simulated (whole days) but never sent
+  const periodOf = (item: { minute: number }) =>
+    item.minute < cal.liveStartMin ? 'history' : item.minute <= cal.liveEndMin ? 'live' : null;
+  const split = (period: 'history' | 'live'): ActivityData => ({
+    telemetry: telemetry.filter((x) => periodOf(x) === period).map((x) => x.reading),
+    refuels: refuels.filter((x) => periodOf(x) === period).map((x) => x.refuel),
+    messages: messages.filter((x) => periodOf(x) === period).map((x) => x.message),
   });
 
   return {
@@ -242,13 +248,13 @@ export function generate(seed: number, today: string): Dataset {
     calendar: cal,
     world,
     reference: buildReference(world),
-    history: split(false),
-    live: split(true),
+    history: split('history'),
+    live: split('live'),
     groundTruth: {
       seed,
       timeZone: TIME_ZONE,
-      period: { start: cal.startDate, end: cal.demoDate },
-      demoDay: cal.demoDate,
+      period: { start: cal.startDate, end: cal.endDate },
+      live: { start: cal.toIso(cal.liveStartMin), end: cal.toIso(cal.liveEndMin) },
       trucks: Object.fromEntries(
         world.trucks.map((t) => [t.code, { id: world.id('truck', t.code), plate: t.plate }]),
       ),

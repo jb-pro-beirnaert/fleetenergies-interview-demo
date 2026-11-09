@@ -27,12 +27,12 @@ export type SimulationCommand = z.infer<typeof SimulationCommand>;
 export const SimulationView = z
   .object({
     status: SimulationStatus,
-    /** Demo day (D, Paris date) */
+    /** Date of the simulation start (D, Paris date): first day of the demo week */
     demoDate: z.iso.date().nullable(),
     /** Simulated time of the last step sent */
     clock: z.iso.datetime({ offset: true }).nullable(),
     speed: SimulationSpeed,
-    /** History batches during `preparing`, steps of the day afterwards */
+    /** History batches during `preparing`, steps of the week afterwards */
     progress: z.object({ done: z.int().min(0), total: z.int().min(0) }).nullable(),
     alertsCreated: z.int().min(0),
     error: z.string().nullable(),

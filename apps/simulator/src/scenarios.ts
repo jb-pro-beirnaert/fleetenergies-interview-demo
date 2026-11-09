@@ -1,4 +1,5 @@
-// Scenarios injected into the curves (spec 04, "Demo day scenarios").
+// Scenarios injected into the curves (spec 04, "Demo week scenarios").
+// They are spread over days D + 1 … D + 6: always after the start instant, whatever its time.
 
 import type { PlaceType, VerdictCategory } from '@fleet/contracts';
 import { firstName, type DriverDef } from './world.ts';
@@ -12,7 +13,7 @@ export type ScenarioKind =
 export interface ScenarioDef {
   id: string;
   truck: string;
-  /** Day of the episode relative to the demo day (0 = demo day, −5 = five days before). */
+  /** Day of the episode relative to D, the day the simulation starts (1 = the next day, −3 = three days before). */
   dayOffset: number;
   time: string;
   kind: ScenarioKind;
@@ -31,7 +32,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S1-theft',
     truck: 'T07',
-    dayOffset: 0,
+    dayOffset: 2,
     time: '02:35',
     kind: 'drain',
     amountL: 180,
@@ -41,7 +42,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
     clues: [
       'no refuel',
       'no message',
-      'history: two night-time drops of −55 L (D − 11) and −60 L (D − 5) at rest areas',
+      'history: two night-time drops of −55 L (11 days before) and −60 L (5 days before) at rest areas',
     ],
     expectedCategory: 'theft_suspected',
     acceptableCategories: ['theft_suspected'],
@@ -49,7 +50,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S2-sensor',
     truck: 'T03',
-    dayOffset: 0,
+    dayOffset: 1,
     time: '07:10',
     kind: 'sensor_artifact',
     amountL: 90,
@@ -68,7 +69,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S3-reefer',
     truck: 'T10',
-    dayOffset: 0,
+    dayOffset: 3,
     time: '11:05',
     kind: 'drain',
     amountL: 50,
@@ -87,7 +88,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S4-workshop',
     truck: 'T05',
-    dayOffset: 0,
+    dayOffset: 4,
     time: '14:20',
     kind: 'drain',
     amountL: 120,
@@ -106,7 +107,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S5-ambiguous',
     truck: 'T09',
-    dayOffset: 0,
+    dayOffset: 5,
     time: '22:40',
     kind: 'drain',
     amountL: 70,
@@ -120,7 +121,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S6-sensor',
     truck: 'T01',
-    dayOffset: 0,
+    dayOffset: 1,
     time: '05:50',
     kind: 'sensor_artifact',
     amountL: 55,
@@ -134,7 +135,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S7-sensor',
     truck: 'T12',
-    dayOffset: 0,
+    dayOffset: 5,
     time: '16:30',
     kind: 'sensor_artifact',
     amountL: 48,
@@ -148,7 +149,7 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   {
     id: 'S8-reefer',
     truck: 'T11',
-    dayOffset: 0,
+    dayOffset: 6,
     time: '19:15',
     kind: 'drain',
     amountL: 45,
@@ -161,12 +162,12 @@ export const SCENARIOS: readonly ScenarioDef[] = [
   },
 ];
 
-/** S1's prior events in the history (no alert: detection only covers `live` data). */
+/** S1's prior events (11 and 5 days before S1) in the history (no alert: detection only covers `live` data). */
 export const HISTORY_EVENTS: readonly ScenarioDef[] = [
   {
     id: 'H1-theft',
     truck: 'T07',
-    dayOffset: -11,
+    dayOffset: -9,
     time: '03:10',
     kind: 'drain',
     amountL: 55,
@@ -180,7 +181,7 @@ export const HISTORY_EVENTS: readonly ScenarioDef[] = [
   {
     id: 'H2-theft',
     truck: 'T07',
-    dayOffset: -5,
+    dayOffset: -3,
     time: '01:50',
     kind: 'drain',
     amountL: 60,

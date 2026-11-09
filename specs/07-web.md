@@ -16,9 +16,9 @@ The UI is available in **English (default)** and **French**, switchable from the
 ## Layout (wide screen, ≥ 1,280 px)
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Fleet Copilot · Control room   Simulated time 06/11 02:47  model  EN FR │
+│ Fleet Copilot · Control room   Simulated time 09/11 14:47  model  EN FR │
 ├──────────────────────────────────────────────────────────────────────┤
-│ Simulation: ▶ Start  ⏸ Pause  ⏹ Finish  − ×120 +  ↺ Reset     state │
+│ Simulation: ▶ Start  ⏸ Pause  ⏹ Finish  − ×2000 + ↺ Reset     state │
 ├───────────────┬──────────────────────────────────────┬───────────────┤
 │ Alert         │ Selected investigation               │ Value         │
 │ feed          │ (header, trace, verdict, review)     │               │
@@ -31,10 +31,10 @@ Title, simulated time (`stats.simulatedNow`), model used, language switch, green
 
 ## Simulation bar
 Below the header, full width, fed by `GET /simulation` (2 s polling):
-- **Start**, **Pause** / **Resume** (a single button depending on the state), **Finish**, **−** / **speed** / **+** (steps ×30 → ×600), **Reset** (asks for confirmation: "All data will be deleted").
+- **Start**, **Pause** / **Resume** (a single button depending on the state), **Finish**, **−** / **speed** / **+** (steps ×60 → ×4000), **Reset** (asks for confirmation: "All data will be deleted").
 - Each button is disabled when the command is not accepted in the current state (`SIMULATION_COMMANDS` from the contracts); after a command, the returned view replaces the displayed state without waiting for the polling.
-- Readable state: "Ready to start", "Preparing… 42 / 216 batches", "Running · day of 06/11", "Paused", "Finished"; number of alerts created; error message if any (`error`) in red; "Simulator unreachable" if `/simulation` does not answer.
-- During `preparing`, a progress bar; during `running`, the progress of the day (steps sent / total).
+- Readable state: "Ready to start", "Preparing… 42 / 216 batches", "Running · week from 06/11", "Paused", "Finished"; number of alerts created; error message if any (`error`) in red; "Simulator unreachable" if `/simulation` does not answer.
+- During `preparing`, a progress bar; during `running`, the progress of the week (steps sent / total).
 
 ## Alert feed (left)
 - List of alerts, most recent at the top; a new alert appears with a subtle animation.

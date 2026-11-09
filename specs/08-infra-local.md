@@ -61,8 +61,7 @@ The simulator is a long-running service, driven from the control room. Only the 
 | `MAX_TOOL_CALLS` | agents | `10` |
 | `INVOICE_STORAGE_DIR` | api | `/data/invoices` (V2) |
 | `SIM_SEED` | simulator | `42` |
-| `SIM_SPEED` | simulator | `120` (initial speed, one of the steps) |
-| `SIM_FROM` | simulator | `02:00` (Paris time at which the replay starts) |
+| `SIM_SPEED` | simulator | `2000` (initial speed, one of the steps; ≈ 5 min for the demo week) |
 | `SIM_PORT` | simulator | `3200` |
 | `SIM_DATA_DIR` | simulator | `/data` (`simdata` volume) |
 | `SIMULATION_PROXY_TARGET` | web (dev) | `http://simulator:3200` |

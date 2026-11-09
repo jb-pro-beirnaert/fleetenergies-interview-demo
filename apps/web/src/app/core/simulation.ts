@@ -28,7 +28,7 @@ export function simulationLabel(view: SimulationView): string {
         : t('sim.status.preparing');
     case 'running':
       return view.demoDate
-        ? t('sim.status.runningDay', { day: fmtDayMonth(view.demoDate) })
+        ? t('sim.status.runningWeek', { day: fmtDayMonth(view.demoDate) })
         : t('sim.status.running');
     case 'paused':
       return t('sim.status.paused');

@@ -17,7 +17,7 @@ export const FR: Messages = {
   'header.tab.invoices': 'Factures',
   'header.tab.invoicesSoon': 'Disponible en V2',
   'header.clock.label': 'Heure simulée',
-  'header.clock.title': 'Dernier relevé reçu de la journée de démo',
+  'header.clock.title': 'Dernier relevé reçu de la semaine de démo',
   'header.model.title': 'Modèle utilisé par les agents',
   'header.model.none': 'modèle —',
   'header.health.ok': 'API disponible',
@@ -44,7 +44,7 @@ export const FR: Messages = {
   'sim.status.preparing': 'Préparation…',
   'sim.status.preparingProgress': 'Préparation… {done} / {total} lots',
   'sim.status.running': 'En cours',
-  'sim.status.runningDay': 'En cours · journée du {day}',
+  'sim.status.runningWeek': 'En cours · semaine du {day}',
   'sim.status.paused': 'En pause',
   'sim.status.finished': 'Terminée',
 

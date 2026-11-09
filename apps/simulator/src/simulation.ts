@@ -13,7 +13,7 @@ import { generate } from './generate.ts';
 import { historyBatches } from './load.ts';
 import { planSteps, type ReplayStep } from './replay.ts';
 import type { SimDataset, SimStore } from './store.ts';
-import { STEP_MS, localHHMM, localToUtcMs, todayInParis } from './time.ts';
+import { STEP_MS, localDateOf, localHHMM } from './time.ts';
 
 /** API access (replaced by a fake in the tests). */
 export interface Backend {
@@ -30,13 +30,11 @@ export interface SimulationOptions {
   backend: Backend;
   store: SimStore;
   seed: number;
-  /** Vitesse initiale. */
+  /** Initial speed. */
   speed: SimulationSpeed;
-  /** Start and end of the replay, in minutes since midnight (Paris time). */
-  fromMin: number;
-  toMin: number;
-  today?: () => string;
-  generateDataset?: (seed: number, today: string) => SimDataset;
+  /** Start instant of the simulated week (UTC ms); `Date.now()` by default. */
+  now?: () => number;
+  generateDataset?: (seed: number, startMs: number) => SimDataset;
   /** Real duration of a step of 5 simulated minutes. */
   stepDelayMs?: (speed: SimulationSpeed) => number;
   log?: (line: string) => void;
@@ -44,10 +42,21 @@ export interface SimulationOptions {
 
 export class CommandRejected extends Error {}
 
-export function datasetOf(seed: number, today: string): SimDataset {
-  const { calendar, reference, history, live } = generate(seed, today);
-  return { seed, demoDate: calendar.demoDate, reference, history, live };
+export function datasetOf(seed: number, startMs: number): SimDataset {
+  const { calendar, reference, history, live } = generate(seed, startMs);
+  return {
+    seed,
+    demoDate: calendar.demoDate,
+    liveStart: calendar.toIso(calendar.liveStartMin),
+    liveEnd: calendar.toIso(calendar.liveEndMin),
+    reference,
+    history,
+    live,
+  };
 }
+
+/** Short simulated date and time (Paris), for the logs. */
+const stamp = (utcMs: number) => `${localDateOf(utcMs).slice(5)} ${localHHMM(utcMs)}`;
 
 const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
@@ -76,7 +85,7 @@ export class Simulation {
 
   constructor(options: SimulationOptions) {
     this.options = {
-      today: () => todayInParis(),
+      now: () => Date.now(),
       generateDataset: datasetOf,
       stepDelayMs: (speed) => STEP_MS / speed,
       log: (line) => console.log(line),
@@ -124,7 +133,7 @@ export class Simulation {
       this.speed = speed;
       this.wake?.();
       await this.persist();
-      this.options.log(`Vitesse ×${speed}`);
+      this.options.log(`Speed ×${speed}`);
     });
   }
 
@@ -212,9 +221,9 @@ export class Simulation {
     try {
       if (fresh) {
         await backend.wipe();
-        const today = this.options.today();
-        log(`Preparing the day of ${today} (seed ${this.options.seed})…`);
-        this.dataset = this.options.generateDataset(this.options.seed, today);
+        const startMs = this.options.now();
+        log(`Preparing the week from ${new Date(startMs).toISOString()} (seed ${this.options.seed})…`);
+        this.dataset = this.options.generateDataset(this.options.seed, startMs);
         await store.writeDataset(this.dataset);
         this.demoDate = this.dataset.demoDate;
         await this.persist();
@@ -229,7 +238,7 @@ export class Simulation {
         this.loadProgress = { done: this.loadProgress.done + 1, total: batches.length };
       }
       if (signal.aborted) return false;
-      this.steps = this.planDay(dataset);
+      this.steps = this.planWeek(dataset);
       this.status = fresh ? 'running' : 'paused';
       await this.persist();
       log(`History loaded (${batches.length} batches); ${this.steps.length} steps to replay`);
@@ -245,13 +254,11 @@ export class Simulation {
     }
   }
 
-  private planDay(dataset: SimDataset): ReplayStep[] {
-    const from = localToUtcMs(dataset.demoDate, this.options.fromMin);
-    const to = localToUtcMs(dataset.demoDate, this.options.toMin);
-    return planSteps(dataset.live, from, to);
+  private planWeek(dataset: SimDataset): ReplayStep[] {
+    return planSteps(dataset.live, Date.parse(dataset.liveStart), Date.parse(dataset.liveEnd));
   }
 
-  // --- Rejeu ----------------------------------------------------------------------------------
+  // --- Replay ----------------------------------------------------------------------------------
 
   /** Sends the remaining steps at the current speed, as long as the state is `running`. */
   private async run(signal: AbortSignal) {
@@ -267,7 +274,7 @@ export class Simulation {
       } catch (error) {
         if (signal.aborted) return;
         this.status = 'paused';
-        this.error = `Could not send the ${localHHMM(step.clock)} step: ${errorMessage(error)}`;
+        this.error = `Could not send the ${stamp(step.clock)} step: ${errorMessage(error)}`;
         await this.persist();
         log(this.error);
         return;
@@ -277,7 +284,7 @@ export class Simulation {
       this.alertsCreated += alerts;
       await this.persist();
       log(
-        `${localHHMM(step.clock)} │ readings ${String(step.telemetry.length).padStart(3)} · refuels ${step.refuels.length} · messages ${step.messages.length} │ ` +
+        `${stamp(step.clock)} │ readings ${String(step.telemetry.length).padStart(3)} · refuels ${step.refuels.length} · messages ${step.messages.length} │ ` +
           (alerts > 0 ? `alerts +${alerts} (total ${this.alertsCreated}) 🚨` : `alerts ${this.alertsCreated}`),
       );
       if (index < steps.length - 1) await this.waitNextStep(startedAt);
@@ -285,7 +292,7 @@ export class Simulation {
     if (this.status === 'running' && !signal.aborted) {
       this.status = 'finished';
       await this.persist();
-      log(`Day finished: ${this.alertsCreated} alert(s) created`);
+      log(`Week finished: ${this.alertsCreated} alert(s) created`);
     }
   }
 
@@ -346,7 +353,8 @@ export class Simulation {
 
       const dataset = await store.readDataset();
       const emptied = state.status !== 'preparing' && !(await backend.hasReference());
-      if (!dataset || dataset.seed !== state.seed || emptied) {
+      // `liveStart` missing: dataset of an older simulator version (single demo day)
+      if (!dataset || dataset.seed !== state.seed || !dataset.liveStart || emptied) {
         log('Simulation state without matching data: back to "idle"');
         await store.clear();
         this.status = 'idle';
@@ -363,11 +371,11 @@ export class Simulation {
         this.background(this.prepare(this.abort.signal, { fresh: false }).then(() => undefined));
         return;
       }
-      this.steps = this.planDay(dataset);
+      this.steps = this.planWeek(dataset);
       this.status = state.status === 'finished' ? 'finished' : 'paused';
       await this.persist();
       if (this.status === 'paused') {
-        log(`Simulation resumed, paused at ${this.clock === null ? 'its start' : localHHMM(this.clock)}`);
+        log(`Simulation resumed, paused at ${this.clock === null ? 'its start' : stamp(this.clock)}`);
       }
     });
   }
