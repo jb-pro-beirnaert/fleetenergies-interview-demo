@@ -106,7 +106,7 @@ Verdict = {
   evidence: {
     toolCallId: string,   // reference "E1", "E2"… assigned by the worker; must match a tool call actually made
     finding: string,      // what that call showed (≤ 200 characters)
-  }[1..6],
+  }[1..8],             // MAX_EVIDENCE; the prompt asks for 1 to 6, small models often cite one per tool call
 }
 ```
 The verdict does **not** contain a recommendation: the API decides (see `03-api.md`, "Decision after the verdict").

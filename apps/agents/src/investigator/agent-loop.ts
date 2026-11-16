@@ -10,7 +10,7 @@ import type { ChatModel } from '../shared/llm.js';
 import { log } from '../shared/logger.js';
 import type { ToolProvider } from '../shared/mcp-client.js';
 import { buildSystemPrompt, buildUserMessage, PROMPT_VERSION } from './prompt.js';
-import { checkVerdict, SUBMIT_VERDICT, verdictTool } from './verdict-tool.js';
+import { checkVerdict, collectFacts, emptyFacts, SUBMIT_VERDICT, verdictTool } from './verdict-tool.js';
 
 export const MAX_VERDICT_RETRIES = 2;
 export const MAX_NUDGES = 2;
@@ -163,6 +163,8 @@ export async function investigate(
   ];
   // Evidence references, in call order: E1, E2…
   const refs = new Set<string>();
+  // Facts computed by the API, read from the tool results, to check the verdict's category
+  const facts = emptyFacts();
   let verdictRetries = 0;
   let nudges = 0;
   let budgetNotified = false;
@@ -220,6 +222,7 @@ export async function investigate(
       durationMs: Math.round(performance.now() - started),
       payload: outcome.ok ? { result: truncateResult(outcome.result) } : { error: outcome.error },
     });
+    if (outcome.ok) collectFacts(facts, call.name, outcome.result);
     // An error is sent back as is: the model can correct its arguments
     return JSON.stringify(outcome.ok ? { ref, result: outcome.result } : { ref, error: outcome.error });
   }
@@ -270,7 +273,7 @@ export async function investigate(
       verdictAttempted = true;
       const args = parseArguments(call.rawArguments);
       const check = args
-        ? checkVerdict(args, refs, context.type)
+        ? checkVerdict(args, refs, context.type, facts)
         : { ok: false as const, message: `Arguments of ${SUBMIT_VERDICT} must be a JSON object.` };
       if (check.ok) return submit(check.verdict);
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Verdict, type AlertType, type VerdictCategory } from '@fleet/contracts';
+import { MAX_EVIDENCE, Verdict, type AlertType, type VerdictCategory } from '@fleet/contracts';
 import type { ChatCompletionTool } from 'openai/resources/chat/completions';
 
 export const SUBMIT_VERDICT = 'submit_verdict';
@@ -30,12 +30,83 @@ export const ALLOWED_CATEGORIES: Record<AlertType, readonly VerdictCategory[]> =
   billing_mismatch: ['billing_discrepancy', 'sensor_fault', 'inconclusive'],
 };
 
-// Schema validation, allowed category, then every cited reference must be a tool call actually made
+/** Facts read from the tool results (computed by the API), used to reject a category they contradict. */
+export type InvestigationFacts = {
+  tankCurveSeen: boolean;
+  levelRecovered: boolean;
+  profileSeen: boolean;
+  sensorNotes: boolean;
+  hasReefer: boolean;
+  messagesSeen: boolean;
+  hasMessages: boolean;
+};
+
+export const emptyFacts = (): InvestigationFacts => ({
+  tankCurveSeen: false,
+  levelRecovered: false,
+  profileSeen: false,
+  sensorNotes: false,
+  hasReefer: false,
+  messagesSeen: false,
+  hasMessages: false,
+});
+
+const asRecord = (value: unknown): Record<string, unknown> =>
+  typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+
+export function collectFacts(facts: InvestigationFacts, toolName: string, result: unknown): void {
+  const r = asRecord(result);
+  if (toolName === 'get_tank_curve') {
+    facts.tankCurveSeen = true;
+    if (Array.isArray(r.recoveries) && r.recoveries.length > 0) facts.levelRecovered = true;
+  } else if (toolName === 'get_truck_profile') {
+    facts.profileSeen = true;
+    facts.sensorNotes = typeof r.sensorNotes === 'string' && r.sensorNotes.trim() !== '';
+    facts.hasReefer = r.hasReefer === true;
+  } else if (toolName === 'read_driver_messages') {
+    facts.messagesSeen = true;
+    if (Array.isArray(r.messages) && r.messages.length > 0) facts.hasMessages = true;
+  }
+}
+
+// Small models sometimes pick a category their own evidence contradicts: the code checks the
+// required clue of each benign category (fuel_drop alerts only; spec 06, "Verdict guardrails")
+function contradiction(category: VerdictCategory, facts: InvestigationFacts): string | null {
+  if (category === 'sensor_fault' && facts.tankCurveSeen && !facts.levelRecovered && !facts.sensorNotes) {
+    return (
+      'sensor_fault requires the level to recover without a refuel or known sensor notes, but the tank curve shows ' +
+      'no recovery ("recoveries" is empty)' +
+      (facts.profileSeen ? ' and the truck has no sensor notes' : ' (call get_truck_profile to check sensor notes)') +
+      '. A drop that stays low is not a sensor fault'
+    );
+  }
+  if (category === 'equipment_transfer' && facts.profileSeen && !facts.hasReefer) {
+    return 'equipment_transfer requires equipment fed by the tank, but the truck has no reefer unit (hasReefer is false)';
+  }
+  if (category === 'legitimate_operation' && facts.messagesSeen && !facts.hasMessages) {
+    return 'legitimate_operation requires a driver message about a planned intervention, but there is no driver message over the period';
+  }
+  return null;
+}
+
+// Schema validation, allowed category, consistency with the facts, then every cited reference
+// must be a tool call actually made
 export function checkVerdict(
   args: unknown,
   knownRefs: ReadonlySet<string>,
   alertType: AlertType = 'fuel_drop',
+  facts: InvestigationFacts = emptyFacts(),
 ): VerdictCheck {
+  // Too many evidence items: the generic Zod message ("Too big") makes small models repeat the mistake
+  const evidence = (args as { evidence?: unknown } | null)?.evidence;
+  if (Array.isArray(evidence) && evidence.length > MAX_EVIDENCE) {
+    return {
+      ok: false,
+      message:
+        `Invalid verdict: ${evidence.length} evidence items, at most ${MAX_EVIDENCE} are allowed. ` +
+        `Keep only the most decisive ones (one per tool result). Call ${SUBMIT_VERDICT} again.`,
+    };
+  }
   const parsed = Verdict.safeParse(args);
   if (!parsed.success) {
     const issues = parsed.error.issues
@@ -50,6 +121,13 @@ export function checkVerdict(
       message:
         `Invalid verdict: category "${parsed.data.category}" does not apply to a ${alertType} alert. ` +
         `Choose one of: ${allowed.join(', ')}. Call ${SUBMIT_VERDICT} again.`,
+    };
+  }
+  const conflict = alertType === 'fuel_drop' ? contradiction(parsed.data.category, facts) : null;
+  if (conflict) {
+    return {
+      ok: false,
+      message: `Invalid verdict: ${conflict}. Choose another category. Call ${SUBMIT_VERDICT} again.`,
     };
   }
   const unknown = parsed.data.evidence

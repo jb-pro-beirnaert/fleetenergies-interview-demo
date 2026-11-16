@@ -8,12 +8,15 @@ export const Evidence = z.object({
 });
 export type Evidence = z.infer<typeof Evidence>;
 
+// The prompt asks for 1 to 6 items; small models often cite one per tool call, hence the margin
+export const MAX_EVIDENCE = 8;
+
 export const Verdict = z
   .object({
     category: VerdictCategory,
     confidence: z.number().min(0).max(1),
     summary: z.string().min(40).max(600),
-    evidence: z.array(Evidence).min(1).max(6),
+    evidence: z.array(Evidence).min(1).max(MAX_EVIDENCE),
   })
   .meta({ id: 'Verdict' });
 export type Verdict = z.infer<typeof Verdict>;
